@@ -40,8 +40,11 @@ const EmailVerification = () => {
       }}
     >
       {/* Top Bar */}
-      <div className="absolute top-4 left-4 flex items-center text-white font-bold text-lg cursor-pointer" onClick={() => navigate(-1)}>
-        <FaArrowLeft className="mr-2" /> Email Verification
+      <div className="absolute top-0 left-0 w-full">
+        <div className="flex items-center px-4 py-4 text-white font-bold text-lg cursor-pointer" onClick={() => navigate(-1)}>
+          <FaArrowLeft className="mr-2" /> Email Verification
+        </div>
+        <div className="border-b border-black w-full" />
       </div>
 
       {/* Form Box */}
@@ -82,14 +85,15 @@ const EmailVerification = () => {
             type="submit"
             className="w-full py-3 rounded-md font-semibold text-white transition duration-300"
             style={{
-              background: 'linear-gradient(to right, #F67F00, #CF4602)',
+              background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
             }}
             onMouseEnter={(e) =>
-              (e.target.style.background = 'linear-gradient(to right, #CF4602, #F67F00)')
+              (e.target.style.background = 'linear-gradient(to bottom, #CF4602, #F67F00)')
             }
             onMouseLeave={(e) =>
-              (e.target.style.background = 'linear-gradient(to right, #F67F00, #CF4602)')
+              (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
+            onClick={() => navigate('/reset-password')}
           >
             Verify and Proceed
           </button>

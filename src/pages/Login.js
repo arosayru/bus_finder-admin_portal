@@ -8,6 +8,7 @@ import logo from '../assets/logo.png';
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -54,24 +55,32 @@ const Login = () => {
               value={form.email}
               onChange={handleChange}
               placeholder="Email or username"
-              className="w-full p-3 pl-10 border border-orange-300 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01]" />
+            <FaUser className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01]" />
           </div>
 
           <div className="relative">
             <input
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={form.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full p-3 pl-10 border border-orange-300 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <FaEye className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01]" />
+            <div
+              className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <FaEye className="text-[#BD2D01]" />
+            </div>
           </div>
 
-          <div className="text-right text-sm text-[#BD2D01] hover:underline cursor-pointer">
+          <div
+            className="text-right text-sm text-[#BD2D01] hover:underline cursor-pointer"
+            onClick={() => navigate('/forgot-password')}
+          >
             Forgot Password?
           </div>
 
@@ -83,13 +92,13 @@ const Login = () => {
             type="submit"
             className="w-full py-3 rounded-md font-semibold text-white transition duration-300"
             style={{
-              background: 'linear-gradient(to right, #F67F00, #CF4602)',
+              background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
             }}
             onMouseEnter={(e) =>
-              (e.target.style.background = 'linear-gradient(to right, #CF4602, #F67F00)')
+              (e.target.style.background = 'linear-gradient(to bottom, #CF4602, #F67F00)')
             }
             onMouseLeave={(e) =>
-              (e.target.style.background = 'linear-gradient(to right, #F67F00, #CF4602)')
+              (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
           >
             Log In

@@ -21,7 +21,6 @@ const ResetPassword = () => {
       return;
     }
 
-    // TODO: Reset password logic here
     console.log("Password reset to:", form.password);
     navigate('/');
   };
@@ -33,13 +32,16 @@ const ResetPassword = () => {
         background: 'linear-gradient(135deg, #BD2D01 0%, #CF4602 10%, #F67F00 50%, #CF4602 90%, #BD2D01 100%)',
       }}
     >
-      {/* Top Bar */}
-      <div className="absolute top-4 left-4 flex items-center text-white font-bold text-lg cursor-pointer" onClick={() => navigate(-1)}>
-        <FaArrowLeft className="mr-2" /> Reset Password
+      {/* Top Bar with underline */}
+      <div className="absolute top-0 left-0 w-full">
+        <div className="flex items-center px-4 py-4 text-white font-bold text-lg cursor-pointer" onClick={() => navigate(-1)}>
+          <FaArrowLeft className="mr-2" /> Reset Password
+        </div>
+        <div className="border-b border-black w-full" />
       </div>
 
       {/* Form Box */}
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center mt-24">
         <h2
           className="text-2xl font-bold mb-2 bg-clip-text text-transparent"
           style={{ backgroundImage: 'linear-gradient(to right, #F67F00, #CF4602)' }}
@@ -60,10 +62,9 @@ const ResetPassword = () => {
               placeholder="Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <FaEye
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
-              onClick={() => setShowPass({ ...showPass, pass: !showPass.pass })}
-            />
+            <div className="absolute inset-y-0 right-3 flex items-center cursor-pointer" onClick={() => setShowPass({ ...showPass, pass: !showPass.pass })}>
+              <FaEye className="text-[#BD2D01]" />
+            </div>
           </div>
 
           <div className="relative">
@@ -75,10 +76,9 @@ const ResetPassword = () => {
               placeholder="Confirm Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <FaEye
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
-              onClick={() => setShowPass({ ...showPass, confirm: !showPass.confirm })}
-            />
+            <div className="absolute inset-y-0 right-3 flex items-center cursor-pointer" onClick={() => setShowPass({ ...showPass, confirm: !showPass.confirm })}>
+              <FaEye className="text-[#BD2D01]" />
+            </div>
           </div>
 
           {error && <p className="text-red-600 text-sm text-center">{error}</p>}
@@ -87,13 +87,13 @@ const ResetPassword = () => {
             type="submit"
             className="w-full py-3 rounded-md font-semibold text-white transition duration-300"
             style={{
-              background: 'linear-gradient(to right, #F67F00, #CF4602)',
+              background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
             }}
             onMouseEnter={(e) =>
-              (e.target.style.background = 'linear-gradient(to right, #CF4602, #F67F00)')
+              (e.target.style.background = 'linear-gradient(to bottom, #CF4602, #F67F00)')
             }
             onMouseLeave={(e) =>
-              (e.target.style.background = 'linear-gradient(to right, #F67F00, #CF4602)')
+              (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
           >
             Continue

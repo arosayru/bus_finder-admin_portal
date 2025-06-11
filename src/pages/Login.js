@@ -100,6 +100,7 @@ const Login = () => {
             onMouseLeave={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
+            onClick={() => navigate('/dashboard')}
           >
             Log In
           </button>

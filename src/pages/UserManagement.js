@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
+import AddUserModal from '../components/AddUserModal';
 import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
 
 const UserManagement = () => {
+  const [showModal, setShowModal] = useState(false);
+
   const users = Array(12).fill({
     firstName: 'John',
     lastName: 'Rubic',
@@ -41,6 +44,7 @@ const UserManagement = () => {
             style={{
               background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
             }}
+            onClick={() => setShowModal(true)}
           >
             Add <FaPlus />
           </button>
@@ -86,6 +90,8 @@ const UserManagement = () => {
             </table>
           </div>
         </div>
+
+        {showModal && <AddUserModal onClose={() => setShowModal(false)} />}
       </div>
     </div>
   );

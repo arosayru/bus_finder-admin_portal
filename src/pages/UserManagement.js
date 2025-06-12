@@ -50,39 +50,41 @@ const UserManagement = () => {
           </button>
         </div>
 
-        {/* Table Container */}
+        {/* Scrollable Table */}
         <div className="mt-8 overflow-x-auto rounded-xl border border-orange-200">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full table-fixed border-collapse">
             <thead className="bg-[#F67F00] text-white text-lg">
               <tr>
-                <th className="p-3"> </th>
-                <th className="p-3">First Name</th>
-                <th className="p-3">Last Name</th>
-                <th className="p-3">Username</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Password</th>
-                <th className="p-3">Action</th>
+                <th className="p-3 w-[60px]"> </th>
+                <th className="p-3 w-[160px]">First Name</th>
+                <th className="p-3 w-[160px]">Last Name</th>
+                <th className="p-3 w-[160px]">Username</th>
+                <th className="p-3 w-[240px]">Email</th>
+                <th className="p-3 w-[140px]">Password</th>
+                <th className="p-3 w-[120px]">Action</th>
               </tr>
             </thead>
           </table>
 
+          {/* Scrollable tbody wrapped in div */}
           <div style={{ maxHeight: '480px', overflowY: 'auto' }}>
-            <table className="w-full text-left border-collapse">
+            <table className="w-full table-fixed border-collapse">
               <tbody>
                 {users.map((user, index) => (
-                  <tr
-                    key={index}
-                    className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
-                  >
-                    <td className="p-3 text-center"><FaUserCircle className="text-2xl text-[#BD2D01]" /></td>
-                    <td className="p-3">{user.firstName}</td>
-                    <td className="p-3">{user.lastName}</td>
-                    <td className="p-3">{user.username}</td>
-                    <td className="p-3">{user.email}</td>
-                    <td className="p-3">{user.password}</td>
-                    <td className="p-3 flex gap-3 justify-center text-[#BD2D01]">
-                      <FaEdit className="cursor-pointer text-[#2C44BB]" />
-                      <FaTrash className="cursor-pointer text-[#BD1111]" />
+                  <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
+                    <td className="p-3 w-[120px] text-center">
+                      <FaUserCircle className="text-2xl text-[#BD2D01]" />
+                    </td>
+                    <td className="p-3 w-[160px]">{user.firstName}</td>
+                    <td className="p-3 w-[160px]">{user.lastName}</td>
+                    <td className="p-3 w-[180px]">{user.username}</td>
+                    <td className="p-3 w-[220px]">{user.email}</td>
+                    <td className="p-3 w-[130px]">{user.password}</td>
+                    <td className="p-3 w-[90px]">
+                      <div className="flex justify-center gap-3 text-[#BD2D01]">
+                        <FaEdit className="cursor-pointer text-[#2C44BB]" />
+                        <FaTrash className="cursor-pointer text-[#BD1111]" />
+                      </div>
                     </td>
                   </tr>
                 ))}

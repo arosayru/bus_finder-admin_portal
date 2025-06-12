@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddUserModal from '../components/AddUserModal';
+import EditUserModal from '../components/EditUserModal'; // ✅ Include Edit Modal
 import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
 
 const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null); // ✅ Edit support
 
   const users = Array(12).fill({
     firstName: 'John',
@@ -13,6 +15,7 @@ const UserManagement = () => {
     username: 'john99',
     email: 'john@gmail.com',
     password: '********',
+    profilePic: '', // Optional future support
   });
 
   return (
@@ -55,13 +58,13 @@ const UserManagement = () => {
           <table className="w-full table-fixed border-collapse">
             <thead className="bg-[#F67F00] text-white text-lg">
               <tr>
-                <th className="p-3 w-[60px]"> </th>
+                <th className="p-3 w-[120px]"> </th>
                 <th className="p-3 w-[160px]">First Name</th>
                 <th className="p-3 w-[160px]">Last Name</th>
-                <th className="p-3 w-[160px]">Username</th>
-                <th className="p-3 w-[240px]">Email</th>
-                <th className="p-3 w-[140px]">Password</th>
-                <th className="p-3 w-[120px]">Action</th>
+                <th className="p-3 w-[180px]">Username</th>
+                <th className="p-3 w-[220px]">Email</th>
+                <th className="p-3 w-[130px]">Password</th>
+                <th className="p-3 w-[90px]">Action</th>
               </tr>
             </thead>
           </table>
@@ -71,7 +74,10 @@ const UserManagement = () => {
             <table className="w-full table-fixed border-collapse">
               <tbody>
                 {users.map((user, index) => (
-                  <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
+                  <tr
+                    key={index}
+                    className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
+                  >
                     <td className="p-3 w-[120px] text-center">
                       <FaUserCircle className="text-2xl text-[#BD2D01]" />
                     </td>
@@ -82,7 +88,10 @@ const UserManagement = () => {
                     <td className="p-3 w-[130px]">{user.password}</td>
                     <td className="p-3 w-[90px]">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
-                        <FaEdit className="cursor-pointer text-[#2C44BB]" />
+                        <FaEdit
+                          className="cursor-pointer text-[#2C44BB]"
+                          onClick={() => setEditingUser(user)} // ✅ open edit
+                        />
                         <FaTrash className="cursor-pointer text-[#BD1111]" />
                       </div>
                     </td>
@@ -93,7 +102,18 @@ const UserManagement = () => {
           </div>
         </div>
 
+        {/* Modals */}
         {showModal && <AddUserModal onClose={() => setShowModal(false)} />}
+        {editingUser && (
+          <EditUserModal
+            user={editingUser}
+            onClose={() => setEditingUser(null)}
+            onUpdate={(updatedUser) => {
+              console.log('Updated user:', updatedUser);
+              setEditingUser(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );

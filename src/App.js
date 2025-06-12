@@ -7,6 +7,7 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
 import StaffManagement from './pages/StaffManagement';
+import BusManagement from './pages/BusManagement';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/staff-management" element={<StaffManagement/>} />
+        <Route path="/bus-management" element={<BusManagement/>} />
       </Routes>
     </Router>
   );

@@ -11,7 +11,7 @@ const StaffManagement = () => {
   const [editingStaff, setEditingStaff] = useState(null);
   const [deletingStaff, setDeletingStaff] = useState(null);
 
-  const staffList = Array(10).fill({
+  const staffList = Array(12).fill({
     firstName: 'John',
     lastName: 'Rubic',
     username: 'john99',

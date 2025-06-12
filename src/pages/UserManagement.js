@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddUserModal from '../components/AddUserModal';
-import EditUserModal from '../components/EditUserModal'; // ✅ Include Edit Modal
+import EditUserModal from '../components/EditUserModal';
+import DeleteUserModal from '../components/DeleteUserModal'; // ✅ NEW
 import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
 
 const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState(null); // ✅ Edit support
+  const [editingUser, setEditingUser] = useState(null);
+  const [deletingUser, setDeletingUser] = useState(null); // ✅ NEW
 
   const users = Array(12).fill({
     firstName: 'John',
@@ -15,7 +17,7 @@ const UserManagement = () => {
     username: 'john99',
     email: 'john@gmail.com',
     password: '********',
-    profilePic: '', // Optional future support
+    profilePic: '',
   });
 
   return (
@@ -24,7 +26,7 @@ const UserManagement = () => {
       <div className="flex-1 ml-64 pt-20 px-6">
         <Topbar />
 
-        {/* Page Title & Search */}
+        {/* Search & Add */}
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center">
             <input
@@ -34,9 +36,7 @@ const UserManagement = () => {
             />
             <button
               className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
-              style={{
-                background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
-              }}
+              style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
             >
               Search
             </button>
@@ -44,16 +44,14 @@ const UserManagement = () => {
 
           <button
             className="flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-md"
-            style={{
-              background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
-            }}
+            style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
             onClick={() => setShowModal(true)}
           >
             Add <FaPlus />
           </button>
         </div>
 
-        {/* Scrollable Table */}
+        {/* Table with fixed header */}
         <div className="mt-8 overflow-x-auto rounded-xl border border-orange-200">
           <table className="w-full table-fixed border-collapse">
             <thead className="bg-[#F67F00] text-white text-lg">
@@ -69,7 +67,6 @@ const UserManagement = () => {
             </thead>
           </table>
 
-          {/* Scrollable tbody wrapped in div */}
           <div style={{ maxHeight: '480px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
               <tbody>
@@ -90,9 +87,12 @@ const UserManagement = () => {
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit
                           className="cursor-pointer text-[#2C44BB]"
-                          onClick={() => setEditingUser(user)} // ✅ open edit
+                          onClick={() => setEditingUser(user)}
                         />
-                        <FaTrash className="cursor-pointer text-[#BD1111]" />
+                        <FaTrash
+                          className="cursor-pointer text-[#BD1111]"
+                          onClick={() => setDeletingUser(user)} // ✅ NEW
+                        />
                       </div>
                     </td>
                   </tr>
@@ -109,8 +109,18 @@ const UserManagement = () => {
             user={editingUser}
             onClose={() => setEditingUser(null)}
             onUpdate={(updatedUser) => {
-              console.log('Updated user:', updatedUser);
+              console.log('Updated:', updatedUser);
               setEditingUser(null);
+            }}
+          />
+        )}
+        {deletingUser && (
+          <DeleteUserModal
+            user={deletingUser}
+            onClose={() => setDeletingUser(null)}
+            onConfirm={(userToDelete) => {
+              console.log('Deleted:', userToDelete);
+              setDeletingUser(null);
             }}
           />
         )}

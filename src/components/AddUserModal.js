@@ -52,22 +52,22 @@ const AddUserModal = ({ onClose }) => {
           <input
             type="text"
             placeholder="First Name"
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#F67F00] focus:outline-none"
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
           />
           <input
             type="text"
             placeholder="Last Name"
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#F67F00] focus:outline-none"
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
           />
           <input
             type="text"
             placeholder="Username"
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#F67F00] focus:outline-none"
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
           />
           <input
             type="email"
             placeholder="Email"
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#F67F00] focus:outline-none"
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
           />
 
           {/* Password */}
@@ -75,7 +75,7 @@ const AddUserModal = ({ onClose }) => {
             <input
               type={showPass ? 'text' : 'password'}
               placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#F67F00] focus:outline-none"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
             />
             <FaEye
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
@@ -88,7 +88,7 @@ const AddUserModal = ({ onClose }) => {
             <input
               type={showConfirm ? 'text' : 'password'}
               placeholder="Confirm Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#F67F00] focus:outline-none"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
             />
             <FaEye
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"

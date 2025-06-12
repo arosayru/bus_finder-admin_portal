@@ -3,13 +3,13 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
-import DeleteUserModal from '../components/DeleteUserModal'; // ✅ NEW
+import DeleteUserModal from '../components/DeleteUserModal';
 import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
 
 const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [deletingUser, setDeletingUser] = useState(null); // ✅ NEW
+  const [deletingUser, setDeletingUser] = useState(null);
 
   const users = Array(12).fill({
     firstName: 'John',
@@ -51,38 +51,35 @@ const UserManagement = () => {
           </button>
         </div>
 
-        {/* Table with fixed header */}
-        <div className="mt-8 overflow-x-auto rounded-xl border border-orange-200">
-          <table className="w-full table-fixed border-collapse">
-            <thead className="bg-[#F67F00] text-white text-lg">
-              <tr>
-                <th className="p-3 w-[120px]"> </th>
-                <th className="p-3 w-[160px]">First Name</th>
-                <th className="p-3 w-[160px]">Last Name</th>
-                <th className="p-3 w-[180px]">Username</th>
-                <th className="p-3 w-[220px]">Email</th>
-                <th className="p-3 w-[130px]">Password</th>
-                <th className="p-3 w-[90px]">Action</th>
-              </tr>
-            </thead>
-          </table>
-
+        {/* Table Container with full table */}
+        <div className="mt-8 rounded-xl border border-orange-200 overflow-x-auto">
           <div style={{ maxHeight: '480px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
+              <thead className="bg-[#F67F00] text-white text-lg border-b border-[#BD2D01]">
+                <tr>
+                  <th className="p-3 w-[120px] border-r border-[#BD2D01]"> </th>
+                  <th className="p-3 w-[160px] border-r border-[#BD2D01]">First Name</th>
+                  <th className="p-3 w-[160px] border-r border-[#BD2D01]">Last Name</th>
+                  <th className="p-3 w-[180px] border-r border-[#BD2D01]">Username</th>
+                  <th className="p-3 w-[220px] border-r border-[#BD2D01]">Email</th>
+                  <th className="p-3 w-[130px] border-r border-[#BD2D01]">Password</th>
+                  <th className="p-3 w-[90px]">Action</th>
+                </tr>
+              </thead>
               <tbody>
                 {users.map((user, index) => (
                   <tr
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
-                    <td className="p-3 w-[120px] text-center">
+                    <td className="p-3 w-[120px] text-center border-r border-[#BD2D01]">
                       <FaUserCircle className="text-2xl text-[#BD2D01]" />
                     </td>
-                    <td className="p-3 w-[160px]">{user.firstName}</td>
-                    <td className="p-3 w-[160px]">{user.lastName}</td>
-                    <td className="p-3 w-[180px]">{user.username}</td>
-                    <td className="p-3 w-[220px]">{user.email}</td>
-                    <td className="p-3 w-[130px]">{user.password}</td>
+                    <td className="p-3 w-[160px] border-r border-[#BD2D01]">{user.firstName}</td>
+                    <td className="p-3 w-[160px] border-r border-[#BD2D01]">{user.lastName}</td>
+                    <td className="p-3 w-[180px] border-r border-[#BD2D01]">{user.username}</td>
+                    <td className="p-3 w-[220px] border-r border-[#BD2D01]">{user.email}</td>
+                    <td className="p-3 w-[130px] border-r border-[#BD2D01]">{user.password}</td>
                     <td className="p-3 w-[90px]">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit
@@ -91,7 +88,7 @@ const UserManagement = () => {
                         />
                         <FaTrash
                           className="cursor-pointer text-[#BD1111]"
-                          onClick={() => setDeletingUser(user)} // ✅ NEW
+                          onClick={() => setDeletingUser(user)}
                         />
                       </div>
                     </td>

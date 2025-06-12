@@ -6,6 +6,7 @@ import EmailVerification from './pages/EmailVerification';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import StaffManagement from './pages/StaffManagement';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/staff-management" element={<StaffManagement/>} />
       </Routes>
     </Router>
   );

@@ -53,7 +53,7 @@ const UserManagement = () => {
 
         {/* Table Container with full table */}
         <div className="mt-8 rounded-xl border border-orange-200 overflow-x-auto">
-          <div style={{ maxHeight: '480px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: '540px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-[#F67F00] text-white text-lg border-b border-[#BD2D01]">
                 <tr>

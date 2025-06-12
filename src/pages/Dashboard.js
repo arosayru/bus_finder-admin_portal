@@ -23,7 +23,7 @@ const Dashboard = () => {
               className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
             />
             <button
-              className="px-4 py-2 rounded-r-md text-white font-semibold"
+              className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
               style={{
                 background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
               }}

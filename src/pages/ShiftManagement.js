@@ -3,11 +3,13 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddShiftModal from '../components/AddShiftModal';
 import EditShiftModal from '../components/EditShiftModal';
+import DeleteShiftModal from '../components/DeleteShiftModal';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 const ShiftManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
+  const [deletingShift, setDeletingShift] = useState(null);
 
   const shifts = Array(12).fill({
     routeNo: 'No 5',
@@ -27,6 +29,11 @@ const ShiftManagement = () => {
     console.log('Shift Updated:', updatedShift);
     setEditingShift(null);
     // In production: update your shift list state
+  };
+
+  const handleDelete = (shift) => {
+    console.log('Shift deleted:', shift);
+    setDeletingShift(null);
   };
 
   return (
@@ -91,7 +98,10 @@ const ShiftManagement = () => {
                           className="cursor-pointer text-[#2C44BB]"
                           onClick={() => setEditingShift(shift)}
                         />
-                        <FaTrash className="cursor-pointer text-[#BD1111]" />
+                        <FaTrash
+                          className="cursor-pointer text-[#BD1111]"
+                          onClick={() => setDeletingShift(shift)}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -114,6 +124,17 @@ const ShiftManagement = () => {
             shift={editingShift}
             onClose={() => setEditingShift(null)}
             onUpdate={handleUpdate}
+          />
+        )}
+
+        {deletingShift && (
+          <DeleteShiftModal
+            shift={deletingShift}
+            onClose={() => setDeletingShift(null)}
+            onConfirm={(toDelete) => {
+              console.log('Deleted shift:', toDelete);
+              setDeletingShift(null);
+            }}
           />
         )}
       </div>

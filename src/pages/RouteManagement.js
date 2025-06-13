@@ -2,18 +2,57 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddRouteModal from '../components/AddRouteModal.js';
+import EditRouteModal from '../components/EditRouteModal.js';
+import DeleteRouteModal from '../components/DeleteRouteModal';
 import RouteDetailsModal from '../components/RouteDetailsModal';
 import { FaPlus, FaChevronRight } from 'react-icons/fa';
 
 const RouteManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [routeToDelete, setRouteToDelete] = useState(null);
+  const [routes, setRoutes] = useState(
+    Array(20).fill({
+      routeNo: '05',
+      routeName: 'Kurunegala - Colombo',
+      vehicleNo: 'WP 52 - 9089',
+      driverName: 'Saman Kumara',
+      conductorName: 'Ruby Parker',
+      phone: '073 900 9393',
+      stops: ['Kurunegala', 'Colombo'],
+    })
+  );
 
-  const routes = Array(20).fill({
-    routeNo: '05',
-    routeName: 'Kurunegala - Colombo',
-    vehicleNo: 'WP 52 - 9089',
-  });
+  // ✅ Open Edit modal
+  const handleEdit = (route) => {
+    setSelectedRoute(route);
+    setShowEditModal(true);
+  };
+
+  // ✅ Update route in state
+  const handleUpdate = (updatedRoute) => {
+    setRoutes((prevRoutes) =>
+      prevRoutes.map((r) =>
+        r.routeNo === updatedRoute.routeNo ? updatedRoute : r
+      )
+    );
+    setShowEditModal(false);
+    setSelectedRoute(null);
+  };
+
+  const handleDelete = (route) => {
+    setRouteToDelete(route);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = (route) => {
+    setRoutes((prev) => prev.filter((r) => r.routeNo !== route.routeNo));
+    setShowDeleteModal(false);
+    setSelectedRoute(null);
+  };
+
 
   return (
     <div className="flex">
@@ -46,14 +85,10 @@ const RouteManagement = () => {
           </button>
         </div>
 
-        {/* Route Table-Like Container */}
+        {/* Route List */}
         <div className="mt-8 rounded-xl overflow-hidden border border-orange-200">
-          {/* Fixed Header */}
-          <div className="bg-[#F67F00] text-white font-semibold text-lg px-6 py-3 sticky top-0 z-10">
-            
-          </div>
+          <div className="bg-[#F67F00] text-white font-semibold text-lg px-6 py-3 sticky top-0 z-10"></div>
 
-          {/* Scrollable Data */}
           <div style={{ maxHeight: '520px', overflowY: 'auto' }}>
             {routes.map((route, index) => (
               <div
@@ -86,10 +121,30 @@ const RouteManagement = () => {
 
         {/* Modals */}
         {showAddModal && <AddRouteModal onClose={() => setShowAddModal(false)} />}
-        {selectedRoute && (
+        {selectedRoute && !showEditModal && (
           <RouteDetailsModal
             route={selectedRoute}
             onClose={() => setSelectedRoute(null)}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+        {showEditModal && selectedRoute && (
+          <EditRouteModal
+            route={selectedRoute}
+            onClose={() => {
+              setShowEditModal(false);
+              setSelectedRoute(null);
+            }}
+            onUpdate={handleUpdate}
+          />
+        )}
+
+        {showDeleteModal && routeToDelete && (
+          <DeleteRouteModal
+            route={routeToDelete}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
           />
         )}
       </div>

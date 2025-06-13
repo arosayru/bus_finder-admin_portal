@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
+import AddShiftModal from '../components/AddShiftModal';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 const ShiftManagement = () => {
@@ -14,6 +15,12 @@ const ShiftManagement = () => {
     arrivalTime: '11.45p.m',
     date: '04/06/2025',
   });
+
+  const handleAdd = (newShift) => {
+    console.log('New Shift Added:', newShift);
+    setShowAddModal(false);
+    // In production: update your state to include the new shift
+  };
 
   return (
     <div className="flex">
@@ -86,10 +93,10 @@ const ShiftManagement = () => {
 
         {/* Modals */}
         {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            {/* Replace this with AddShiftModal component */}
-            <div className="bg-white p-6 rounded shadow-md">[Add Shift Modal Placeholder]</div>
-          </div>
+          <AddShiftModal
+            onClose={() => setShowAddModal(false)}
+            onAdd={handleAdd}
+          />
         )}
 
         {editingShift && (

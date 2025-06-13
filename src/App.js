@@ -9,6 +9,7 @@ import UserManagement from './pages/UserManagement';
 import StaffManagement from './pages/StaffManagement';
 import BusManagement from './pages/BusManagement';
 import RouteManagement from './pages/RouteManagement';
+import ShiftManagement from './pages/ShiftManagement';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/staff-management" element={<StaffManagement/>} />
         <Route path="/bus-management" element={<BusManagement/>} />
         <Route path="/route-management" element={<RouteManagement/>} />
+        <Route path="/shift-management" element={<ShiftManagement/>} />
       </Routes>
     </Router>
   );

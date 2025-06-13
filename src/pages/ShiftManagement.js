@@ -1,0 +1,106 @@
+import React, { useState } from 'react';
+import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
+import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+
+const ShiftManagement = () => {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingShift, setEditingShift] = useState(null);
+
+  const shifts = Array(12).fill({
+    routeNo: 'No 5',
+    routeName: 'Kurunagala - Colombo',
+    departureTime: '9.15a.m',
+    arrivalTime: '11.45p.m',
+    date: '04/06/2025',
+  });
+
+  return (
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 pt-20 px-6">
+        <Topbar />
+
+        {/* Search & Add */}
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
+            />
+            <button
+              className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
+              style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+            >
+              Search
+            </button>
+          </div>
+
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-md"
+            style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+            onClick={() => setShowAddModal(true)}
+          >
+            Add <FaPlus />
+          </button>
+        </div>
+
+        {/* Shift Table */}
+        <div className="mt-8 rounded-xl border border-orange-200 overflow-hidden">
+          <div style={{ maxHeight: '520px', overflowY: 'auto' }}>
+            <table className="w-full table-fixed border-collapse">
+              <thead className="bg-[#F67F00] text-white text-lg sticky top-0 z-10">
+                <tr>
+                  <th className="p-3 w-[120px] border-r border-orange-300">Route No</th>
+                  <th className="p-3 w-[220px] border-r border-orange-300">Route Name</th>
+                  <th className="p-3 w-[160px] border-r border-orange-300">Departure Time</th>
+                  <th className="p-3 w-[160px] border-r border-orange-300">Arrival Time</th>
+                  <th className="p-3 w-[160px] border-r border-orange-300">Date</th>
+                  <th className="p-3 w-[100px]">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shifts.map((shift, index) => (
+                  <tr
+                    key={index}
+                    className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
+                  >
+                    <td className="p-3 w-[120px] border-r border-orange-300">{shift.routeNo}</td>
+                    <td className="p-3 w-[220px] border-r border-orange-300">{shift.routeName}</td>
+                    <td className="p-3 w-[160px] border-r border-orange-300">{shift.departureTime}</td>
+                    <td className="p-3 w-[160px] border-r border-orange-300">{shift.arrivalTime}</td>
+                    <td className="p-3 w-[160px] border-r border-orange-300">{shift.date}</td>
+                    <td className="p-3 w-[100px]">
+                      <div className="flex gap-3 justify-center text-[#BD2D01]">
+                        <FaEdit className="cursor-pointer text-[#2C44BB]" />
+                        <FaTrash className="cursor-pointer text-[#BD1111]" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Modals */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            {/* Replace this with AddShiftModal component */}
+            <div className="bg-white p-6 rounded shadow-md">[Add Shift Modal Placeholder]</div>
+          </div>
+        )}
+
+        {editingShift && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            {/* Replace this with EditShiftModal component */}
+            <div className="bg-white p-6 rounded shadow-md">[Edit Shift Modal Placeholder]</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ShiftManagement;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddShiftModal from '../components/AddShiftModal';
+import EditShiftModal from '../components/EditShiftModal';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 const ShiftManagement = () => {
@@ -20,6 +21,12 @@ const ShiftManagement = () => {
     console.log('New Shift Added:', newShift);
     setShowAddModal(false);
     // In production: update your state to include the new shift
+  };
+
+  const handleUpdate = (updatedShift) => {
+    console.log('Shift Updated:', updatedShift);
+    setEditingShift(null);
+    // In production: update your shift list state
   };
 
   return (
@@ -80,7 +87,10 @@ const ShiftManagement = () => {
                     <td className="p-3 w-[160px] border-r border-orange-300">{shift.date}</td>
                     <td className="p-3 w-[100px]">
                       <div className="flex gap-3 justify-center text-[#BD2D01]">
-                        <FaEdit className="cursor-pointer text-[#2C44BB]" />
+                        <FaEdit
+                          className="cursor-pointer text-[#2C44BB]"
+                          onClick={() => setEditingShift(shift)}
+                        />
                         <FaTrash className="cursor-pointer text-[#BD1111]" />
                       </div>
                     </td>
@@ -100,10 +110,11 @@ const ShiftManagement = () => {
         )}
 
         {editingShift && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            {/* Replace this with EditShiftModal component */}
-            <div className="bg-white p-6 rounded shadow-md">[Edit Shift Modal Placeholder]</div>
-          </div>
+          <EditShiftModal
+            shift={editingShift}
+            onClose={() => setEditingShift(null)}
+            onUpdate={handleUpdate}
+          />
         )}
       </div>
     </div>

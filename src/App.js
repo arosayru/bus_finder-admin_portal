@@ -10,6 +10,8 @@ import StaffManagement from './pages/StaffManagement';
 import BusManagement from './pages/BusManagement';
 import RouteManagement from './pages/RouteManagement';
 import ShiftManagement from './pages/ShiftManagement';
+import ReviewFeedback from './pages/ReviewFeedback';
+import ReplyFeedback from './pages/ReplyFeedback';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         <Route path="/bus-management" element={<BusManagement/>} />
         <Route path="/route-management" element={<RouteManagement/>} />
         <Route path="/shift-management" element={<ShiftManagement/>} />
+        <Route path="/review-feedback" element={<ReviewFeedback/>} />
+        <Route path="/reply-feedback" element={<ReplyFeedback />} />
       </Routes>
     </Router>
   );

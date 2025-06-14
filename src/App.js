@@ -12,6 +12,7 @@ import RouteManagement from './pages/RouteManagement';
 import ShiftManagement from './pages/ShiftManagement';
 import ReviewFeedback from './pages/ReviewFeedback';
 import ReplyFeedback from './pages/ReplyFeedback';
+import Settings from './pages/Setting';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/shift-management" element={<ShiftManagement/>} />
         <Route path="/review-feedback" element={<ReviewFeedback/>} />
         <Route path="/reply-feedback" element={<ReplyFeedback />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

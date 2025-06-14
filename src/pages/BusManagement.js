@@ -54,13 +54,16 @@ const BusManagement = () => {
         <div className="mt-8 rounded-xl border border-orange-200 overflow-x-auto">
           <div style={{ maxHeight: '540px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
-              <thead className="bg-[#F67F00] text-white text-lg border-b border-[#BD2D01]">
+              <thead 
+                className="bg-[#F67F00] text-white text-lg"
+                style={{ position: 'sticky', top: 0, zIndex: 10 }}
+              >
                 <tr>
-					        <th className="p-3 w-[160px] border-r border-[#BD2D01]">Vehicle No</th>
-					        <th className="p-3 w-[140px] border-r border-[#BD2D01]">Bus Type</th>
-					        <th className="p-3 w-[180px] border-r border-[#BD2D01]">Driver Name</th>
-					        <th className="p-3 w-[180px] border-r border-[#BD2D01]">Conductor Name</th>
-					        <th className="p-3 w-[160px] border-r border-[#BD2D01]">Phone</th>
+					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Vehicle No</th>
+					        <th className="p-3 w-[140px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Bus Type</th>
+					        <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Driver Name</th>
+					        <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Conductor Name</th>
+					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Phone</th>
 					        <th className="p-3 w-[100px]">Action</th>
                 </tr>
               </thead>
@@ -70,11 +73,11 @@ const BusManagement = () => {
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
-                    <td className="p-3 w-[160px] border-r border-[#BD2D01]">{bus.vehicleNo}</td>
-                    <td className="p-3 w-[140px] border-r border-[#BD2D01]">{bus.busType}</td>
-                    <td className="p-3 w-[180px] border-r border-[#BD2D01]">{bus.driverName}</td>
-                    <td className="p-3 w-[180px] border-r border-[#BD2D01]">{bus.conductorName}</td>
-                    <td className="p-3 w-[160px] border-r border-[#BD2D01]">{bus.phone}</td>
+                    <td className="p-3 w-[160px] border-r">{bus.vehicleNo}</td>
+                    <td className="p-3 w-[140px] border-r">{bus.busType}</td>
+                    <td className="p-3 w-[180px] border-r">{bus.driverName}</td>
+                    <td className="p-3 w-[180px] border-r">{bus.conductorName}</td>
+                    <td className="p-3 w-[160px] border-r">{bus.phone}</td>
                     <td className="p-3 w-[100px] text-center">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit

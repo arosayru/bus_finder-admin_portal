@@ -15,9 +15,17 @@ const Settings = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicture(URL.createObjectURL(file));
+    }
   };
 
   return (
@@ -28,13 +36,35 @@ const Settings = () => {
         <Topbar />
 
         <div className="max-w-xl mx-auto mt-20 bg-[#FB9933] shadow-xl p-8 rounded-xl relative">
+          {/* Profile Picture */}
           <div className="flex justify-center relative mb-4">
-            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-4xl text-[#FB9933]">
-              <span>👤</span>
+            <div className="w-24 h-24 rounded-full bg-white overflow-hidden flex items-center justify-center">
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-4xl text-[#FB9933]">👤</span>
+              )}
             </div>
-            <FaPen className="absolute bottom-3 right-[42%] text-gray-600 cursor-pointer" title="Edit profile picture" />
+            <label htmlFor="profileUpload">
+              <FaPen
+                className="absolute bottom-3 right-[42%] text-gray-600 cursor-pointer"
+                title="Edit profile picture"
+              />
+            </label>
+            <input
+              type="file"
+              id="profileUpload"
+              accept="image/*"
+              onChange={handlePictureChange}
+              className="hidden"
+            />
           </div>
 
+          {/* Form Fields */}
           <div className="space-y-4">
             <input
               type="text"
@@ -100,6 +130,7 @@ const Settings = () => {
             </div>
           </div>
 
+          {/* Submit Button */}
           <div className="mt-6 text-right">
             <button
               className="px-6 py-2 bg-[#D44B00] text-white rounded font-semibold hover:bg-orange-700"

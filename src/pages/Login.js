@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import { FaUser, FaEye } from 'react-icons/fa';
+import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import logo from '../assets/logo.png';
 
 const Login = () => {
@@ -73,7 +73,11 @@ const Login = () => {
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
               onClick={() => setShowPassword(!showPassword)}
             >
-              <FaEye className="text-[#BD2D01]" />
+              {showPassword ? (
+                <FaEyeSlash className="text-[#BD2D01]" />
+              ) : (
+                <FaEye className="text-[#BD2D01]" />
+              )}
             </div>
           </div>
 

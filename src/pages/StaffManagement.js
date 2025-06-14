@@ -55,14 +55,17 @@ const StaffManagement = () => {
         <div className="mt-8 rounded-xl border border-orange-200 overflow-x-auto">
           <div style={{ maxHeight: '540px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
-              <thead className="bg-[#F67F00] text-white text-lg border-b border-[#BD2D01]">
+              <thead
+                className="bg-[#F67F00] text-white text-lg"
+                style={{ position: 'sticky', top: 0, zIndex: 10 }} 
+              >
                 <tr>
-                  <th className="p-3 w-[120px] border-r border-[#BD2D01]"> </th>
-                  <th className="p-3 w-[160px] border-r border-[#BD2D01]">First Name</th>
-                  <th className="p-3 w-[160px] border-r border-[#BD2D01]">Last Name</th>
-                  <th className="p-3 w-[180px] border-r border-[#BD2D01]">Username</th>
-                  <th className="p-3 w-[220px] border-r border-[#BD2D01]">Email</th>
-                  <th className="p-3 w-[130px] border-r border-[#BD2D01]">Password</th>
+                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}> </th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>First Name</th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Last Name</th>
+                  <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Username</th>
+                  <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Email</th>
+                  <th className="p-3 w-[130px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Password</th>
                   <th className="p-3 w-[90px]">Action</th>
                 </tr>
               </thead>
@@ -72,14 +75,14 @@ const StaffManagement = () => {
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
-                    <td className="p-3 w-[120px] text-center border-r border-[#BD2D01]">
+                    <td className="p-3 w-[120px] text-center border-r">
                       <FaUserCircle className="text-2xl text-[#BD2D01]" />
                     </td>
-                    <td className="p-3 w-[160px] border-r border-[#BD2D01]">{staff.firstName}</td>
-                    <td className="p-3 w-[160px] border-r border-[#BD2D01]">{staff.lastName}</td>
-                    <td className="p-3 w-[180px] border-r border-[#BD2D01]">{staff.username}</td>
-                    <td className="p-3 w-[220px] border-r border-[#BD2D01]">{staff.email}</td>
-                    <td className="p-3 w-[130px] border-r border-[#BD2D01]">{staff.password}</td>
+                    <td className="p-3 w-[160px] border-r">{staff.firstName}</td>
+                    <td className="p-3 w-[160px] border-r">{staff.lastName}</td>
+                    <td className="p-3 w-[180px] border-r">{staff.username}</td>
+                    <td className="p-3 w-[220px] border-r">{staff.email}</td>
+                    <td className="p-3 w-[130px] border-r">{staff.password}</td>
                     <td className="p-3 w-[90px]">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit

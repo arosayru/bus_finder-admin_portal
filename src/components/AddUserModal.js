@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEye, FaUserCircle, FaUpload } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
 
 const AddUserModal = ({ onClose }) => {
   const [showPass, setShowPass] = useState(false);
@@ -21,7 +21,7 @@ const AddUserModal = ({ onClose }) => {
       >
         <h2 className="text-white text-xl font-bold mb-4">Add User</h2>
 
-        {/* Profile picture uploader with upload icon */}
+        {/* Profile picture uploader */}
         <div className="flex justify-center mb-4 relative">
           <label htmlFor="profile-upload" className="cursor-pointer relative group">
             {profilePic ? (
@@ -33,7 +33,6 @@ const AddUserModal = ({ onClose }) => {
             ) : (
               <FaUserCircle className="text-white text-6xl" />
             )}
-            {/* Upload icon overlay */}
             <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow-sm group-hover:scale-110 transition">
               <FaUpload className="text-[#F67F00] text-sm" />
             </div>
@@ -77,10 +76,16 @@ const AddUserModal = ({ onClose }) => {
               placeholder="Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
             />
-            <FaEye
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
+            <div
               onClick={() => setShowPass(!showPass)}
-            />
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            >
+              {showPass ? (
+                <FaEyeSlash className="text-[#BD2D01]" />
+              ) : (
+                <FaEye className="text-[#BD2D01]" />
+              )}
+            </div>
           </div>
 
           {/* Confirm Password */}
@@ -90,13 +95,19 @@ const AddUserModal = ({ onClose }) => {
               placeholder="Confirm Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-[#000000] focus:outline-none"
             />
-            <FaEye
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
+            <div
               onClick={() => setShowConfirm(!showConfirm)}
-            />
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            >
+              {showConfirm ? (
+                <FaEyeSlash className="text-[#BD2D01]" />
+              ) : (
+                <FaEye className="text-[#BD2D01]" />
+              )}
+            </div>
           </div>
 
-          {/* Add Button aligned right */}
+          {/* Add Button */}
           <div className="flex justify-end">
             <button
               type="submit"
@@ -108,7 +119,7 @@ const AddUserModal = ({ onClose }) => {
           </div>
         </form>
 
-        {/* Close button */}
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

@@ -69,7 +69,7 @@ const ShiftManagement = () => {
 
         {/* Shift Table */}
         <div className="mt-8 rounded-xl border border-orange-200 overflow-hidden">
-          <div style={{ maxHeight: '520px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: '540px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-[#F67F00] text-white text-lg sticky top-0 z-10">
                 <tr>

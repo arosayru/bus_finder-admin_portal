@@ -73,11 +73,11 @@ const ShiftManagement = () => {
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-[#F67F00] text-white text-lg sticky top-0 z-10">
                 <tr>
-                  <th className="p-3 w-[120px] border-r border-orange-300">Route No</th>
-                  <th className="p-3 w-[220px] border-r border-orange-300">Route Name</th>
-                  <th className="p-3 w-[160px] border-r border-orange-300">Departure Time</th>
-                  <th className="p-3 w-[160px] border-r border-orange-300">Arrival Time</th>
-                  <th className="p-3 w-[160px] border-r border-orange-300">Date</th>
+                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route No</th>
+                  <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route Name</th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Departure Time</th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Arrival Time</th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Date</th>
                   <th className="p-3 w-[100px]">Action</th>
                 </tr>
               </thead>
@@ -87,11 +87,11 @@ const ShiftManagement = () => {
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
-                    <td className="p-3 w-[120px] border-r border-orange-300">{shift.routeNo}</td>
-                    <td className="p-3 w-[220px] border-r border-orange-300">{shift.routeName}</td>
-                    <td className="p-3 w-[160px] border-r border-orange-300">{shift.departureTime}</td>
-                    <td className="p-3 w-[160px] border-r border-orange-300">{shift.arrivalTime}</td>
-                    <td className="p-3 w-[160px] border-r border-orange-300">{shift.date}</td>
+                    <td className="p-3 w-[120px] border-r">{shift.routeNo}</td>
+                    <td className="p-3 w-[220px] border-r">{shift.routeName}</td>
+                    <td className="p-3 w-[160px] border-r">{shift.departureTime}</td>
+                    <td className="p-3 w-[160px] border-r">{shift.arrivalTime}</td>
+                    <td className="p-3 w-[160px] border-r">{shift.date}</td>
                     <td className="p-3 w-[100px]">
                       <div className="flex gap-3 justify-center text-[#BD2D01]">
                         <FaEdit

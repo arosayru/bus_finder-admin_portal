@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEye, FaUserCircle, FaUpload } from 'react-icons/fa';
+import { FaEye,FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
 
 const EditUserModal = ({ onClose, user, onUpdate }) => {
   const [form, setForm] = useState({ ...user });
@@ -101,10 +101,16 @@ const EditUserModal = ({ onClose, user, onUpdate }) => {
               placeholder="Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
             />
-            <FaEye
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
+            <div
               onClick={() => setShowPass(!showPass)}
-            />
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            >
+              {showPass ? (
+                <FaEyeSlash className="text-[#BD2D01]" />
+              ) : (
+                <FaEye className="text-[#BD2D01]" />
+              )}
+            </div>
           </div>
 
           {/* Confirm Password */}
@@ -114,10 +120,16 @@ const EditUserModal = ({ onClose, user, onUpdate }) => {
               placeholder="Confirm Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
             />
-            <FaEye
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01] cursor-pointer"
+            <div
               onClick={() => setShowConfirm(!showConfirm)}
-            />
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            >
+              {showConfirm ? (
+                <FaEyeSlash className="text-[#BD2D01]" />
+              ) : (
+                <FaEye className="text-[#BD2D01]" />
+              )}
+            </div>
           </div>
 
           {/* Update button */}

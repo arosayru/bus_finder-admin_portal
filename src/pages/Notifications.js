@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import { FaBell, FaBus, FaExclamationTriangle, FaCommentDots, FaArrowLeft, FaTimes } from 'react-icons/fa';
+import {
+  FaBell,
+  FaBus,
+  FaExclamationTriangle,
+  FaCommentDots,
+  FaArrowLeft,
+  FaTimes
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
@@ -63,19 +70,23 @@ const Notifications = () => {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 pt-4 px-6">
-        <div className="flex items-center justify-between border-b pb-2">
-          <div className="flex items-center gap-3 text-[#BD2D01] font-bold text-xl">
-            <FaArrowLeft
-              className="cursor-pointer hover:text-orange-800"
-              onClick={() => navigate(-1)}
-            />
-            <span>Notifications</span>
-          </div>
-          <div>
-            <FaBell className="text-[#D44B00] text-2xl mr-4" />
+        {/* Fixed Header */}
+        <div className="sticky top-0 z-10 bg-white border-b pb-2 pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-[#BD2D01] font-bold text-xl">
+              <FaArrowLeft
+                className="cursor-pointer hover:text-orange-800"
+                onClick={() => navigate(-1)}
+              />
+              <span>Notifications</span>
+            </div>
+            <div>
+              <FaBell className="text-[#D44B00] text-2xl mr-4" />
+            </div>
           </div>
         </div>
 
+        {/* Notification List */}
         <div className="mt-6 space-y-4">
           {notifications.map((note) => (
             <div

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
-import { FaEye, FaBell, FaPen } from 'react-icons/fa';
+import { FaEye, FaBell, FaEdit } from 'react-icons/fa';
 
 const Settings = () => {
   const [formData, setFormData] = useState({
@@ -50,7 +50,7 @@ const Settings = () => {
               )}
             </div>
             <label htmlFor="profileUpload">
-              <FaPen
+              <FaEdit
                 className="absolute bottom-3 right-[42%] text-gray-600 cursor-pointer"
                 title="Edit profile picture"
               />

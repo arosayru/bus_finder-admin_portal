@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
-import { FaEye, FaBell, FaEdit } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaBell, FaEdit } from 'react-icons/fa';
 
 const Settings = () => {
   const [formData, setFormData] = useState({
@@ -108,10 +108,16 @@ const Settings = () => {
                 className="w-full bg-orange-100 p-3 rounded"
                 placeholder="Password"
               />
-              <FaEye
-                className="absolute right-3 top-3.5 text-[#BD2D01] cursor-pointer"
+              <div
                 onClick={() => setShowPassword(!showPassword)}
-              />
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              >
+                {showPassword ? (
+                  <FaEye className="text-[#BD2D01]" />
+                ) : (
+                  <FaEyeSlash className="text-[#BD2D01]" />
+                )}
+              </div>
             </div>
 
             <div className="relative">
@@ -123,10 +129,16 @@ const Settings = () => {
                 className="w-full bg-orange-100 p-3 rounded"
                 placeholder="Confirm Password"
               />
-              <FaEye
-                className="absolute right-3 top-3.5 text-[#BD2D01] cursor-pointer"
+              <div
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              />
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              >
+                {showConfirmPassword ? (
+                  <FaEye className="text-[#BD2D01]" />
+                ) : (
+                  <FaEyeSlash className="text-[#BD2D01]" />
+                )}
+              </div>
             </div>
           </div>
 

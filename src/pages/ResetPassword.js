@@ -72,9 +72,9 @@ const ResetPassword = () => {
               onClick={() => setShowPass({ ...showPass, pass: !showPass.pass })}
             >
               {showPass.pass ? (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              ) : (
                 <FaEye className="text-[#BD2D01]" />
+              ) : (
+                <FaEyeSlash className="text-[#BD2D01]" />
               )}
             </div>
           </div>
@@ -94,9 +94,9 @@ const ResetPassword = () => {
               onClick={() => setShowPass({ ...showPass, confirm: !showPass.confirm })}
             >
               {showPass.confirm ? (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              ) : (
                 <FaEye className="text-[#BD2D01]" />
+              ) : (
+                <FaEyeSlash className="text-[#BD2D01]" />
               )}
             </div>
           </div>

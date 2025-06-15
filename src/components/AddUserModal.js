@@ -81,9 +81,9 @@ const AddUserModal = ({ onClose }) => {
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
             >
               {showPass ? (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              ) : (
                 <FaEye className="text-[#BD2D01]" />
+              ) : (
+                <FaEyeSlash className="text-[#BD2D01]" />
               )}
             </div>
           </div>
@@ -100,9 +100,9 @@ const AddUserModal = ({ onClose }) => {
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
             >
               {showConfirm ? (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              ) : (
                 <FaEye className="text-[#BD2D01]" />
+              ) : (
+                <FaEyeSlash className="text-[#BD2D01]" />
               )}
             </div>
           </div>

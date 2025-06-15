@@ -74,9 +74,9 @@ const Login = () => {
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              ) : (
                 <FaEye className="text-[#BD2D01]" />
+              ) : (
+                <FaEyeSlash className="text-[#BD2D01]" />
               )}
             </div>
           </div>

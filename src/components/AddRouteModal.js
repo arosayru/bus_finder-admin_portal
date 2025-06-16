@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
+import AddStopModal from './AddStopModal';
 
 const AddRouteModal = ({ onClose }) => {
   const [form, setForm] = useState({
@@ -11,25 +12,29 @@ const AddRouteModal = ({ onClose }) => {
     phone: '',
   });
 
-  const [stops, setStops] = useState(['']);
+  const [stops, setStops] = useState([]);
+  const [showAddStopModal, setShowAddStopModal] = useState(false);
+  const [stopInput, setStopInput] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleStopChange = (index, value) => {
-    const updatedStops = [...stops];
-    updatedStops[index] = value;
-    setStops(updatedStops);
+  const handleStopInput = (e) => {
+    setStopInput(e.target.value);
   };
 
   const addStop = () => {
-    setStops([...stops, '']);
+    if (stopInput.trim() !== '') {
+      setStops([...stops, stopInput.trim()]);
+      setStopInput('');
+    }
   };
 
   const removeStop = (index) => {
-    const updatedStops = stops.filter((_, i) => i !== index);
-    setStops(updatedStops);
+    const updated = [...stops];
+    updated.splice(index, 1);
+    setStops(updated);
   };
 
   const handleSubmit = (e) => {
@@ -41,15 +46,15 @@ const AddRouteModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div
-        className="w-full max-w-xl p-6 rounded-2xl shadow-xl relative"
+        className="w-full max-w-xl max-h-[90vh] p-6 overflow-y-auto rounded-2xl shadow-xl relative"
         style={{
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
       >
         <h2 className="text-white text-xl font-bold mb-4">Add Route Details</h2>
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          {/* Route No & Route Name */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Route Info */}
           <div className="flex gap-4">
             <input
               type="text"
@@ -70,33 +75,54 @@ const AddRouteModal = ({ onClose }) => {
           </div>
 
           {/* Add Stops */}
-          <div className="mt-4">
-            <label className="text-white font-semibold flex items-center gap-2 cursor-pointer mb-2" onClick={addStop}>
+          <div className="mt-2">
+            <label
+              className="text-white font-semibold flex items-center gap-2 mb-2 cursor-pointer"
+              onClick={() => setShowAddStopModal(true)}
+            >
               <FaPlus /> Add Stops
             </label>
-            {stops.map((stop, index) => (
-              <div key={index} className="flex items-center gap-2 mt-2">
-                <input
-                  type="text"
-                  value={stop}
-                  onChange={(e) => handleStopChange(index, e.target.value)}
-                  placeholder={`Stop ${index + 1}`}
-                  className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-                />
-                {stops.length > 1 && (
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={stopInput}
+                onChange={handleStopInput}
+                placeholder="Add bus stop"
+                className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={addStop}
+                className="w-8 h-8 flex items-center justify-center bg-white text-[#BD2D01] rounded-full"
+              >
+                <FaPlus />
+              </button>
+            </div>
+
+            {/* List of Added Stops */}
+            <div className="mt-3 space-y-2">
+              {stops.map((stop, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={stop}
+                    readOnly
+                    className="w-full p-3 rounded-md bg-orange-50 text-black"
+                  />
                   <button
                     type="button"
                     onClick={() => removeStop(index)}
-                    className="text-[#BD2D01] bg-white p-2 rounded-full"
+                    className="bg-white text-[#BD2D01] p-2 rounded-full"
                   >
                     <FaMinus />
                   </button>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Vehicle, Driver, Conductor, Phone */}
+          {/* Vehicle & Staff Info */}
           <div className="flex gap-4 mt-4">
             <input
               type="text"
@@ -134,7 +160,6 @@ const AddRouteModal = ({ onClose }) => {
             />
           </div>
 
-          {/* Submit */}
           <div className="flex justify-end mt-4">
             <button
               type="submit"
@@ -153,6 +178,11 @@ const AddRouteModal = ({ onClose }) => {
         >
           ✕
         </button>
+
+        {/* AddStopModal Popup */}
+        {showAddStopModal && (
+          <AddStopModal onClose={() => setShowAddStopModal(false)} />
+        )}
       </div>
     </div>
   );

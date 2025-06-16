@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddRouteModal from '../components/AddRouteModal.js';
+import AddStopModal from '../components/AddStopModal.js'; // ✅ new import
 import EditRouteModal from '../components/EditRouteModal.js';
 import DeleteRouteModal from '../components/DeleteRouteModal';
 import RouteDetailsModal from '../components/RouteDetailsModal';
@@ -9,6 +10,7 @@ import { FaPlus, FaChevronRight } from 'react-icons/fa';
 
 const RouteManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddStopModal, setShowAddStopModal] = useState(false); // ✅ new state
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -25,13 +27,11 @@ const RouteManagement = () => {
     })
   );
 
-  // ✅ Open Edit modal
   const handleEdit = (route) => {
     setSelectedRoute(route);
     setShowEditModal(true);
   };
 
-  // ✅ Update route in state
   const handleUpdate = (updatedRoute) => {
     setRoutes((prevRoutes) =>
       prevRoutes.map((r) =>
@@ -52,7 +52,6 @@ const RouteManagement = () => {
     setShowDeleteModal(false);
     setSelectedRoute(null);
   };
-
 
   return (
     <div className="flex">
@@ -76,13 +75,24 @@ const RouteManagement = () => {
             </button>
           </div>
 
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-md"
-            style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
-            onClick={() => setShowAddModal(true)}
-          >
-            Add <FaPlus />
-          </button>
+          {/* Add Buttons */}
+          <div className="flex gap-3">
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-md"
+              style={{ background: 'linear-gradient(to top, #F67F00, #CF4602)' }}
+              onClick={() => setShowAddStopModal(true)}
+            >
+              Add Bus Stops <FaPlus />
+            </button>
+
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-md"
+              style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+              onClick={() => setShowAddModal(true)}
+            >
+              Add Route <FaPlus />
+            </button>
+          </div>
         </div>
 
         {/* Route List */}
@@ -121,6 +131,7 @@ const RouteManagement = () => {
 
         {/* Modals */}
         {showAddModal && <AddRouteModal onClose={() => setShowAddModal(false)} />}
+        {showAddStopModal && <AddStopModal onClose={() => setShowAddStopModal(false)} />} {/* ✅ new modal */}
         {selectedRoute && !showEditModal && (
           <RouteDetailsModal
             route={selectedRoute}

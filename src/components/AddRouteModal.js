@@ -87,7 +87,7 @@ const AddRouteModal = ({ onClose }) => {
                   <button
                     type="button"
                     onClick={() => removeStop(index)}
-                    className="text-white bg-[#BD2D01] p-2 rounded-full"
+                    className="text-[#BD2D01] bg-white p-2 rounded-full"
                   >
                     <FaMinus />
                   </button>

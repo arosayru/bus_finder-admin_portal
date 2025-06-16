@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
+import AddStopModal from './AddStopModal';
 
 const EditRouteModal = ({ route, onClose, onUpdate }) => {
   const [form, setForm] = useState({
@@ -12,19 +13,22 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
   });
 
   const [stops, setStops] = useState(route.stops || []);
+  const [stopInput, setStopInput] = useState('');
+  const [showAddStopModal, setShowAddStopModal] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleStopChange = (index, value) => {
-    const updated = [...stops];
-    updated[index] = value;
-    setStops(updated);
+  const handleStopInput = (e) => {
+    setStopInput(e.target.value);
   };
 
   const addStop = () => {
-    setStops([...stops, '']);
+    if (stopInput.trim() !== '') {
+      setStops([...stops, stopInput.trim()]);
+      setStopInput('');
+    }
   };
 
   const removeStop = (index) => {
@@ -43,7 +47,7 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div
-        className="w-full max-w-xl p-6 rounded-2xl shadow-xl relative"
+        className="w-full max-w-xl max-h-[90vh] p-6 overflow-y-auto rounded-2xl shadow-xl relative"
         style={{
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
@@ -72,28 +76,53 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
           </div>
 
           {/* Add Stops */}
-          <label className="text-white font-semibold flex items-center gap-2 cursor-pointer" onClick={addStop}>
-            <FaPlus /> Add Stops
-          </label>
-          {stops.map((stop, index) => (
-            <div key={index} className="flex items-center gap-2 mt-2">
+          <div className="mt-2">
+            <label
+              className="text-white font-semibold flex items-center gap-2 mb-2 cursor-pointer"
+              onClick={() => setShowAddStopModal(true)}
+            >
+              <FaPlus /> Add Stops
+            </label>
+
+            <div className="flex gap-2">
               <input
                 type="text"
-                value={stop}
-                onChange={(e) => handleStopChange(index, e.target.value)}
+                value={stopInput}
+                onChange={handleStopInput}
+                placeholder="Add bus stop"
                 className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
               />
               <button
                 type="button"
-                onClick={() => removeStop(index)}
-                className="text-[#BD2D01] bg-white p-2 rounded-full"
+                onClick={addStop}
+                className="bg-white text-[#BD2D01] w-10 h-10 flex items-center justify-center rounded-full"
               >
-                <FaMinus />
+                <FaPlus />
               </button>
             </div>
-          ))}
 
-          {/* Vehicle / Driver / Conductor / Phone */}
+            <div className="mt-3 space-y-2">
+              {stops.map((stop, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={stop}
+                    readOnly
+                    className="w-full p-3 rounded-md bg-orange-50 text-black"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeStop(index)}
+                    className="bg-white text-[#BD2D01] w-10 h-10 flex items-center justify-center rounded-full"
+                  >
+                    <FaMinus />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vehicle, Driver, Conductor, Phone */}
           <div className="flex gap-4 mt-4">
             <input
               type="text"
@@ -132,7 +161,7 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
           </div>
 
           {/* Update Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-4">
             <button
               type="submit"
               className="px-6 py-2 rounded-md text-white font-semibold"
@@ -143,13 +172,18 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
           </div>
         </form>
 
-        {/* Close Button */}
+        {/* Close */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"
         >
           ✕
         </button>
+
+        {/* AddStopModal */}
+        {showAddStopModal && (
+          <AddStopModal onClose={() => setShowAddStopModal(false)} />
+        )}
       </div>
     </div>
   );

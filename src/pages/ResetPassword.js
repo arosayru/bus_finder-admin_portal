@@ -65,7 +65,7 @@ const ResetPassword = () => {
               value={form.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
@@ -87,7 +87,7 @@ const ResetPassword = () => {
               value={form.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"

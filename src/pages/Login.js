@@ -55,7 +55,7 @@ const Login = () => {
               value={form.email}
               onChange={handleChange}
               placeholder="Email or username"
-              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <FaUser className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01]" />
           </div>
@@ -67,7 +67,7 @@ const Login = () => {
               value={form.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#F67F00] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
 import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import logo from '../assets/logo.png';
+import { loginAdmin } from '../services/userService'; // ✅ Import your backend login
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -11,16 +10,24 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     try {
-      await signInWithEmailAndPassword(auth, form.email, form.password);
+      const response = await loginAdmin(form.email, form.password);
+      console.log('Login Success:', response);
+
+      // Optional: save token/user info if backend returns it
+      localStorage.setItem('adminEmail', form.email);
+
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid email or password');
+      console.error('Login Error:', err);
+      setError(typeof err === 'string' ? err : 'Invalid email or password');
     }
   };
 
@@ -28,7 +35,8 @@ const Login = () => {
     <div
       className="min-h-screen flex flex-col items-center justify-center p-4"
       style={{
-        background: 'linear-gradient(135deg, #BD2D01 0%, #CF4602 10%, #F67F00 50%, #CF4602 90%, #BD2D01 100%)',
+        background:
+          'linear-gradient(135deg, #BD2D01 0%, #CF4602 10%, #F67F00 50%, #CF4602 90%, #BD2D01 100%)',
       }}
     >
       {/* Logo outside the form */}
@@ -104,7 +112,6 @@ const Login = () => {
             onMouseLeave={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
-            onClick={() => navigate('/dashboard')}
           >
             Log In
           </button>

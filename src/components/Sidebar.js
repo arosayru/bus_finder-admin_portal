@@ -2,6 +2,7 @@ import React from 'react';
 import {
   FaUser,
   FaUsers,
+  FaShieldAlt,
   FaBus,
   FaRoute,
   FaClock,
@@ -10,6 +11,7 @@ import {
   FaSignOutAlt,
   FaThLarge,
 } from 'react-icons/fa';
+import { HiShieldCheck } from 'react-icons/hi';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -20,6 +22,7 @@ const Sidebar = () => {
     { icon: <FaThLarge />, label: 'Dashboard', path: '/dashboard' },
     { icon: <FaUser />, label: 'User Management', path: '/user-management' },
     { icon: <FaUsers />, label: 'Staff Management', path: '/staff-management' },
+    { icon: <HiShieldCheck />, label: 'Admin Management', path: '/admin-management' }, // ✅ Newly added
     { icon: <FaBus />, label: 'Bus Management', path: '/bus-management' },
     { icon: <FaRoute />, label: 'Route Management', path: '/route-management' },
     { icon: <FaClock />, label: 'Shift Management', path: '/shift-management' },
@@ -57,7 +60,6 @@ const Sidebar = () => {
           background:
             'linear-gradient(to right, #BD2D01 0%, #CF4602 10%, #F67F00 50%, #CF4602 90%, #BD2D01 100%)',
         }}
-        
         onClick={() => navigate('/')}
       >
         <FaSignOutAlt /> Log out

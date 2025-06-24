@@ -7,6 +7,7 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
 import StaffManagement from './pages/StaffManagement';
+import AdminManagement from './pages/AdminManagement';
 import BusManagement from './pages/BusManagement';
 import RouteManagement from './pages/RouteManagement';
 import ShiftManagement from './pages/ShiftManagement';
@@ -26,6 +27,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/staff-management" element={<StaffManagement/>} />
+        <Route path="/admin-management" element={<AdminManagement/>} />
         <Route path="/bus-management" element={<BusManagement/>} />
         <Route path="/route-management" element={<RouteManagement/>} />
         <Route path="/shift-management" element={<ShiftManagement/>} />

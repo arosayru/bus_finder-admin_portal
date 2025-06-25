@@ -47,7 +47,7 @@ const AdminManagement = () => {
             style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
             onClick={() => setShowAddModal(true)}
           >
-            Add Admin <FaPlus />
+            Add <FaPlus />
           </button>
         </div>
 

@@ -11,6 +11,7 @@
     "ajv-keywords": "^5.1.0",
     "autoprefixer": "^10.4.21",
     "axios": "^1.9.0",
+    "cors": "^2.8.5",
     "firebase": "^11.9.1",
     "postcss": "^8.4.21",
     "postcss-loader": "^6.2.1",
@@ -50,5 +51,6 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.0.0"
-  }
+  },
+  "proxy": "https://bus-finder-sl-a7c6a549fbb1.herokuapp.com"
 }

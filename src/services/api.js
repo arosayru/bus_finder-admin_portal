@@ -9,4 +9,12 @@ const api = axios.create({
   },
 });
 
+// Fetch all admins from the backend
+const fetchAdmins = () => {
+  return api.get('/admin');
+};
+
+// Other API functions (if any) can be added here
+
+export { fetchAdmins };
 export default api;

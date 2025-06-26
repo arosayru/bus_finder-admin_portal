@@ -14,7 +14,11 @@ const fetchAdmins = () => {
   return api.get('/admin');
 };
 
-// Other API functions (if any) can be added here
+// Add a new admin to the backend
+const addAdmin = (adminData) => {
+  return api.post('/admin', adminData);  
+};
 
-export { fetchAdmins };
+export { fetchAdmins, addAdmin };
+
 export default api;

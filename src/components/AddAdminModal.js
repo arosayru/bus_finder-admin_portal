@@ -1,14 +1,48 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
+import { addAdmin } from '../services/api'; // Import the addAdmin API function
 
-const AddAdminModal = ({ onClose }) => {
+const AddAdminModal = ({ onClose, onAdminAdded }) => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [telNo, setTelNo] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    const adminData = {
+      firstName,
+      lastName,
+      email,
+      telNo,
+      password,
+      profilePicture: profilePic,
+    };
+
+    try {
+      await addAdmin(adminData); // Add admin to the backend
+      onAdminAdded(); // Refresh the admin list in AdminManagement
+      onClose(); // Close the modal
+    } catch (err) {
+      setError('Failed to add admin');
+    }
   };
 
   return (
@@ -19,7 +53,6 @@ const AddAdminModal = ({ onClose }) => {
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
       >
-        {/* Title */}
         <h2 className="text-white text-xl font-bold mb-4">Add Admin</h2>
 
         {/* Profile Picture */}
@@ -34,7 +67,6 @@ const AddAdminModal = ({ onClose }) => {
             ) : (
               <FaUserCircle className="text-white text-6xl" />
             )}
-            {/* Upload Icon Overlay */}
             <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow-sm group-hover:scale-110 transition">
               <FaUpload className="text-[#F67F00] text-sm" />
             </div>
@@ -49,25 +81,33 @@ const AddAdminModal = ({ onClose }) => {
         </div>
 
         {/* Form */}
-        <form className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
             placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
           />
           <input
             type="text"
             placeholder="Last Name"
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="text"
-            placeholder="Username"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
           />
           <input
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+          />
+          <input
+            type="text"
+            placeholder="Tel No"
+            value={telNo}
+            onChange={(e) => setTelNo(e.target.value)}
             className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
           />
 
@@ -76,17 +116,15 @@ const AddAdminModal = ({ onClose }) => {
             <input
               type={showPass ? 'text' : 'password'}
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
             />
             <div
               onClick={() => setShowPass(!showPass)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
             >
-              {showPass ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
+              {showPass ? <FaEye className="text-[#BD2D01]" /> : <FaEyeSlash className="text-[#BD2D01]" />}
             </div>
           </div>
 
@@ -95,21 +133,22 @@ const AddAdminModal = ({ onClose }) => {
             <input
               type={showConfirm ? 'text' : 'password'}
               placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
             />
             <div
               onClick={() => setShowConfirm(!showConfirm)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
             >
-              {showConfirm ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
+              {showConfirm ? <FaEye className="text-[#BD2D01]" /> : <FaEyeSlash className="text-[#BD2D01]" />}
             </div>
           </div>
 
-          {/* Add Button Right Aligned */}
+          {/* Error Message */}
+          {error && <p className="text-white text-sm">{error}</p>}
+
+          {/* Add Button */}
           <div className="flex justify-end">
             <button
               type="submit"

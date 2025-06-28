@@ -1,24 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddAdminModal from '../components/AddAdminModal';
 import EditAdminModal from '../components/EditAdminModal';
 import DeleteAdminModal from '../components/DeleteAdminModal';
 import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
+import axios from 'axios';
 
 const AdminManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [deletingAdmin, setDeletingAdmin] = useState(null);
+  const [adminList, setAdminList] = useState([]);
 
-  const adminList = Array(12).fill({
-    firstName: 'John',
-    lastName: 'Rubic',
-    username: 'john99',
-    email: 'john@gmail.com',
-    password: '********',
-    profilePic: '',
-  });
+  // Fetch all admins from the backend when the component is mounted
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const response = await axios.get('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin');
+        setAdminList(response.data); // Assuming the API returns an array of admin objects
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+      }
+    };
+
+    fetchAdmins();
+  }, []); // The empty dependency array ensures this runs only once when the component is mounted
 
   return (
     <div className="flex">
@@ -58,7 +65,7 @@ const AdminManagement = () => {
               <thead 
                 className="bg-[#F67F00] text-white text-lg"
                 style={{ position: 'sticky', top: 0, zIndex: 10 }}
-                >
+              >
                 <tr>
                   <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
                     {' '}
@@ -69,14 +76,11 @@ const AdminManagement = () => {
                   <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
                     Last Name
                   </th>
-                  <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    Username
-                  </th>
                   <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
                     Email
                   </th>
                   <th className="p-3 w-[130px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    Password
+                    Tel No.
                   </th>
                   <th className="p-3 w-[90px]">Action</th>
                 </tr>
@@ -85,13 +89,16 @@ const AdminManagement = () => {
                 {adminList.map((admin, index) => (
                   <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
                     <td className="p-3 w-[120px] text-center border-r">
-                      <FaUserCircle className="text-2xl text-[#BD2D01]" />
+                      <img
+                        src={admin.profilePicture}  // Display the profile picture from backend
+                        alt="Admin"
+                        className="w-10 h-10 rounded-full"
+                      />
                     </td>
                     <td className="p-3 w-[160px] border-r">{admin.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{admin.lastName}</td>
-                    <td className="p-3 w-[180px] border-r">{admin.username}</td>
                     <td className="p-3 w-[220px] border-r">{admin.email}</td>
-                    <td className="p-3 w-[130px] border-r">{admin.password}</td>
+                    <td className="p-3 w-[130px] border-r">{admin.telNo}</td>
                     <td className="p-3 w-[90px]">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit

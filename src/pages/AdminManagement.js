@@ -4,7 +4,7 @@ import Topbar from '../components/Topbar';
 import AddAdminModal from '../components/AddAdminModal';
 import EditAdminModal from '../components/EditAdminModal';
 import DeleteAdminModal from '../components/DeleteAdminModal';
-import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 
 const AdminManagement = () => {
@@ -13,19 +13,22 @@ const AdminManagement = () => {
   const [deletingAdmin, setDeletingAdmin] = useState(null);
   const [adminList, setAdminList] = useState([]);
 
-  // Fetch all admins from the backend when the component is mounted
-  useEffect(() => {
-    const fetchAdmins = async () => {
-      try {
-        const response = await axios.get('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin');
-        setAdminList(response.data); // Assuming the API returns an array of admin objects
-      } catch (error) {
-        console.error('Error fetching admin data:', error);
-      }
-    };
+  const fetchAdmins = async () => {
+    try {
+      const response = await axios.get('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin');
+      setAdminList(response.data);
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchAdmins();
-  }, []); // The empty dependency array ensures this runs only once when the component is mounted
+  }, []);
+
+  const handleDeleteConfirm = (deletedAdmin) => {
+    setAdminList(prev => prev.filter(a => a.adminId !== deletedAdmin.adminId));
+  };
 
   return (
     <div className="flex">
@@ -62,14 +65,12 @@ const AdminManagement = () => {
         <div className="mt-8 rounded-xl border border-orange-200 overflow-x-auto">
           <div style={{ maxHeight: '540px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
-              <thead 
+              <thead
                 className="bg-[#F67F00] text-white text-lg"
                 style={{ position: 'sticky', top: 0, zIndex: 10 }}
               >
                 <tr>
-                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    {' '}
-                  </th>
+                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}></th>
                   <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
                     First Name
                   </th>
@@ -90,7 +91,7 @@ const AdminManagement = () => {
                   <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
                     <td className="p-3 w-[120px] text-center border-r">
                       <img
-                        src={admin.profilePicture}  // Display the profile picture from backend
+                        src={admin.profilePicture}
                         alt="Admin"
                         className="w-10 h-10 rounded-full"
                       />
@@ -134,10 +135,7 @@ const AdminManagement = () => {
           <DeleteAdminModal
             admin={deletingAdmin}
             onClose={() => setDeletingAdmin(null)}
-            onConfirm={(adminToDelete) => {
-              console.log('Deleted:', adminToDelete);
-              setDeletingAdmin(null);
-            }}
+            onConfirm={handleDeleteConfirm}
           />
         )}
       </div>

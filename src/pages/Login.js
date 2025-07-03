@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
 import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import logo from '../assets/logo.png';
+import axios from 'axios';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -16,8 +15,28 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Form validation
+    if (!form.email || !form.password) {
+      setError('Please fill in both email and password');
+      return;
+    }
+
     try {
-      await signInWithEmailAndPassword(auth, form.email, form.password);
+      // Sending login request to backend API
+      const response = await axios.post(
+        'https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin/login',
+        {
+          Email: form.email,
+          Password: form.password,
+        }
+      );
+
+      // Handle successful login
+      const token = response.data.token;
+      localStorage.setItem('admin_token', token);  // Store the token in local storage
+
+      // Redirect to the dashboard after successful login
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid email or password');
@@ -104,7 +123,6 @@ const Login = () => {
             onMouseLeave={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
-            onClick={() => navigate('/dashboard')}
           >
             Log In
           </button>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
 import axios from 'axios';
 
-const AddAdminModal = ({ onClose }) => {
+const AddAdminModal = ({ onClose, onAddAdmin }) => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
@@ -60,6 +60,7 @@ const AddAdminModal = ({ onClose }) => {
 
         if (createAdminResponse.status === 201) {
           // Success: Admin added
+          onAddAdmin(createAdminResponse.data); // Pass the new admin data to update the list
           onClose();
         } else {
           setErrorMessage('Failed to create admin. Please try again later.');

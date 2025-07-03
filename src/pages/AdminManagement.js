@@ -26,6 +26,10 @@ const AdminManagement = () => {
     fetchAdmins();
   }, []);
 
+  const handleAddAdmin = (newAdmin) => {
+    setAdminList(prevList => [...prevList, newAdmin]); // Append new admin to the list
+  };
+
   const handleDeleteConfirm = (deletedAdmin) => {
     setAdminList(prev => prev.filter(a => a.adminId !== deletedAdmin.adminId));
   };
@@ -120,7 +124,7 @@ const AdminManagement = () => {
         </div>
 
         {/* Modals */}
-        {showAddModal && <AddAdminModal onClose={() => setShowAddModal(false)} />}
+        {showAddModal && <AddAdminModal onClose={() => setShowAddModal(false)} onAddAdmin={handleAddAdmin} />}
         {editingAdmin && (
           <EditAdminModal
             admin={editingAdmin}

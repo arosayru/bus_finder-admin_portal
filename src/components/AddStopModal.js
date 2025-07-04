@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import DeleteStopModal from './DeleteStopModal';
+import api from '../services/api'; // Import the API instance to make requests
 
 const AddStopModal = ({ onClose }) => {
   const [stopInput, setStopInput] = useState('');
-  const [stops, setStops] = useState([]);
+  const [stops, setStops] = useState([]); // State to hold bus stops
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [stopToDeleteIndex, setStopToDeleteIndex] = useState(null);
 
+  // Fetch all bus stops from the API when the modal opens
+  useEffect(() => {
+    const fetchStops = async () => {
+      try {
+        const response = await api.get('/busstop'); // Fetch bus stops from API
+        setStops(response.data); // Set the bus stops data to state
+      } catch (error) {
+        console.error('Error fetching bus stops:', error);
+      }
+    };
+    fetchStops();
+  }, []); // Empty dependency array to run only once when the modal is shown
+
   const handleAdd = () => {
     if (stopInput.trim() !== '') {
-      setStops([...stops, stopInput.trim()]);
+      setStops([...stops, { stopName: stopInput.trim() }]);
       setStopInput('');
     }
   };
@@ -71,25 +85,30 @@ const AddStopModal = ({ onClose }) => {
           Bus Stop List
         </div>
         <div className="bg-orange-100 max-h-64 overflow-y-auto rounded-b-md">
-          {stops.map((stop, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center px-4 py-2 border-b border-orange-300 hover:bg-orange-200 transition"
-            >
-              <span>{stop}</span>
-              <FaTrash
-                onClick={() => requestDelete(index)}
-                className="text-red-700 cursor-pointer hover:text-red-900"
-              />
-            </div>
-          ))}
+          {/* Displaying fetched bus stops */}
+          {stops.length === 0 ? (
+            <p className="text-center text-gray-500">No bus stops available</p>
+          ) : (
+            stops.map((stop, index) => (
+              <div
+                key={index}
+                className="flex justify-between items-center px-4 py-2 border-b border-orange-300 hover:bg-orange-200 transition"
+              >
+                <span>{stop.stopName}</span> {/* Display only the StopName */}
+                <FaTrash
+                  onClick={() => requestDelete(index)}
+                  className="text-red-700 cursor-pointer hover:text-red-900"
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <DeleteStopModal
-          stopName={stops[stopToDeleteIndex]}
+          stopName={stops[stopToDeleteIndex]?.stopName}
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDelete}
         />

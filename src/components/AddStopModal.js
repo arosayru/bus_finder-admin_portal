@@ -8,6 +8,7 @@ const AddStopModal = ({ onClose }) => {
   const [stops, setStops] = useState([]); // State to hold bus stops
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [stopToDeleteIndex, setStopToDeleteIndex] = useState(null);
+  const [stopToDeleteName, setStopToDeleteName] = useState(null); // Store stop name for deletion
 
   // Fetch all bus stops from the API when the modal opens
   useEffect(() => {
@@ -29,18 +30,26 @@ const AddStopModal = ({ onClose }) => {
     }
   };
 
-  const requestDelete = (index) => {
+  const requestDelete = (index, stopName) => {
     setStopToDeleteIndex(index);
+    setStopToDeleteName(stopName); // Store stop name for deletion
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    if (stopToDeleteIndex !== null) {
-      const updated = [...stops];
-      updated.splice(stopToDeleteIndex, 1);
-      setStops(updated);
-      setShowDeleteModal(false);
-      setStopToDeleteIndex(null);
+  const confirmDelete = async () => {
+    if (stopToDeleteName) {
+      try {
+        // Send DELETE request to remove the bus stop from the backend
+        await api.delete(`/busstop/${stopToDeleteName}`);
+        // Update the frontend by removing the stop from the list
+        const updatedStops = stops.filter((stop) => stop.stopName !== stopToDeleteName);
+        setStops(updatedStops);
+        setShowDeleteModal(false);
+        setStopToDeleteIndex(null);
+        setStopToDeleteName(null); // Clear state after delete
+      } catch (error) {
+        console.error('Error deleting bus stop:', error);
+      }
     }
   };
 
@@ -96,7 +105,7 @@ const AddStopModal = ({ onClose }) => {
               >
                 <span>{stop.stopName}</span> {/* Display only the StopName */}
                 <FaTrash
-                  onClick={() => requestDelete(index)}
+                  onClick={() => requestDelete(index, stop.stopName)} // Pass stopName to the delete request
                   className="text-red-700 cursor-pointer hover:text-red-900"
                 />
               </div>
@@ -108,9 +117,9 @@ const AddStopModal = ({ onClose }) => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <DeleteStopModal
-          stopName={stops[stopToDeleteIndex]?.stopName}
+          stopName={stopToDeleteName} // Pass the stop name to the DeleteStopModal
           onCancel={() => setShowDeleteModal(false)}
-          onConfirm={confirmDelete}
+          onConfirm={confirmDelete} // Call confirmDelete on confirmation
         />
       )}
     </div>

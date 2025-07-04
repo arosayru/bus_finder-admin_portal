@@ -22,7 +22,7 @@ const Sidebar = () => {
     { icon: <FaThLarge />, label: 'Dashboard', path: '/dashboard' },
     { icon: <FaUser />, label: 'User Management', path: '/user-management' },
     { icon: <FaUsers />, label: 'Staff Management', path: '/staff-management' },
-    { icon: <HiShieldCheck />, label: 'Admin Management', path: '/admin-management' }, // ✅ Newly added
+    { icon: <HiShieldCheck />, label: 'Admin Management', path: '/admin-management' },
     { icon: <FaBus />, label: 'Bus Management', path: '/bus-management' },
     { icon: <FaRoute />, label: 'Route Management', path: '/route-management' },
     { icon: <FaClock />, label: 'Shift Management', path: '/shift-management' },

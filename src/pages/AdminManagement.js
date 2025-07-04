@@ -5,7 +5,7 @@ import AddAdminModal from '../components/AddAdminModal';
 import EditAdminModal from '../components/EditAdminModal';
 import DeleteAdminModal from '../components/DeleteAdminModal';
 import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
-import axios from 'axios';
+import api from '../services/api';
 
 const AdminManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -15,7 +15,7 @@ const AdminManagement = () => {
 
   const fetchAdmins = async () => {
     try {
-      const response = await axios.get('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin');
+      const response = await api.get('/admin');
       setAdminList(response.data);
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -27,7 +27,7 @@ const AdminManagement = () => {
   }, []);
 
   const handleAddAdmin = (newAdmin) => {
-    setAdminList(prevList => [...prevList, newAdmin]); // Append new admin to the list
+    setAdminList(prev => [...prev, newAdmin]);
   };
 
   const handleDeleteConfirm = (deletedAdmin) => {
@@ -75,18 +75,10 @@ const AdminManagement = () => {
               >
                 <tr>
                   <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}></th>
-                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    First Name
-                  </th>
-                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    Last Name
-                  </th>
-                  <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    Email
-                  </th>
-                  <th className="p-3 w-[130px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>
-                    Tel No.
-                  </th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>First Name</th>
+                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Last Name</th>
+                  <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Email</th>
+                  <th className="p-3 w-[130px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Tel No.</th>
                   <th className="p-3 w-[90px]">Action</th>
                 </tr>
               </thead>
@@ -94,11 +86,7 @@ const AdminManagement = () => {
                 {adminList.map((admin, index) => (
                   <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
                     <td className="p-3 w-[120px] text-center border-r">
-                      <img
-                        src={admin.profilePicture}
-                        alt="Admin"
-                        className="w-10 h-10 rounded-full"
-                      />
+                      <img src={admin.profilePicture} alt="Admin" className="w-10 h-10 rounded-full" />
                     </td>
                     <td className="p-3 w-[160px] border-r">{admin.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{admin.lastName}</td>
@@ -106,14 +94,8 @@ const AdminManagement = () => {
                     <td className="p-3 w-[130px] border-r">{admin.telNo}</td>
                     <td className="p-3 w-[90px]">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
-                        <FaEdit
-                          className="cursor-pointer text-[#2C44BB]"
-                          onClick={() => setEditingAdmin(admin)}
-                        />
-                        <FaTrash
-                          className="cursor-pointer text-[#BD1111]"
-                          onClick={() => setDeletingAdmin(admin)}
-                        />
+                        <FaEdit className="cursor-pointer text-[#2C44BB]" onClick={() => setEditingAdmin(admin)} />
+                        <FaTrash className="cursor-pointer text-[#BD1111]" onClick={() => setDeletingAdmin(admin)} />
                       </div>
                     </td>
                   </tr>

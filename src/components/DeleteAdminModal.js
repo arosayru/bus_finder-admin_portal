@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api'; // ✅ Use centralized API service
 
 const DeleteAdminModal = ({ admin, onClose, onConfirm }) => {
   const [loading, setLoading] = useState(false);
@@ -7,7 +7,8 @@ const DeleteAdminModal = ({ admin, onClose, onConfirm }) => {
   const handleDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin/${admin.adminId}`);
+      // Use centralized API call for deletion
+      await api.delete(`/admin/${admin.adminId}`);
       onConfirm(admin); // Inform parent to refresh the list
       onClose();
     } catch (error) {

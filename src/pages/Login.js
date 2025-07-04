@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import logo from '../assets/logo.png';
-import axios from 'axios';
+import api from '../services/api'; // ✅ Use centralized API service
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -23,18 +23,15 @@ const Login = () => {
     }
 
     try {
-      // Sending login request to backend API
-      const response = await axios.post(
-        'https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin/login',
-        {
-          Email: form.email,
-          Password: form.password,
-        }
-      );
+      // Sending login request to backend API using centralized api.js
+      const response = await api.post('/admin/login', {
+        Email: form.email,
+        Password: form.password,
+      });
 
       // Handle successful login
       const token = response.data.token;
-      localStorage.setItem('admin_token', token);  // Store the token in local storage
+      localStorage.setItem('admin_token', token);
 
       // Redirect to the dashboard after successful login
       navigate('/dashboard');

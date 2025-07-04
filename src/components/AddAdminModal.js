@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
-import axios from 'axios';
+import api from '../services/api'; // ✅ Import centralized API service
 
 const AddAdminModal = ({ onClose, onAddAdmin }) => {
   const [showPass, setShowPass] = useState(false);
@@ -32,19 +32,15 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
     setLoading(true);
 
     try {
-      // Step 1: Upload the profile picture
+      // Step 1: Upload the profile picture using the API
       const formDataForImage = new FormData();
       formDataForImage.append('file', formData.profilePicture);
 
-      const uploadResponse = await axios.post(
-        'https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin/upload-profile-picture',
-        formDataForImage,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      const uploadResponse = await api.post('/admin/upload-profile-picture', formDataForImage, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (uploadResponse.data.link) {
         // Step 2: Create the admin with the uploaded image URL
@@ -53,10 +49,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
           profilePicture: uploadResponse.data.link,
         };
 
-        const createAdminResponse = await axios.post(
-          'https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/api/admin',
-          adminData
-        );
+        const createAdminResponse = await api.post('/admin', adminData);
 
         if (createAdminResponse.status === 201) {
           // Success: Admin added

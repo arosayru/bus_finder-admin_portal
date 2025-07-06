@@ -16,7 +16,25 @@ const AdminManagement = () => {
   const fetchAdmins = async () => {
     try {
       const response = await api.get('/admin');
-      setAdminList(response.data);
+      const admins = response.data;
+
+      // Fetch profile pictures for each admin
+      const adminsWithPics = await Promise.all(
+        admins.map(async (admin) => {
+          try {
+            const picRes = await api.get(`/admin/profile-picture/${admin.adminId}`, {
+              responseType: 'blob'
+            });
+            const imageUrl = URL.createObjectURL(picRes.data);
+            return { ...admin, profilePicture: imageUrl };
+          } catch (err) {
+            console.error(`Error fetching profile picture for ${admin.email}:`, err);
+            return { ...admin, profilePicture: '' }; // fallback
+          }
+        })
+      );
+
+      setAdminList(adminsWithPics);
     } catch (error) {
       console.error('Error fetching admin data:', error);
     }
@@ -27,11 +45,11 @@ const AdminManagement = () => {
   }, []);
 
   const handleAddAdmin = (newAdmin) => {
-    setAdminList(prev => [...prev, newAdmin]);
+    setAdminList((prev) => [...prev, newAdmin]);
   };
 
   const handleDeleteConfirm = (deletedAdmin) => {
-    setAdminList(prev => prev.filter(a => a.adminId !== deletedAdmin.adminId));
+    setAdminList((prev) => prev.filter((a) => a.adminId !== deletedAdmin.adminId));
   };
 
   return (
@@ -86,7 +104,15 @@ const AdminManagement = () => {
                 {adminList.map((admin, index) => (
                   <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
                     <td className="p-3 w-[120px] text-center border-r">
-                      <img src={admin.profilePicture} alt="Admin" className="w-10 h-10 rounded-full" />
+                      {admin.profilePicture ? (
+                        <img
+                          src={admin.profilePicture}
+                          alt="Admin"
+                          className="w-10 h-10 rounded-full object-cover mx-auto"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-300 mx-auto" />
+                      )}
                     </td>
                     <td className="p-3 w-[160px] border-r">{admin.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{admin.lastName}</td>
@@ -106,7 +132,9 @@ const AdminManagement = () => {
         </div>
 
         {/* Modals */}
-        {showAddModal && <AddAdminModal onClose={() => setShowAddModal(false)} onAddAdmin={handleAddAdmin} />}
+        {showAddModal && (
+          <AddAdminModal onClose={() => setShowAddModal(false)} onAddAdmin={handleAddAdmin} />
+        )}
         {editingAdmin && (
           <EditAdminModal
             admin={editingAdmin}

@@ -1,16 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import api from '../services/api'; // Make sure this exists and points to Heroku baseURL
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Recover email:', email);
-    // TODO: Firebase password reset or email verification logic
-    navigate('/verify-email'); // Move to verification screen
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('/admin/forgot-password', { Email: email });
+      console.log('Reset link sent:', response.data);
+      localStorage.setItem('resetEmail', email); // Store for use in verification
+      navigate('/verify-email');
+    } catch (err) {
+      console.error('Error:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,21 +68,24 @@ const ForgotPassword = () => {
             className="w-full p-3 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
 
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
           <button
             type="submit"
             className="w-full py-3 rounded-md font-semibold text-white transition duration-300"
             style={{
               background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
+              cursor: loading ? 'not-allowed' : 'pointer',
             }}
+            disabled={loading}
             onMouseEnter={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #CF4602, #F67F00)')
             }
             onMouseLeave={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
-            onClick={() => navigate('/verify-email')}
           >
-            Recover Password
+            {loading ? 'Sending...' : 'Recover Password'}
           </button>
         </form>
       </div>

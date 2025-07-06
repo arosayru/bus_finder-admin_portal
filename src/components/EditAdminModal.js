@@ -119,8 +119,8 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
             type="email"
             placeholder="Email"
             value={form.email}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
+            disabled
+            className="w-full p-3 rounded-md bg-gray-200 text-black placeholder-[#7E7573] cursor-not-allowed focus:outline-none"
           />
           <input
             name="telNo"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
-import api from '../services/api'; // ✅ Import centralized API service
+import api from '../services/api';
 
 const AddAdminModal = ({ onClose, onAddAdmin }) => {
   const [showPass, setShowPass] = useState(false);

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
+import api from '../services/api';
 
 const EditAdminModal = ({ admin, onClose, onUpdate }) => {
   const [form, setForm] = useState({ ...admin });
-  const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [profilePic, setProfilePic] = useState(admin.profilePic || null);
+  const [profilePicFile, setProfilePicFile] = useState(null);
+  const [preview, setPreview] = useState(admin.profilePicture || '');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -14,13 +14,52 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) setProfilePic(URL.createObjectURL(file));
+    if (file) {
+      setProfilePicFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onUpdate({ ...form, profilePic });
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    let imageUrl = form.profilePicture;
+
+    // Step 1: Upload profile picture if selected
+    if (profilePicFile) {
+      const formData = new FormData();
+      formData.append('file', profilePicFile);
+
+      const uploadRes = await api.put(`/admin/update-profile-picture/${form.adminId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      // If backend returns the link (e.g. Google Drive), assign it here
+      if (uploadRes.data?.link) {
+        imageUrl = uploadRes.data.link;
+      }
+    }
+
+    // Step 2: Update other details including profilePicture (preserve it)
+    const updatePayload = {
+      email: form.email,
+      firstName: form.firstName,
+      lastName: form.lastName,
+      telNo: form.telNo,
+      profilePicture: imageUrl || '',
+    };
+
+    await api.put(`/admin/${form.adminId}`, updatePayload);
+
+    // Step 3: Notify parent with updated picture
+    onUpdate({ ...form, profilePicture: imageUrl });
+    onClose();
+  } catch (err) {
+    console.error('Error updating admin:', err);
+    alert('Failed to update admin. Please try again.');
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -35,9 +74,9 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
         {/* Profile Picture Preview */}
         <div className="flex justify-center mb-4 relative">
           <label htmlFor="edit-profile-upload" className="cursor-pointer relative group">
-            {profilePic ? (
+            {preview ? (
               <img
-                src={profilePic}
+                src={preview}
                 alt="Profile Preview"
                 className="w-20 h-20 rounded-full object-cover border-2 border-white"
               />
@@ -76,14 +115,6 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
             className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
           />
           <input
-            name="username"
-            type="text"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
-          <input
             name="email"
             type="email"
             placeholder="Email"
@@ -91,47 +122,14 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
             onChange={handleChange}
             className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
           />
-
-          {/* Password */}
-          <div className="relative">
-            <input
-              name="password"
-              type={showPass ? 'text' : 'password'}
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-            />
-            <div
-              onClick={() => setShowPass(!showPass)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            >
-              {showPass ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
-            </div>
-          </div>
-
-          {/* Confirm Password (optional for UI) */}
-          <div className="relative">
-            <input
-              type={showConfirm ? 'text' : 'password'}
-              placeholder="Confirm Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-            />
-            <div
-              onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            >
-              {showConfirm ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
-            </div>
-          </div>
+          <input
+            name="telNo"
+            type="text"
+            placeholder="Tel No."
+            value={form.telNo}
+            onChange={handleChange}
+            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
+          />
 
           {/* Update Button */}
           <div className="flex justify-end">

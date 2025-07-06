@@ -18,7 +18,6 @@ const AdminManagement = () => {
       const response = await api.get('/admin');
       const admins = response.data;
 
-      // Fetch profile pictures for each admin
       const adminsWithPics = await Promise.all(
         admins.map(async (admin) => {
           try {
@@ -29,7 +28,7 @@ const AdminManagement = () => {
             return { ...admin, profilePicture: imageUrl };
           } catch (err) {
             console.error(`Error fetching profile picture for ${admin.email}:`, err);
-            return { ...admin, profilePicture: '' }; // fallback
+            return { ...admin, profilePicture: '' };
           }
         })
       );
@@ -133,14 +132,17 @@ const AdminManagement = () => {
 
         {/* Modals */}
         {showAddModal && (
-          <AddAdminModal onClose={() => setShowAddModal(false)} onAddAdmin={handleAddAdmin} />
+          <AddAdminModal 
+            onClose={() => setShowAddModal(false)} 
+            onAddAdmin={handleAddAdmin} 
+          />
         )}
         {editingAdmin && (
           <EditAdminModal
             admin={editingAdmin}
             onClose={() => setEditingAdmin(null)}
             onUpdate={(updatedAdmin) => {
-              console.log('Updated:', updatedAdmin);
+              fetchAdmins();
               setEditingAdmin(null);
             }}
           />

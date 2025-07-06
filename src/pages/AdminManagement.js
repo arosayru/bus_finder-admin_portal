@@ -12,6 +12,7 @@ const AdminManagement = () => {
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [deletingAdmin, setDeletingAdmin] = useState(null);
   const [adminList, setAdminList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchAdmins = async () => {
     try {
@@ -51,6 +52,14 @@ const AdminManagement = () => {
     setAdminList((prev) => prev.filter((a) => a.adminId !== deletedAdmin.adminId));
   };
 
+  const filteredAdmins = adminList.filter((admin) => {
+    const fullName = `${admin.firstName} ${admin.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm.toLowerCase()) ||
+      admin.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
   return (
     <div className="flex">
       <Sidebar />
@@ -63,11 +72,14 @@ const AdminManagement = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
             />
             <button
               className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
               style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+              disabled
             >
               Search
             </button>
@@ -100,7 +112,7 @@ const AdminManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {adminList.map((admin, index) => (
+                {filteredAdmins.map((admin, index) => (
                   <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
                     <td className="p-3 w-[120px] text-center border-r">
                       {admin.profilePicture ? (

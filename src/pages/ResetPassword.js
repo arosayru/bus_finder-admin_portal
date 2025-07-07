@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
+import api from '../services/api'; // Axios instance with baseURL
 
 const ResetPassword = () => {
   const [form, setForm] = useState({ password: '', confirmPassword: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState({ pass: false, confirm: false });
   const navigate = useNavigate();
 
@@ -13,16 +15,38 @@ const ResetPassword = () => {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+      setError('Passwords do not match.');
       return;
     }
 
-    console.log("Password reset to:", form.password);
-    navigate('/');
+    const email = localStorage.getItem('resetEmail');
+    if (!email) {
+      setError('Email not found. Please restart the reset process.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.post('/admin/reset-password', {
+        Email: email,
+        NewPassword: form.password,
+      });
+
+      if (response.status === 200 || response.data?.success === true) {
+        navigate('/'); // redirect to login
+      } else {
+        setError('Password reset failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Reset error:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,7 +85,7 @@ const ResetPassword = () => {
           <div className="relative">
             <input
               name="password"
-              type={showPass.pass ? "text" : "password"}
+              type={showPass.pass ? 'text' : 'password'}
               value={form.password}
               onChange={handleChange}
               placeholder="Password"
@@ -83,7 +107,7 @@ const ResetPassword = () => {
           <div className="relative">
             <input
               name="confirmPassword"
-              type={showPass.confirm ? "text" : "password"}
+              type={showPass.confirm ? 'text' : 'password'}
               value={form.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm Password"
@@ -108,7 +132,9 @@ const ResetPassword = () => {
             className="w-full py-3 rounded-md font-semibold text-white transition duration-300"
             style={{
               background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
+              cursor: loading ? 'not-allowed' : 'pointer',
             }}
+            disabled={loading}
             onMouseEnter={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #CF4602, #F67F00)')
             }
@@ -116,7 +142,7 @@ const ResetPassword = () => {
               (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
           >
-            Continue
+            {loading ? 'Submitting...' : 'Continue'}
           </button>
         </form>
       </div>

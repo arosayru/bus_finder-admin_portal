@@ -1,26 +1,60 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import api from '../services/api'; // Axios instance with baseURL
 
 const EmailVerification = () => {
   const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const value = e.target.value;
-    setCode(value)
+    setCode(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Entered Code:', code);
-    // TODO: Validate code with backend/Firebase
-    navigate('/reset-password');
+    setError('');
+    setLoading(true);
+
+    const email = localStorage.getItem('resetEmail');
+    if (!email) {
+      setError('Email is missing. Please go back and start again.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('Sending verification:', { email, oobCode: code });
+
+      const response = await api.post('/admin/verify-oob-code', {
+        email: email,
+        oobCode: code,
+      });
+
+      const isValid =
+        response.data === true ||
+        response.data?.success === true ||
+        (typeof response.data?.message === 'string' &&
+          response.data.message.toLowerCase().includes('valid'));
+
+      if (isValid) {
+        navigate('/reset-password');
+      } else {
+        setError('Invalid or expired code. Please try again.');
+      }
+    } catch (err) {
+      console.error('Verification error:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Failed to verify the code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resendCode = () => {
     console.log('Resend code triggered');
-    // TODO: Trigger resend logic
+    // TODO: Add resend code logic
   };
 
   return (
@@ -56,10 +90,14 @@ const EmailVerification = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="text"
+            required
             value={code}
             onChange={handleChange}
+            placeholder="Enter verification code"
             className="w-full p-3 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <div className="text-sm text-gray-500">
             If you don’t received the code?{' '}
@@ -76,7 +114,9 @@ const EmailVerification = () => {
             className="w-full py-3 rounded-md font-semibold text-white transition duration-300"
             style={{
               background: 'linear-gradient(to bottom, #F67F00, #CF4602)',
+              cursor: loading ? 'not-allowed' : 'pointer',
             }}
+            disabled={loading}
             onMouseEnter={(e) =>
               (e.target.style.background = 'linear-gradient(to bottom, #CF4602, #F67F00)')
             }
@@ -84,7 +124,7 @@ const EmailVerification = () => {
               (e.target.style.background = 'linear-gradient(to bottom, #F67F00, #CF4602)')
             }
           >
-            Verify and Proceed
+            {loading ? 'Verifying...' : 'Verify and Proceed'}
           </button>
         </form>
       </div>

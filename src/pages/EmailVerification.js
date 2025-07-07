@@ -7,6 +7,7 @@ const EmailVerification = () => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendMsg, setResendMsg] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -16,6 +17,7 @@ const EmailVerification = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setResendMsg('');
     setLoading(true);
 
     const email = localStorage.getItem('resetEmail');
@@ -26,8 +28,6 @@ const EmailVerification = () => {
     }
 
     try {
-      console.log('Sending verification:', { email, oobCode: code });
-
       const response = await api.post('/admin/verify-oob-code', {
         email: email,
         oobCode: code,
@@ -52,9 +52,27 @@ const EmailVerification = () => {
     }
   };
 
-  const resendCode = () => {
-    console.log('Resend code triggered');
-    // TODO: Add resend code logic
+  const resendCode = async () => {
+    const email = localStorage.getItem('resetEmail');
+    if (!email) {
+      setError('Email not found. Please return to Forgot Password.');
+      return;
+    }
+
+    setError('');
+    setResendMsg('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('/admin/forgot-password', { Email: email });
+      console.log('Resend success:', response.data);
+      setResendMsg('A new code has been sent to your email.');
+    } catch (err) {
+      console.error('Resend error:', err.response?.data || err.message);
+      setError('Failed to resend the code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -98,6 +116,7 @@ const EmailVerification = () => {
           />
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
+          {resendMsg && <p className="text-green-600 text-sm">{resendMsg}</p>}
 
           <div className="text-sm text-gray-500">
             If you don’t received the code?{' '}

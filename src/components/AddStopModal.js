@@ -1,191 +1,211 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
-import { Autocomplete, LoadScript } from '@react-google-maps/api'; // Import LoadScript and Autocomplete
 import DeleteStopModal from './DeleteStopModal';
-import api from '../services/api'; // Import the API instance to make requests
+import api from '../services/api';
 
 const AddStopModal = ({ onClose }) => {
   const [stopInput, setStopInput] = useState('');
-  const [stops, setStops] = useState([]); // State to hold bus stops
-  const [selectedStop, setSelectedStop] = useState(null); // Store selected bus stop
+  const [suggestions, setSuggestions] = useState([]);
+  const [stops, setStops] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [stopToDeleteIndex, setStopToDeleteIndex] = useState(null);
-  const [stopToDeleteName, setStopToDeleteName] = useState(null); // Store stop name for deletion
-  const autocompleteRef = useRef(null); // Reference to the Autocomplete input field
+  const timeoutRef = useRef(null);
 
-  // Fetch all bus stops from the API when the modal opens
+  // Fetch all saved stops on modal open
   useEffect(() => {
-    const fetchStops = async () => {
-      try {
-        const response = await api.get('/busstop'); // Fetch bus stops from API
-        setStops(response.data); // Set the bus stops data to state
-      } catch (error) {
-        console.error('Error fetching bus stops:', error);
-      }
-    };
-    fetchStops();
-  }, []); // Empty dependency array to run only once when the modal is shown
+    fetchAllStops();
+  }, []);
 
-  const handleAdd = async () => {
-    if (selectedStop) {
-      const { stopName, stopLatitude, stopLongitude } = selectedStop;
-
-      // Send the new bus stop data to the backend API
-      try {
-        await api.post('/busstop', {
-          StopName: stopName,
-          StopLatitude: stopLatitude,
-          StopLongitude: stopLongitude,
-        });
-        setStops([...stops, selectedStop]); // Add the new stop to the list
-        setStopInput(''); // Clear the input field
-        setSelectedStop(null); // Reset selected stop
-      } catch (error) {
-        console.error('Error adding bus stop:', error);
-      }
+  const fetchAllStops = async () => {
+    try {
+      const res = await api.get('/busstop');
+      setStops(res.data || []);
+    } catch (error) {
+      console.error('Error fetching stops:', error);
+      setStops([]);
     }
   };
 
-  const requestDelete = (index, stopName) => {
+  // Debounced suggestions fetch
+  useEffect(() => {
+    if (stopInput.trim() === '') {
+      setSuggestions([]);
+      return;
+    }
+
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      fetchSuggestions(stopInput.trim());
+    }, 300);
+  }, [stopInput]);
+
+  const fetchSuggestions = async (query) => {
+    try {
+      const res = await api.get(`/busstop/search/google/${query}`);
+      const data = res.data;
+
+      if (Array.isArray(data)) {
+        setSuggestions(data);
+      } else if (data && data.description) {
+        setSuggestions([data]);
+      } else if (data && typeof data === 'string') {
+        setSuggestions([{ description: data }]);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Suggestion fetch error:', error);
+      setSuggestions([]);
+    }
+  };
+
+  const handleAdd = async () => {
+    if (stopInput.trim() === '') return;
+
+    try {
+      const response = await api.get(`/busstop/search/google/${stopInput.trim()}`);
+      const data = response.data;
+
+      const latitude = data.latitude || (data.location?.lat ?? 0);
+      const longitude = data.longitude || (data.location?.lng ?? 0);
+      const stopName = data.stopName || data.description || stopInput.trim();
+
+      if (latitude === 0 || longitude === 0) {
+        console.warn('Latitude/Longitude not found for:', stopName);
+        alert('Could not retrieve exact location for this stop.');
+        return;
+      }
+
+      const newStop = {
+        stopName,
+        stopLatitude: latitude,
+        stopLongitude: longitude,
+      };
+
+      await api.post('/busstop', {
+        StopName: newStop.stopName,
+        StopLatitude: newStop.stopLatitude,
+        StopLongitude: newStop.stopLongitude,
+      });
+
+      setStops([...stops, newStop]);
+      setStopInput('');
+      setSuggestions([]);
+    } catch (error) {
+      console.error('Add stop failed:', error);
+      alert('Failed to add stop');
+    }
+  };
+
+  const handleSelectSuggestion = (item) => {
+    setStopInput(item.description || item.stopName);
+    setSuggestions([]);
+  };
+
+  const requestDelete = (index) => {
     setStopToDeleteIndex(index);
-    setStopToDeleteName(stopName); // Store stop name for deletion
     setShowDeleteModal(true);
   };
 
   const confirmDelete = async () => {
-    if (stopToDeleteName) {
-      try {
-        // Send DELETE request to remove the bus stop from the backend
-        await api.delete(`/busstop/${stopToDeleteName}`);
-        // Update the frontend by removing the stop from the list
-        const updatedStops = stops.filter((stop) => stop.stopName !== stopToDeleteName);
-        setStops(updatedStops);
-        setShowDeleteModal(false);
-        setStopToDeleteIndex(null);
-        setStopToDeleteName(null); // Clear state after delete
-      } catch (error) {
-        console.error('Error deleting bus stop:', error);
-      }
+    if (stopToDeleteIndex === null) return;
+
+    const stopName = stops[stopToDeleteIndex].stopName;
+
+    try {
+      await api.delete(`/busstop/${encodeURIComponent(stopName)}`);
+
+      const updated = [...stops];
+      updated.splice(stopToDeleteIndex, 1);
+      setStops(updated);
+    } catch (error) {
+      console.error('Delete failed:', error);
+      alert('Failed to delete stop.');
+    } finally {
+      setShowDeleteModal(false);
+      setStopToDeleteIndex(null);
     }
-  };
-
-  // Handle change in the input field and get predictions
-  const handleInputChange = async (e) => {
-    setStopInput(e.target.value);
-
-    if (e.target.value) {
-      const service = new window.google.maps.places.AutocompleteService();
-      service.getPlacePredictions(
-        { input: e.target.value, componentRestrictions: { country: 'LK' } }, // Add country restriction (if needed)
-        (predictions, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-            // No need for separate suggestions list; Autocomplete handles this.
-          }
-        }
-      );
-    }
-  };
-
-  // Handle when a suggestion is selected
-  const handleSelectSuggestion = (place) => {
-    setStopInput(place.description); // Set the input field with the selected place
-    setSelectedStop(null); // Reset selected stop before using place info
-
-    // Get the place details (latitude, longitude)
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ address: place.description }, (results, status) => {
-      if (status === 'OK') {
-        const { lat, lng } = results[0].geometry.location;
-        setSelectedStop({
-          stopName: place.description,
-          stopLatitude: lat(),
-          stopLongitude: lng(),
-        });
-      }
-    });
   };
 
   return (
-    <LoadScript 
-      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-      libraries={['places']} // Make sure to load the 'places' library
-    >
-      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-        <div
-          className="w-full max-w-2xl p-6 rounded-2xl shadow-xl relative"
-          style={{
-            background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
-          }}
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div
+        className="w-full max-w-2xl p-6 rounded-2xl shadow-xl relative"
+        style={{
+          background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
+        }}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-4 text-white text-xl font-bold"
         >
-          {/* Close */}
+          ✕
+        </button>
+
+        {/* Title */}
+        <h2 className="text-white text-xl font-bold mb-6 text-left">Add Bus Stops</h2>
+
+        {/* Input with Add Button */}
+        <div className="flex gap-4 mb-4 relative">
+          <input
+            type="text"
+            placeholder="Add bus stop"
+            value={stopInput}
+            onChange={(e) => setStopInput(e.target.value)}
+            className="flex-1 px-4 py-3 rounded-md bg-orange-100 placeholder-[#BD2D01] text-black focus:outline-none"
+          />
           <button
-            onClick={onClose}
-            className="absolute top-2 right-4 text-white text-xl font-bold"
+            onClick={handleAdd}
+            className="px-6 py-2 bg-[#BD2D01] hover:bg-[#A53000] text-white font-semibold rounded-md"
           >
-            ✕
+            Add
           </button>
 
-          {/* Title */}
-          <h2 className="text-white text-xl font-bold mb-6 text-left">Add Bus Stops</h2>
-
-          {/* Input with Autocomplete */}
-          <div className="flex gap-4 mb-4">
-            <Autocomplete
-              onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
-              onPlaceChanged={() => handleSelectSuggestion(autocompleteRef.current.getPlace())}
-            >
-              <input
-                type="text"
-                placeholder="Add New Bus Stop"
-                value={stopInput}
-                onChange={handleInputChange}
-                className="flex-1 px-4 py-3 rounded-md bg-orange-100 placeholder-[#BD2D01] text-black focus:outline-none"
-              />
-            </Autocomplete>
-
-            <button
-              onClick={handleAdd}
-              className="px-6 py-2 bg-[#BD2D01] hover:bg-[#A53000] text-white font-semibold rounded-md"
-            >
-              Add
-            </button>
-          </div>
-
-          {/* Stop List */}
-          <div className="bg-[#F67F00] rounded-t-md text-white font-bold px-4 py-2">
-            Bus Stop List
-          </div>
-          <div className="bg-orange-100 max-h-64 overflow-y-auto rounded-b-md">
-            {/* Displaying fetched bus stops */}
-            {stops.length === 0 ? (
-              <p className="text-center text-gray-500">No bus stops available</p>
-            ) : (
-              stops.map((stop, index) => (
-                <div
+          {suggestions.length > 0 && (
+            <ul className="absolute top-full left-0 w-full bg-white max-h-60 overflow-y-auto shadow-lg rounded-md z-10 mt-1">
+              {suggestions.map((item, index) => (
+                <li
                   key={index}
-                  className="flex justify-between items-center px-4 py-2 border-b border-orange-300 hover:bg-orange-200 transition"
+                  className="px-4 py-2 hover:bg-orange-200 cursor-pointer"
+                  onClick={() => handleSelectSuggestion(item)}
                 >
-                  <span>{stop.stopName}</span> {/* Display only the StopName */}
-                  <FaTrash
-                    onClick={() => requestDelete(index, stop.stopName)} // Pass stopName to the delete request
-                    className="text-red-700 cursor-pointer hover:text-red-900"
-                  />
-                </div>
-              ))
-            )}
-          </div>
+                  {item.description || item.stopName}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteModal && (
-          <DeleteStopModal
-            stopName={stopToDeleteName} // Pass the stop name to the DeleteStopModal
-            onCancel={() => setShowDeleteModal(false)}
-            onConfirm={confirmDelete} // Call confirmDelete on confirmation
-          />
-        )}
+        {/* Stop List */}
+        <div className="bg-[#F67F00] rounded-t-md text-white font-bold px-4 py-2">
+          Bus Stop List
+        </div>
+        <div className="bg-orange-100 max-h-64 overflow-y-auto rounded-b-md">
+          {stops.map((stop, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-center px-4 py-2 border-b border-orange-300 hover:bg-orange-200 transition"
+            >
+              <span>{stop.stopName}</span>
+              <FaTrash
+                onClick={() => requestDelete(index)}
+                className="text-red-700 cursor-pointer hover:text-red-900"
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </LoadScript>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <DeleteStopModal
+          stopName={stops[stopToDeleteIndex]?.stopName || ''}
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
+    </div>
   );
 };
 

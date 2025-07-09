@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import logo from '../assets/logo.png';
-import api from '../services/api'; 
+import api from '../services/api';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -30,9 +30,23 @@ const Login = () => {
 
       // Handle successful login
       const token = response.data.token;
-      localStorage.setItem('admin_token', token);
+      const refreshToken = response.data.refreshToken;
 
-      navigate('/dashboard');
+      if (token && refreshToken) {
+        localStorage.setItem('admin_token', token);
+        localStorage.setItem('admin_refresh_token', refreshToken);
+
+        const adminIdResponse = await api.get(`/admin/get-id-by-email/${form.email}`);
+        if (adminIdResponse.status === 200) {
+          localStorage.setItem('admin_id', adminIdResponse.data.adminId);
+
+          navigate('/dashboard');
+        } else {
+          setError('You do not have admin access');
+        }
+      } else {
+        setError('Invalid email or password');
+      }
     } catch (err) {
       setError('Invalid email or password');
     }

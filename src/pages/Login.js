@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import logo from '../assets/logo.png';
-import api from '../services/api'; // ✅ Use centralized API service
+import api from '../services/api'; 
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -23,7 +23,6 @@ const Login = () => {
     }
 
     try {
-      // Sending login request to backend API using centralized api.js
       const response = await api.post('/admin/login', {
         Email: form.email,
         Password: form.password,
@@ -33,7 +32,6 @@ const Login = () => {
       const token = response.data.token;
       localStorage.setItem('admin_token', token);
 
-      // Redirect to the dashboard after successful login
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid email or password');

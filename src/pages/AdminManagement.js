@@ -4,7 +4,7 @@ import Topbar from '../components/Topbar';
 import AddAdminModal from '../components/AddAdminModal';
 import EditAdminModal from '../components/EditAdminModal';
 import DeleteAdminModal from '../components/DeleteAdminModal';
-import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
 import api from '../services/api';
 
 const AdminManagement = () => {
@@ -122,7 +122,8 @@ const AdminManagement = () => {
                           className="w-10 h-10 rounded-full object-cover mx-auto"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-300 mx-auto" />
+                        <FaUserCircle className="text-2xl text-[#BD2D01]" />
+
                       )}
                     </td>
                     <td className="p-3 w-[160px] border-r">{admin.firstName}</td>

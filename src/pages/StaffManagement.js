@@ -1,23 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddStaffModal from '../components/AddStaffModal';
 import EditStaffModal from '../components/EditStaffModal';
 import DeleteStaffModal from '../components/DeleteStaffModal';
 import { FaPlus, FaTrash, FaEdit, FaUserCircle } from 'react-icons/fa';
+import api from '../services/api';
 
 const StaffManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [deletingStaff, setDeletingStaff] = useState(null);
+  const [staffList, setStaffList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const staffList = Array(12).fill({
-    firstName: 'John',
-    lastName: 'Rubic',
-    username: 'john99',
-    email: 'john@gmail.com',
-    password: '********',
-    profilePic: '',
+  useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  const fetchStaff = async () => {
+    try {
+      const response = await api.get('/staff');
+      const staffData = response.data;
+    
+      const staffWithPics = await Promise.all(
+        staffData.map(async (staff) => {
+          if (staff.profilePicture) {
+            return staff; // Use provided URL
+          }
+        
+          try {
+            const res = await api.get(`/staff/profile-picture/${staff.staffId}`, {
+              responseType: 'blob',
+            });
+            const imageUrl = URL.createObjectURL(res.data);
+            return { ...staff, profilePicture: imageUrl };
+          } catch (err) {
+            console.warn(`No profile picture found for ${staff.email}:`, err.message);
+            return { ...staff, profilePicture: '' };
+          }
+        })
+      );
+    
+      setStaffList(staffWithPics);
+    } catch (err) {
+      console.error('Error fetching staff:', err);
+    }
+  };
+
+
+  const filteredStaff = staffList.filter((staff) => {
+    const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm.toLowerCase()) ||
+      staff.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   });
 
   return (
@@ -32,11 +69,14 @@ const StaffManagement = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
             />
             <button
               className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
               style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+              disabled
             >
               Search
             </button>
@@ -57,32 +97,42 @@ const StaffManagement = () => {
             <table className="w-full table-fixed border-collapse">
               <thead
                 className="bg-[#F67F00] text-white text-lg"
-                style={{ position: 'sticky', top: 0, zIndex: 10 }} 
+                style={{ position: 'sticky', top: 0, zIndex: 10 }}
               >
                 <tr>
-                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}> </th>
+                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}></th>
                   <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>First Name</th>
                   <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Last Name</th>
-                  <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Username</th>
                   <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Email</th>
-                  <th className="p-3 w-[130px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Password</th>
+                  <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>NIC</th>
+                  <th className="p-3 w-[130px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Tel No</th>
+                  <th className="p-3 w-[150px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Staff Role</th>
                   <th className="p-3 w-[90px]">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {staffList.map((staff, index) => (
+                {filteredStaff.map((staff, index) => (
                   <tr
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
                     <td className="p-3 w-[120px] text-center border-r">
-                      <FaUserCircle className="text-2xl text-[#BD2D01]" />
+                      {staff.profilePicture && typeof staff.profilePicture === 'string' && staff.profilePicture.startsWith('http') ? (
+                        <img
+                          src={staff.profilePicture}
+                          alt="Staff"
+                          className="w-10 h-10 rounded-full object-cover mx-auto"
+                        />
+                      ) : (                     
+                        <FaUserCircle className="text-2xl text-[#BD2D01]" />
+                      )}
                     </td>
                     <td className="p-3 w-[160px] border-r">{staff.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{staff.lastName}</td>
-                    <td className="p-3 w-[180px] border-r">{staff.username}</td>
                     <td className="p-3 w-[220px] border-r">{staff.email}</td>
-                    <td className="p-3 w-[130px] border-r">{staff.password}</td>
+                    <td className="p-3 w-[180px] border-r">{staff.nic}</td>
+                    <td className="p-3 w-[130px] border-r">{staff.telNo}</td>
+                    <td className="p-3 w-[150px] border-r">{staff.staffRole}</td>
                     <td className="p-3 w-[90px]">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit
@@ -109,7 +159,7 @@ const StaffManagement = () => {
             staff={editingStaff}
             onClose={() => setEditingStaff(null)}
             onUpdate={(updatedStaff) => {
-              console.log('Updated:', updatedStaff);
+              fetchStaff();
               setEditingStaff(null);
             }}
           />
@@ -118,8 +168,8 @@ const StaffManagement = () => {
           <DeleteStaffModal
             staff={deletingStaff}
             onClose={() => setDeletingStaff(null)}
-            onConfirm={(staffToDelete) => {
-              console.log('Deleted:', staffToDelete);
+            onConfirm={(deletedStaff) => {
+              setStaffList((prev) => prev.filter((s) => s.staffId !== deletedStaff.staffId));
               setDeletingStaff(null);
             }}
           />

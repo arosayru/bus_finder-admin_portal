@@ -123,7 +123,6 @@ const AdminManagement = () => {
                         />
                       ) : (
                         <FaUserCircle className="text-2xl text-[#BD2D01]" />
-
                       )}
                     </td>
                     <td className="p-3 w-[160px] border-r">{admin.firstName}</td>

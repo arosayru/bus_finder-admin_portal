@@ -64,13 +64,20 @@ const AddStopModal = ({ onClose }) => {
 
     try {
       const response = await api.get(`/busstop/search/google/${stopInput.trim()}`);
-      const data = response.data;
+      let data = response.data;
 
-      const latitude = data.latitude || (data.location?.lat ?? 0);
-      const longitude = data.longitude || (data.location?.lng ?? 0);
-      const stopName = data.stopName || data.description || stopInput.trim();
+      // Handle both object and array formats
+      if (Array.isArray(data)) {
+        data = data[0];
+      }
 
-      if (latitude === 0 || longitude === 0) {
+      const latitude =
+        data?.stopLatitude ?? data?.latitude ?? data?.location?.lat ?? 0;
+      const longitude =
+        data?.stopLongitude ?? data?.longitude ?? data?.location?.lng ?? 0;
+      const stopName = data?.stopName ?? data?.description ?? stopInput.trim();
+
+      if (!latitude || !longitude) {
         console.warn('Latitude/Longitude not found for:', stopName);
         alert('Could not retrieve exact location for this stop.');
         return;

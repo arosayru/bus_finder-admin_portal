@@ -19,10 +19,6 @@ const RouteManagement = () => {
     Array(20).fill({
       routeNo: '05',
       routeName: 'Kurunegala - Colombo',
-      vehicleNo: 'WP 52 - 9089',
-      driverName: 'Saman Kumara',
-      conductorName: 'Ruby Parker',
-      phone: '073 900 9393',
       stops: ['Kurunegala', 'Colombo'],
     })
   );
@@ -113,9 +109,6 @@ const RouteManagement = () => {
                   </p>
                   <p className="text-[#BD2D01]">
                     <span className="text-black font-bold">Route Name:</span> {route.routeName}
-                  </p>
-                  <p className="text-[#BD2D01]">
-                    <span className="text-black font-bold">Vehicle No:</span> {route.vehicleNo}
                   </p>
                 </div>
                 <button

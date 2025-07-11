@@ -122,44 +122,6 @@ const AddRouteModal = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Vehicle & Staff Info */}
-          <div className="flex gap-4 mt-4">
-            <input
-              type="text"
-              name="vehicleNo"
-              value={form.vehicleNo}
-              onChange={handleChange}
-              placeholder="Vehicle No"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-            <input
-              type="text"
-              name="driverName"
-              value={form.driverName}
-              onChange={handleChange}
-              placeholder="Driver’s Name"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-          </div>
-          <div className="flex gap-4">
-            <input
-              type="text"
-              name="conductorName"
-              value={form.conductorName}
-              onChange={handleChange}
-              placeholder="Conductor’s Name"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-            <input
-              type="text"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="Phone number"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-          </div>
-
           <div className="flex justify-end mt-4">
             <button
               type="submit"

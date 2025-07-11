@@ -15,10 +15,6 @@ const RouteDetailsModal = ({ route, onClose, onEdit, onDelete }) => {
       'Peliyagoda',
       'Colombo',
     ],
-    vehicleNo = '58 - 89439',
-    driverName = 'Saman Kumara',
-    conductorName = 'Ruby Parker',
-    phone = '073 900 9393',
   } = route;
 
   return (
@@ -54,18 +50,6 @@ const RouteDetailsModal = ({ route, onClose, onEdit, onDelete }) => {
                 <li key={idx}>{place}</li>
               ))}
             </ul>
-          </p>
-          <p>
-            <span className="font-bold">Vehicle No:</span> {vehicleNo}
-          </p>
-          <p>
-            <span className="font-bold">Driver’s Name:</span> {driverName}
-          </p>
-          <p>
-            <span className="font-bold">Conductor’s Name:</span> {conductorName}
-          </p>
-          <p>
-            <span className="font-bold">Phone:</span> {phone}
           </p>
         </div>
 

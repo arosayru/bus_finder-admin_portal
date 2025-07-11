@@ -12,11 +12,13 @@ const BusManagement = () => {
   const [deletingBus, setDeletingBus] = useState(null);
 
   const buses = Array(12).fill({
+    routeNo: '05',
     vehicleNo: 'WP 53-8909',
     busType: 'Non A/C',
     driverName: 'Saman Kumara',
+    driverPhone: '071 688 9090',
     conductorName: 'Roony Parker',
-    phone: '071 688 9090',
+    conductorPhone: '071 688 9090',
   });
 
   return (
@@ -59,11 +61,13 @@ const BusManagement = () => {
                 style={{ position: 'sticky', top: 0, zIndex: 10 }}
               >
                 <tr>
+                  <th className="p-3 w-[110px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route No</th>
 					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Vehicle No</th>
 					        <th className="p-3 w-[140px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Bus Type</th>
 					        <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Driver Name</th>
+					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Driver's Phone</th>
 					        <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Conductor Name</th>
-					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Phone</th>
+					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Conductor's Phone</th>
 					        <th className="p-3 w-[100px]">Action</th>
                 </tr>
               </thead>
@@ -73,11 +77,13 @@ const BusManagement = () => {
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
+                    <td className="p-3 w-[110px] border-r">{bus.routeNo}</td>
                     <td className="p-3 w-[160px] border-r">{bus.vehicleNo}</td>
                     <td className="p-3 w-[140px] border-r">{bus.busType}</td>
                     <td className="p-3 w-[180px] border-r">{bus.driverName}</td>
+                    <td className="p-3 w-[160px] border-r">{bus.driverPhone}</td>
                     <td className="p-3 w-[180px] border-r">{bus.conductorName}</td>
-                    <td className="p-3 w-[160px] border-r">{bus.phone}</td>
+                    <td className="p-3 w-[160px] border-r">{bus.conductorPhone}</td>
                     <td className="p-3 w-[100px] text-center">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit

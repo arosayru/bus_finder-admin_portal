@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddRouteModal from '../components/AddRouteModal.js';
-import AddStopModal from '../components/AddStopModal.js'; // ✅ new import
+import AddStopModal from '../components/AddStopModal.js';
 import EditRouteModal from '../components/EditRouteModal.js';
 import DeleteRouteModal from '../components/DeleteRouteModal';
 import RouteDetailsModal from '../components/RouteDetailsModal';
@@ -10,7 +10,7 @@ import { FaPlus, FaChevronRight } from 'react-icons/fa';
 
 const RouteManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showAddStopModal, setShowAddStopModal] = useState(false); // ✅ new state
+  const [showAddStopModal, setShowAddStopModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

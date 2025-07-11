@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 
 const AddBusModal = ({ onClose }) => {
   const [form, setForm] = useState({
+    routeNo: '',
     vehicleNo: '',
     busType: '',
     driverName: '',
+    driverPhone: '',
     conductorName: '',
-    phone: '',
+    conductorPhone: '',
   });
 
   const handleChange = (e) => {
@@ -32,6 +34,15 @@ const AddBusModal = ({ onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
+            name="routeNo"
+            value={form.routeNo}
+            onChange={handleChange}
+            placeholder="Route No"
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+          />
+
+          <input
+            type="text"
             name="vehicleNo"
             value={form.vehicleNo}
             onChange={handleChange}
@@ -45,9 +56,9 @@ const AddBusModal = ({ onClose }) => {
             onChange={handleChange}
             className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
           >
-            <option value="">Bus Type</option>
-            <option value="A/C">A/C</option>
-            <option value="Non A/C">Non A/C</option>
+            <option value="CTB">CTB</option>
+            <option value="Luxury">Luxury</option>
+            <option value="Semi-Luxury">Semi-Luxury</option>
           </select>
 
           <input
@@ -56,6 +67,15 @@ const AddBusModal = ({ onClose }) => {
             value={form.driverName}
             onChange={handleChange}
             placeholder="Driver Name"
+            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+          />
+
+          <input
+            type="text"
+            name="driverPhone"
+            value={form.driverPhone}
+            onChange={handleChange}
+            placeholder="Driver's Phone"
             className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
           />
 
@@ -70,10 +90,10 @@ const AddBusModal = ({ onClose }) => {
 
           <input
             type="text"
-            name="phone"
-            value={form.phone}
+            name="conductorPhone"
+            value={form.conductorPhone}
             onChange={handleChange}
-            placeholder="Phone"
+            placeholder="Driver's Phone"
             className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
           />
 

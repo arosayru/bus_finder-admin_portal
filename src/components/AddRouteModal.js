@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import AddStopModal from './AddStopModal';
 import api from '../services/api';
@@ -13,8 +13,25 @@ const AddRouteModal = ({ onClose }) => {
   const [stops, setStops] = useState([]);
   const [stopInput, setStopInput] = useState('');
   const [stopSuggestions, setStopSuggestions] = useState([]);
+  const [allStops, setAllStops] = useState([]);
   const [showAddStopModal, setShowAddStopModal] = useState(false);
   const timeoutRef = useRef(null);
+
+  // Fetch all available stops from backend on load
+  useEffect(() => {
+    fetchBusStops();
+  }, []);
+
+  const fetchBusStops = async () => {
+    try {
+      const res = await api.get('/busstop');
+      console.log("Bus stops loaded:", res.data);
+      setAllStops(res.data || []);
+    } catch (error) {
+      console.error('Failed to load stops:', error);
+      setAllStops([]);
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,29 +49,17 @@ const AddRouteModal = ({ onClose }) => {
         return;
       }
 
-      api
-        .get(`/busstop/search/google/${value.trim()}`)
-        .then((res) => {
-          const data = res.data;
-          if (Array.isArray(data)) {
-            setStopSuggestions(data);
-          } else if (data && data.description) {
-            setStopSuggestions([data]);
-          } else if (data && typeof data === 'string') {
-            setStopSuggestions([{ description: data }]);
-          } else {
-            setStopSuggestions([]);
-          }
-        })
-        .catch((err) => {
-          console.error('Suggestion fetch error:', err);
-          setStopSuggestions([]);
-        });
-    }, 300);
+      const filtered = allStops.filter((stop) => {
+        const name = stop?.StopName || stop?.stopName;
+        return name?.toLowerCase().includes(value.trim().toLowerCase());
+      });
+
+      setStopSuggestions(filtered);
+    }, 200);
   };
 
   const handleSelectSuggestion = (item) => {
-    const name = item.description || item.stopName;
+    const name = item?.StopName || item?.stopName;
     if (name && !stops.includes(name)) {
       setStops([...stops, name]);
     }
@@ -144,7 +149,7 @@ const AddRouteModal = ({ onClose }) => {
           </div>
 
           {/* Add Stops */}
-          <div className="mt-2 relative">
+          <div className="mt-2 relative z-20">
             <label
               className="text-white font-semibold flex items-center gap-2 mb-2 cursor-pointer"
               onClick={() => setShowAddStopModal(true)}
@@ -152,7 +157,7 @@ const AddRouteModal = ({ onClose }) => {
               <FaPlus /> Add Stops
             </label>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 relative w-full">
               <input
                 type="text"
                 value={stopInput}
@@ -167,21 +172,21 @@ const AddRouteModal = ({ onClose }) => {
               >
                 <FaPlus />
               </button>
-            </div>
 
-            {stopSuggestions.length > 0 && (
-              <ul className="absolute z-10 mt-1 bg-white border border-orange-200 rounded-md w-full max-h-40 overflow-y-auto">
-                {stopSuggestions.map((item, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 hover:bg-orange-200 cursor-pointer text-black"
-                    onClick={() => handleSelectSuggestion(item)}
-                  >
-                    {item.description || item.stopName}
-                  </li>
-                ))}
-              </ul>
-            )}
+              {stopSuggestions.length > 0 && (
+                <ul className="absolute top-full left-0 w-full bg-white border border-orange-200 rounded-md max-h-40 overflow-y-auto shadow-lg z-50 mt-1">
+                  {stopSuggestions.map((item, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-orange-200 cursor-pointer text-black"
+                      onClick={() => handleSelectSuggestion(item)}
+                    >
+                      {item?.StopName || item?.stopName}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
           {/* Draggable Stop List */}

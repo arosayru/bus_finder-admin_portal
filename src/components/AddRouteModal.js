@@ -1,34 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import AddStopModal from './AddStopModal';
+import api from '../services/api';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const AddRouteModal = ({ onClose }) => {
   const [form, setForm] = useState({
     routeNo: '',
     routeName: '',
-    vehicleNo: '',
-    driverName: '',
-    conductorName: '',
-    phone: '',
   });
 
   const [stops, setStops] = useState([]);
-  const [showAddStopModal, setShowAddStopModal] = useState(false);
   const [stopInput, setStopInput] = useState('');
+  const [stopSuggestions, setStopSuggestions] = useState([]);
+  const [showAddStopModal, setShowAddStopModal] = useState(false);
+  const timeoutRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleStopInput = (e) => {
-    setStopInput(e.target.value);
+    const value = e.target.value;
+    setStopInput(value);
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      if (value.trim() === '') {
+        setStopSuggestions([]);
+        return;
+      }
+
+      api
+        .get(`/busstop/search/google/${value.trim()}`)
+        .then((res) => {
+          const data = res.data;
+          if (Array.isArray(data)) {
+            setStopSuggestions(data);
+          } else if (data && data.description) {
+            setStopSuggestions([data]);
+          } else if (data && typeof data === 'string') {
+            setStopSuggestions([{ description: data }]);
+          } else {
+            setStopSuggestions([]);
+          }
+        })
+        .catch((err) => {
+          console.error('Suggestion fetch error:', err);
+          setStopSuggestions([]);
+        });
+    }, 300);
+  };
+
+  const handleSelectSuggestion = (item) => {
+    const name = item.description || item.stopName;
+    if (name && !stops.includes(name)) {
+      setStops([...stops, name]);
+    }
+    setStopInput('');
+    setStopSuggestions([]);
   };
 
   const addStop = () => {
-    if (stopInput.trim() !== '') {
-      setStops([...stops, stopInput.trim()]);
-      setStopInput('');
+    const trimmed = stopInput.trim();
+    if (trimmed !== '' && !stops.includes(trimmed)) {
+      setStops([...stops, trimmed]);
     }
+    setStopInput('');
+    setStopSuggestions([]);
   };
 
   const removeStop = (index) => {
@@ -37,10 +77,39 @@ const AddRouteModal = ({ onClose }) => {
     setStops(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = Array.from(stops);
+    const [removed] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, removed);
+    setStops(reordered);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ ...form, stops });
-    onClose();
+
+    if (stops.length < 2) {
+      alert('Please add at least two stops.');
+      return;
+    }
+
+    const payload = {
+      RouteId: `${form.routeNo}-${Date.now()}`,
+      RouteNumber: form.routeNo,
+      RouteName: form.routeName,
+      StartingPoint: stops[0],
+      EndingPoint: stops[stops.length - 1],
+      RouteStops: stops,
+    };
+
+    try {
+      await api.post('/busroute', payload);
+      alert('Route added successfully');
+      onClose();
+    } catch (error) {
+      console.error('Add route failed:', error);
+      alert('Failed to add route.');
+    }
   };
 
   return (
@@ -75,7 +144,7 @@ const AddRouteModal = ({ onClose }) => {
           </div>
 
           {/* Add Stops */}
-          <div className="mt-2">
+          <div className="mt-2 relative">
             <label
               className="text-white font-semibold flex items-center gap-2 mb-2 cursor-pointer"
               onClick={() => setShowAddStopModal(true)}
@@ -100,27 +169,61 @@ const AddRouteModal = ({ onClose }) => {
               </button>
             </div>
 
-            {/* List of Added Stops */}
-            <div className="mt-3 space-y-2">
-              {stops.map((stop, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={stop}
-                    readOnly
-                    className="w-full p-3 rounded-md bg-orange-50 text-black"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeStop(index)}
-                    className="bg-white text-[#BD2D01] p-2 rounded-full"
+            {stopSuggestions.length > 0 && (
+              <ul className="absolute z-10 mt-1 bg-white border border-orange-200 rounded-md w-full max-h-40 overflow-y-auto">
+                {stopSuggestions.map((item, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 hover:bg-orange-200 cursor-pointer text-black"
+                    onClick={() => handleSelectSuggestion(item)}
                   >
-                    <FaMinus />
-                  </button>
-                </div>
-              ))}
-            </div>
+                    {item.description || item.stopName}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+
+          {/* Draggable Stop List */}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="stops">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="mt-3 space-y-2"
+                >
+                  {stops.map((stop, index) => (
+                    <Draggable key={stop} draggableId={stop} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="flex items-center gap-2"
+                        >
+                          <input
+                            type="text"
+                            value={stop}
+                            readOnly
+                            className="w-full p-3 rounded-md bg-orange-50 text-black"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeStop(index)}
+                            className="bg-white text-[#BD2D01] p-2 rounded-full"
+                          >
+                            <FaMinus />
+                          </button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           <div className="flex justify-end mt-4">
             <button

@@ -1,8 +1,54 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 
 const Dashboard = () => {
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    // Dynamically load Google Maps script if not already loaded
+    const loadGoogleMaps = () => {
+      if (!window.google) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&callback=initLiveMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      } else {
+        window.initLiveMap();
+      }
+    };
+
+    // Global callback to initialize the map
+    window.initLiveMap = () => {
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: { lat: 6.9271, lng: 79.8612 },
+        zoom: 12,
+        mapTypeId: 'roadmap',
+        styles: [
+          {
+            featureType: 'poi',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'transit',
+            stylers: [{ visibility: 'off' }],
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
+      });
+
+      // We'll add SignalR connection and live markers in the next step
+      console.log("🗺️ Map initialized");
+    };
+
+    loadGoogleMaps();
+  }, []);
+
   return (
     <div className="flex">
       <Sidebar />
@@ -33,11 +79,13 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Map Placeholder */}
+        {/* Embedded Google Map */}
         <div className="mt-8">
-          <div className="w-full h-[500px] bg-gray-200 rounded-xl shadow-inner flex items-center justify-center text-gray-600 text-xl font-semibold">
-            Map Placeholder (Bus Tracking will show here)
-          </div>
+          <div
+            ref={mapRef}
+            className="w-full h-[500px] rounded-xl shadow-inner"
+            style={{ backgroundColor: '#e0e0e0' }}
+          ></div>
         </div>
       </div>
     </div>

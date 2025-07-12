@@ -37,15 +37,17 @@ const RouteManagement = () => {
     setShowEditModal(true);
   };
 
-  const handleUpdate = (updatedRoute) => {
-    setRoutes((prevRoutes) =>
-      prevRoutes.map((r) =>
-        r.RouteId === updatedRoute.RouteId ? updatedRoute : r
-      )
-    );
+  const handleUpdate = async (updatedRoute) => {
+  try {
+    await api.put(`/busroute/${updatedRoute.RouteNumber}`, updatedRoute);
+    await fetchRoutes(); // fetch fresh list after update
     setShowEditModal(false);
     setSelectedRoute(null);
-  };
+  } catch (error) {
+    console.error('Update failed:', error);
+  }
+};
+
 
   const handleDelete = (route) => {
     setRouteToDelete(route);
@@ -54,7 +56,7 @@ const RouteManagement = () => {
 
   const confirmDelete = async (route) => {
     try {
-      await api.delete(`/busroute/${route.routeNumber}`); // ✅ Corrected from RouteId to routeNumber
+      await api.delete(`/busroute/${route.routeNumber}`);
       setRoutes((prev) => prev.filter((r) => r.routeNumber !== route.routeNumber));
       setShowDeleteModal(false);
       setSelectedRoute(null);

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import AddStopModal from './AddStopModal';
+import api from '../services/api';
 
 const EditRouteModal = ({ route, onClose, onUpdate }) => {
   const [form, setForm] = useState({
-    routeNo: route.routeNo || '',
+    routeNumber: route.routeNumber || '',
     routeName: route.routeName || '',
     vehicleNo: route.vehicleNo || '',
     driverName: route.driverName || '',
@@ -12,7 +13,7 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
     phone: route.phone || '',
   });
 
-  const [stops, setStops] = useState(route.stops || []);
+  const [stops, setStops] = useState(route.routeStops || []);
   const [stopInput, setStopInput] = useState('');
   const [showAddStopModal, setShowAddStopModal] = useState(false);
 
@@ -36,12 +37,30 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
     setStops(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedData = { ...form, stops };
-    console.log('Updated Route:', updatedData);
-    onUpdate(updatedData);
-    onClose();
+
+    const payload = {
+      RouteId: route.RouteId,
+      RouteNumber: form.routeNumber,
+      RouteName: form.routeName,
+      StartingPoint: stops[0],
+      EndingPoint: stops[stops.length - 1],
+      RouteStops: stops,
+      vehicleNo: form.vehicleNo,
+      driverName: form.driverName,
+      conductorName: form.conductorName,
+      phone: form.phone,
+    };
+
+    try {
+      await api.put(`/busroute/${form.routeNumber}`, payload);
+      onUpdate(payload);
+      onClose();
+    } catch (error) {
+      console.error('Failed to update route:', error);
+      alert('Update failed. Please try again.');
+    }
   };
 
   return (
@@ -59,8 +78,8 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
           <div className="flex gap-4">
             <input
               type="text"
-              name="routeNo"
-              value={form.routeNo}
+              name="routeNumber"
+              value={form.routeNumber}
               onChange={handleChange}
               placeholder="Route No"
               className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
@@ -120,44 +139,6 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Vehicle, Driver, Conductor, Phone */}
-          <div className="flex gap-4 mt-4">
-            <input
-              type="text"
-              name="vehicleNo"
-              value={form.vehicleNo}
-              onChange={handleChange}
-              placeholder="Vehicle No"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-            <input
-              type="text"
-              name="driverName"
-              value={form.driverName}
-              onChange={handleChange}
-              placeholder="Driver’s Name"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-          </div>
-          <div className="flex gap-4">
-            <input
-              type="text"
-              name="conductorName"
-              value={form.conductorName}
-              onChange={handleChange}
-              placeholder="Conductor’s Name"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
-            <input
-              type="text"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="Phone number"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] focus:outline-none"
-            />
           </div>
 
           {/* Update Button */}

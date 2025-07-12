@@ -59,12 +59,17 @@ const BusManagement = () => {
     setBuses(prev => [...prev, enriched]);
   };
 
-  // After editing
   const handleBusUpdated = (updatedBus) => {
     const enriched = enrichBusData([updatedBus], staffList)[0];
+
     setBuses(prev =>
-      prev.map(b => (b._id === updatedBus._id ? enriched : b))
+      prev.map(b =>
+        b.numberPlate === updatedBus.NumberPlate || b.NumberPlate === updatedBus.NumberPlate
+          ? enriched
+          : b
+      )
     );
+
     setEditingBus(null);
   };
 
@@ -103,7 +108,7 @@ const BusManagement = () => {
         <div className="mt-8 rounded-xl border border-orange-200 overflow-x-auto">
           <div style={{ maxHeight: '540px', overflowY: 'auto' }}>
             <table className="w-full table-fixed border-collapse">
-              <thead 
+              <thead
                 className="bg-[#F67F00] text-white text-lg"
                 style={{ position: 'sticky', top: 0, zIndex: 10 }}
               >

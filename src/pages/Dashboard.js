@@ -43,7 +43,7 @@ const Dashboard = () => {
           initializeMapWithGoogle();
         }
       } catch (err) {
-        console.error('❌ Failed to load map configuration:', err);
+        console.error('Failed to load map configuration:', err);
       }
     };
 
@@ -61,7 +61,7 @@ const Dashboard = () => {
       });
 
       mapInstance.current = map;
-      console.log('🗺️ Map initialized');
+      console.log('Map initialized');
 
       const liveLayer = layers.find(layer => layer.id === 'liveBusLocationsLayer');
       if (liveLayer) {
@@ -94,7 +94,7 @@ const Dashboard = () => {
           });
 
           const infoWindow = new window.google.maps.InfoWindow({
-            content: `<div><strong>🚌 Bus ${busId}</strong><br/>Lat: ${lat.toFixed(4)}<br/>Lng: ${lng.toFixed(4)}</div>`,
+            content: `<div><strong>Bus ${busId}</strong><br/>Lat: ${lat.toFixed(4)}<br/>Lng: ${lng.toFixed(4)}</div>`,
           });
 
           marker.addListener('click', () => infoWindow.open(map, marker));
@@ -104,8 +104,8 @@ const Dashboard = () => {
 
       connection
         .start()
-        .then(() => console.log('✅ SignalR connected'))
-        .catch(err => console.error('❌ SignalR connection error:', err));
+        .then(() => console.log('SignalR connected'))
+        .catch(err => console.error('SignalR connection error:', err));
     };
 
     loadGoogleMaps();

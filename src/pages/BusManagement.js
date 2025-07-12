@@ -170,15 +170,20 @@ const BusManagement = () => {
           />
         )}
         {deletingBus && (
-          <DeleteBusModal
-            user={deletingBus}
-            onClose={() => setDeletingBus(null)}
-            onConfirm={(toDelete) => {
-              setBuses(prev => prev.filter(b => b._id !== toDelete._id));
-              setDeletingBus(null);
-            }}
-          />
-        )}
+        <DeleteBusModal
+          bus={deletingBus}
+          onClose={() => setDeletingBus(null)}
+          onConfirm={(deletedBus) => {
+            setBuses(prev =>
+              prev.filter(b =>
+                b.numberPlate !== deletedBus.numberPlate &&
+                b.vehicleNo !== deletedBus.numberPlate
+              )
+            );
+            setDeletingBus(null);
+          }}
+        />
+      )}
       </div>
     </div>
   );

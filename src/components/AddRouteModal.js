@@ -4,7 +4,7 @@ import AddStopModal from './AddStopModal';
 import api from '../services/api';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const AddRouteModal = ({ onClose }) => {
+const AddRouteModal = ({ onClose, onRouteAdded }) => {
   const [form, setForm] = useState({
     routeNo: '',
     routeName: '',
@@ -90,32 +90,39 @@ const AddRouteModal = ({ onClose }) => {
     setStops(reordered);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (stops.length < 2) {
-      alert('Please add at least two stops.');
-      return;
-    }
+  if (stops.length < 2) {
+    alert('Please add at least two stops.');
+    return;
+  }
 
-    const payload = {
-      RouteId: `${form.routeNo}-${Date.now()}`,
-      RouteNumber: form.routeNo,
-      RouteName: form.routeName,
-      StartingPoint: stops[0],
-      EndingPoint: stops[stops.length - 1],
-      RouteStops: stops,
-    };
-
-    try {
-      await api.post('/busroute', payload);
-      alert('Route added successfully');
-      onClose();
-    } catch (error) {
-      console.error('Add route failed:', error);
-      alert('Failed to add route.');
-    }
+  const payload = {
+    RouteId: `${form.routeNo}-${Date.now()}`,
+    RouteNumber: form.routeNo,
+    RouteName: form.routeName,
+    StartingPoint: stops[0],
+    EndingPoint: stops[stops.length - 1],
+    RouteStops: stops,
   };
+
+  try {
+    await api.post('/busroute', payload);
+    //alert('Route added successfully');
+
+    // Notify parent component of the new route
+    if (onRouteAdded) {
+      onRouteAdded(payload);
+    }
+
+    onClose();
+  } catch (error) {
+    console.error('Add route failed:', error);
+    alert('Failed to add route.');
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

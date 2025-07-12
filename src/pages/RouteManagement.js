@@ -114,11 +114,11 @@ const RouteManagement = () => {
             Bus Routes
           </div>
 
-          <div style={{ maxHeight: '520px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
             {routes
               .filter((r) =>
-                r.routeName.toLowerCase().includes(search.toLowerCase()) ||
-                r.routeNumber.toLowerCase().includes(search.toLowerCase())
+                (r.routeName?.toLowerCase().includes(search.toLowerCase()) ||
+                 r.routeNumber?.toLowerCase().includes(search.toLowerCase()))
               )
               .map((route, index) => (
                 <div
@@ -147,7 +147,16 @@ const RouteManagement = () => {
         </div>
 
         {/* Modals */}
-        {showAddModal && <AddRouteModal onClose={() => setShowAddModal(false)} />}
+        {showAddModal && (
+          <AddRouteModal
+            onClose={() => setShowAddModal(false)}
+            onRouteAdded={(newRoute) => {
+              setRoutes((prev) => [...prev, newRoute]);
+              setShowAddModal(false);
+            }}
+          />
+        )}
+        
         {showAddStopModal && <AddStopModal onClose={() => setShowAddStopModal(false)} />}
         {selectedRoute && !showEditModal && (
           <RouteDetailsModal

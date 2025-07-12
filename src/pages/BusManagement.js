@@ -1,25 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddBusModal from '../components/AddBusModal';
 import EditBusModal from '../components/EditBusModal';
 import DeleteBusModal from '../components/DeleteBusModal';
 import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
+import api from '../services/api';
 
 const BusManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingBus, setEditingBus] = useState(null);
   const [deletingBus, setDeletingBus] = useState(null);
+  const [buses, setBuses] = useState([]);
+  const [staffList, setStaffList] = useState([]);
 
-  const buses = Array(12).fill({
-    routeNo: '05',
-    vehicleNo: 'WP 53-8909',
-    busType: 'Non A/C',
-    driverName: 'Saman Kumara',
-    driverPhone: '071 688 9090',
-    conductorName: 'Roony Parker',
-    conductorPhone: '071 688 9090',
-  });
+  // Fetch buses and staff on load
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [busRes, staffRes] = await Promise.all([
+          api.get('/bus'),
+          api.get('/staff'),
+        ]);
+
+        const busesData = busRes.data || [];
+        const staffData = staffRes.data || [];
+
+        const enriched = enrichBusData(busesData, staffData);
+        setBuses(enriched);
+        setStaffList(staffData);
+      } catch (err) {
+        console.error('Error loading buses or staff:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Helper to map staff details to bus
+  const enrichBusData = (busesData, staffData) => {
+    return busesData.map(bus => {
+      const driver = staffData.find(s => String(s.staffId) === String(bus.driverId));
+      const conductor = staffData.find(s => String(s.staffId) === String(bus.conductorId));
+
+      return {
+        ...bus,
+        DriverName: driver ? `${driver.firstName} ${driver.lastName}` : 'N/A',
+        DriverPhone: driver?.telNo || 'N/A',
+        ConductorName: conductor ? `${conductor.firstName} ${conductor.lastName}` : 'N/A',
+        ConductorPhone: conductor?.telNo || 'N/A',
+      };
+    });
+  };
+
+  // After adding new bus
+  const handleBusAdded = (newBus) => {
+    const enriched = enrichBusData([newBus], staffList)[0];
+    setBuses(prev => [...prev, enriched]);
+  };
+
+  // After editing
+  const handleBusUpdated = (updatedBus) => {
+    const enriched = enrichBusData([updatedBus], staffList)[0];
+    setBuses(prev =>
+      prev.map(b => (b._id === updatedBus._id ? enriched : b))
+    );
+    setEditingBus(null);
+  };
 
   return (
     <div className="flex">
@@ -61,14 +108,14 @@ const BusManagement = () => {
                 style={{ position: 'sticky', top: 0, zIndex: 10 }}
               >
                 <tr>
-                  <th className="p-3 w-[110px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route No</th>
-					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Vehicle No</th>
-					        <th className="p-3 w-[140px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Bus Type</th>
-					        <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Driver Name</th>
-					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Driver's Phone</th>
-					        <th className="p-3 w-[180px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Conductor Name</th>
-					        <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Conductor's Phone</th>
-					        <th className="p-3 w-[100px]">Action</th>
+                  <th className="p-3 w-[110px] border-r">Route No</th>
+                  <th className="p-3 w-[160px] border-r">Vehicle No</th>
+                  <th className="p-3 w-[140px] border-r">Bus Type</th>
+                  <th className="p-3 w-[180px] border-r">Driver Name</th>
+                  <th className="p-3 w-[160px] border-r">Driver's Phone</th>
+                  <th className="p-3 w-[180px] border-r">Conductor Name</th>
+                  <th className="p-3 w-[160px] border-r">Conductor's Phone</th>
+                  <th className="p-3 w-[100px]">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,14 +124,14 @@ const BusManagement = () => {
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
-                    <td className="p-3 w-[110px] border-r">{bus.routeNo}</td>
-                    <td className="p-3 w-[160px] border-r">{bus.vehicleNo}</td>
-                    <td className="p-3 w-[140px] border-r">{bus.busType}</td>
-                    <td className="p-3 w-[180px] border-r">{bus.driverName}</td>
-                    <td className="p-3 w-[160px] border-r">{bus.driverPhone}</td>
-                    <td className="p-3 w-[180px] border-r">{bus.conductorName}</td>
-                    <td className="p-3 w-[160px] border-r">{bus.conductorPhone}</td>
-                    <td className="p-3 w-[100px] text-center">
+                    <td className="p-3 border-r">{bus.busRouteNumber}</td>
+                    <td className="p-3 border-r">{bus.numberPlate}</td>
+                    <td className="p-3 border-r">{bus.busType}</td>
+                    <td className="p-3 border-r">{bus.DriverName || 'N/A'}</td>
+                    <td className="p-3 border-r">{bus.DriverPhone || 'N/A'}</td>
+                    <td className="p-3 border-r">{bus.ConductorName || 'N/A'}</td>
+                    <td className="p-3 border-r">{bus.ConductorPhone || 'N/A'}</td>
+                    <td className="p-3 text-center">
                       <div className="flex justify-center gap-3 text-[#BD2D01]">
                         <FaEdit
                           className="cursor-pointer text-[#2C44BB]"
@@ -104,15 +151,17 @@ const BusManagement = () => {
         </div>
 
         {/* Modals */}
-        {showModal && <AddBusModal onClose={() => setShowModal(false)} />}
+        {showModal && (
+          <AddBusModal
+            onClose={() => setShowModal(false)}
+            onBusAdded={handleBusAdded}
+          />
+        )}
         {editingBus && (
           <EditBusModal
             bus={editingBus}
             onClose={() => setEditingBus(null)}
-            onUpdate={(updated) => {
-              console.log('Updated bus:', updated);
-              setEditingBus(null);
-            }}
+            onUpdate={handleBusUpdated}
           />
         )}
         {deletingBus && (
@@ -120,7 +169,7 @@ const BusManagement = () => {
             user={deletingBus}
             onClose={() => setDeletingBus(null)}
             onConfirm={(toDelete) => {
-              console.log('Deleted bus:', toDelete);
+              setBuses(prev => prev.filter(b => b._id !== toDelete._id));
               setDeletingBus(null);
             }}
           />

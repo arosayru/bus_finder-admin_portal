@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddRouteModal from '../components/AddRouteModal.js';
@@ -7,6 +7,7 @@ import EditRouteModal from '../components/EditRouteModal.js';
 import DeleteRouteModal from '../components/DeleteRouteModal';
 import RouteDetailsModal from '../components/RouteDetailsModal';
 import { FaPlus, FaChevronRight } from 'react-icons/fa';
+import api from '../services/api';
 
 const RouteManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -15,13 +16,21 @@ const RouteManagement = () => {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [routeToDelete, setRouteToDelete] = useState(null);
-  const [routes, setRoutes] = useState(
-    Array(20).fill({
-      routeNo: '05',
-      routeName: 'Kurunegala - Colombo',
-      stops: ['Kurunegala', 'Colombo'],
-    })
-  );
+  const [routes, setRoutes] = useState([]);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchRoutes();
+  }, []);
+
+  const fetchRoutes = async () => {
+    try {
+      const res = await api.get('/busroute');
+      setRoutes(res.data || []);
+    } catch (error) {
+      console.error('Failed to fetch routes:', error);
+    }
+  };
 
   const handleEdit = (route) => {
     setSelectedRoute(route);
@@ -31,7 +40,7 @@ const RouteManagement = () => {
   const handleUpdate = (updatedRoute) => {
     setRoutes((prevRoutes) =>
       prevRoutes.map((r) =>
-        r.routeNo === updatedRoute.routeNo ? updatedRoute : r
+        r.RouteId === updatedRoute.RouteId ? updatedRoute : r
       )
     );
     setShowEditModal(false);
@@ -43,10 +52,15 @@ const RouteManagement = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = (route) => {
-    setRoutes((prev) => prev.filter((r) => r.routeNo !== route.routeNo));
-    setShowDeleteModal(false);
-    setSelectedRoute(null);
+  const confirmDelete = async (route) => {
+    try {
+      await api.delete(`/busroute/${route.RouteId}`);
+      setRoutes((prev) => prev.filter((r) => r.RouteId !== route.RouteId));
+      setShowDeleteModal(false);
+      setSelectedRoute(null);
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
   };
 
   return (
@@ -61,11 +75,14 @@ const RouteManagement = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
             />
             <button
               className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
               style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+              onClick={fetchRoutes}
             >
               Search
             </button>
@@ -93,38 +110,45 @@ const RouteManagement = () => {
 
         {/* Route List */}
         <div className="mt-8 rounded-xl overflow-hidden border border-orange-200">
-          <div className="bg-[#F67F00] text-white font-semibold text-lg px-6 py-3 sticky top-0 z-10"></div>
+          <div className="bg-[#F67F00] text-white font-semibold text-lg px-6 py-3 sticky top-0 z-10">
+            Bus Routes
+          </div>
 
           <div style={{ maxHeight: '520px', overflowY: 'auto' }}>
-            {routes.map((route, index) => (
-              <div
-                key={index}
-                className={`flex items-center justify-between px-6 py-4 ${
-                  index !== 0 ? 'border-t' : ''
-                } border-orange-200 bg-orange-100 hover:bg-orange-200 transition`}
-              >
-                <div>
-                  <p className="text-[#BD2D01]">
-                    <span className="text-black font-bold">Route No:</span> {route.routeNo}
-                  </p>
-                  <p className="text-[#BD2D01]">
-                    <span className="text-black font-bold">Route Name:</span> {route.routeName}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedRoute(route)}
-                  className="text-[#BD2D01] text-xl hover:scale-110 transition"
+            {routes
+              .filter((r) =>
+                r.routeName.toLowerCase().includes(search.toLowerCase()) ||
+                r.routeNumber.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((route, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center justify-between px-6 py-4 ${
+                    index !== 0 ? 'border-t' : ''
+                  } border-orange-200 bg-orange-100 hover:bg-orange-200 transition`}
                 >
-                  <FaChevronRight />
-                </button>
-              </div>
-            ))}
+                  <div>
+                    <p className="text-[#BD2D01]">
+                      <span className="text-black font-bold">Route No:</span> {route.routeNumber}
+                    </p>
+                    <p className="text-[#BD2D01]">
+                      <span className="text-black font-bold">Route Name:</span> {route.routeName}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedRoute(route)}
+                    className="text-[#BD2D01] text-xl hover:scale-110 transition"
+                  >
+                    <FaChevronRight />
+                  </button>
+                </div>
+              ))}
           </div>
         </div>
 
         {/* Modals */}
         {showAddModal && <AddRouteModal onClose={() => setShowAddModal(false)} />}
-        {showAddStopModal && <AddStopModal onClose={() => setShowAddStopModal(false)} />} {/* ✅ new modal */}
+        {showAddStopModal && <AddStopModal onClose={() => setShowAddStopModal(false)} />}
         {selectedRoute && !showEditModal && (
           <RouteDetailsModal
             route={selectedRoute}
@@ -143,7 +167,6 @@ const RouteManagement = () => {
             onUpdate={handleUpdate}
           />
         )}
-
         {showDeleteModal && routeToDelete && (
           <DeleteRouteModal
             route={routeToDelete}

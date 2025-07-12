@@ -2,19 +2,9 @@ import React from 'react';
 
 const RouteDetailsModal = ({ route, onClose, onEdit, onDelete }) => {
   const {
-    routeNo,
+    routeNumber,
     routeName,
-    routePlaces = [
-      'Kurunegala',
-      'Polgahawela',
-      'Alawwa',
-      'Warakapola',
-      'Nittambuwa',
-      'Yakkala',
-      'Kadawatha',
-      'Peliyagoda',
-      'Colombo',
-    ],
+    routeStops = [],
   } = route;
 
   return (
@@ -38,7 +28,7 @@ const RouteDetailsModal = ({ route, onClose, onEdit, onDelete }) => {
         {/* Route Info */}
         <div className="text-black space-y-2 font-medium">
           <p>
-            <span className="font-bold">Route No:</span> {routeNo}
+            <span className="font-bold">Route No:</span> {routeNumber}
           </p>
           <p>
             <span className="font-bold">Route Name:</span> {routeName}
@@ -46,7 +36,7 @@ const RouteDetailsModal = ({ route, onClose, onEdit, onDelete }) => {
           <p>
             <span className="font-bold">Route:</span>
             <ul className="ml-6 list-disc text-black mt-1">
-              {routePlaces.map((place, idx) => (
+              {routeStops.map((place, idx) => (
                 <li key={idx}>{place}</li>
               ))}
             </ul>

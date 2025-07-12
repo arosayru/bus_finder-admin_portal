@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import AddStopModal from './AddStopModal';
 import api from '../services/api';
@@ -15,21 +15,66 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
 
   const [stops, setStops] = useState(route.routeStops || []);
   const [stopInput, setStopInput] = useState('');
+  const [stopSuggestions, setStopSuggestions] = useState([]);
+  const [allStops, setAllStops] = useState([]);
   const [showAddStopModal, setShowAddStopModal] = useState(false);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    fetchBusStops();
+  }, []);
+
+  const fetchBusStops = async () => {
+    try {
+      const res = await api.get('/busstop');
+      setAllStops(res.data || []);
+    } catch (error) {
+      console.error('Failed to load stops:', error);
+      setAllStops([]);
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleStopInput = (e) => {
-    setStopInput(e.target.value);
+    const value = e.target.value;
+    setStopInput(value);
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      if (value.trim() === '') {
+        setStopSuggestions([]);
+        return;
+      }
+
+      const filtered = allStops.filter((stop) => {
+        const name = stop?.StopName || stop?.stopName;
+        return name?.toLowerCase().includes(value.trim().toLowerCase());
+      });
+
+      setStopSuggestions(filtered);
+    }, 200);
+  };
+
+  const handleSelectSuggestion = (item) => {
+    const name = item?.StopName || item?.stopName;
+    if (name && !stops.includes(name)) {
+      setStops([...stops, name]);
+    }
+    setStopInput('');
+    setStopSuggestions([]);
   };
 
   const addStop = () => {
-    if (stopInput.trim() !== '') {
-      setStops([...stops, stopInput.trim()]);
-      setStopInput('');
+    const trimmed = stopInput.trim();
+    if (trimmed !== '' && !stops.includes(trimmed)) {
+      setStops([...stops, trimmed]);
     }
+    setStopInput('');
+    setStopSuggestions([]);
   };
 
   const removeStop = (index) => {
@@ -94,8 +139,8 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
             />
           </div>
 
-          {/* Add Stops */}
-          <div className="mt-2">
+          {/* Add Stops with Suggestion */}
+          <div className="mt-2 relative z-20">
             <label
               className="text-white font-semibold flex items-center gap-2 mb-2 cursor-pointer"
               onClick={() => setShowAddStopModal(true)}
@@ -103,7 +148,7 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
               <FaPlus /> Add Stops
             </label>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 relative w-full">
               <input
                 type="text"
                 value={stopInput}
@@ -114,12 +159,27 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
               <button
                 type="button"
                 onClick={addStop}
-                className="bg-white text-[#BD2D01] w-10 h-10 flex items-center justify-center rounded-full"
+                className="w-8 h-8 flex items-center justify-center bg-white text-[#BD2D01] rounded-full"
               >
                 <FaPlus />
               </button>
+
+              {stopSuggestions.length > 0 && (
+                <ul className="absolute top-full left-0 w-full bg-white border border-orange-200 rounded-md max-h-40 overflow-y-auto shadow-lg z-50 mt-1">
+                  {stopSuggestions.map((item, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-orange-200 cursor-pointer text-black"
+                      onClick={() => handleSelectSuggestion(item)}
+                    >
+                      {item?.StopName || item?.stopName}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
+            {/* Stop List */}
             <div className="mt-3 space-y-2">
               {stops.map((stop, index) => (
                 <div key={index} className="flex items-center gap-2">

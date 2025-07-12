@@ -54,8 +54,8 @@ const RouteManagement = () => {
 
   const confirmDelete = async (route) => {
     try {
-      await api.delete(`/busroute/${route.RouteId}`);
-      setRoutes((prev) => prev.filter((r) => r.RouteId !== route.RouteId));
+      await api.delete(`/busroute/${route.routeNumber}`); // ✅ Corrected from RouteId to routeNumber
+      setRoutes((prev) => prev.filter((r) => r.routeNumber !== route.routeNumber));
       setShowDeleteModal(false);
       setSelectedRoute(null);
     } catch (error) {

@@ -11,7 +11,10 @@ const DeleteRouteModal = ({ route, onClose, onConfirm }) => {
       >
         <h2 className="text-white text-2xl font-bold mb-3">Delete?</h2>
         <p className="text-white font-semibold mb-6">
-          Are you sure delete <span className="text-white font-bold">“Route No {route.routeNo}”</span>?
+          Are you sure you want to delete{" "}
+          <span className="text-white font-bold">
+            “Route No {route.routeNumber} - {route.routeName}”?
+          </span>
         </p>
 
         <div className="flex justify-center gap-4">

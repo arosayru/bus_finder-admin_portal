@@ -1,20 +1,80 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import { FaClock, FaCalendarAlt } from 'react-icons/fa';
 
 const EditShiftModal = ({ shift, onClose, onUpdate }) => {
-  const [form, setForm] = useState(shift);
+  const [form, setForm] = useState({ ...shift });
+  const [routes, setRoutes] = useState([]);
+  const [filteredRoutes, setFilteredRoutes] = useState([]);
 
   useEffect(() => {
-    setForm(shift);
+    setForm({ ...shift });
   }, [shift]);
 
+  useEffect(() => {
+    const fetchRoutes = async () => {
+      try {
+        const res = await api.get('/busroute');
+        setRoutes(res.data || []);
+      } catch (error) {
+        console.error('Failed to fetch routes:', error);
+      }
+    };
+    fetchRoutes();
+  }, []);
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const updatedForm = { ...form, [name]: value };
+
+    if (name === 'routeNo') {
+      const match = routes.find(r => r.routeNumber === value);
+      updatedForm.routeName = match ? match.routeName : '';
+      const filtered = routes.filter(r =>
+        r.routeNumber.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredRoutes(filtered);
+    }
+
+    setForm(updatedForm);
   };
 
-  const handleSubmit = (e) => {
+  const handleSuggestionClick = (route) => {
+    setForm({
+      ...form,
+      routeNo: route.routeNumber,
+      routeName: route.routeName,
+    });
+    setFilteredRoutes([]);
+  };
+
+  const to24Hour = (time) => {
+    return time?.length === 5 ? `${time}:00` : time;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onUpdate(form);
+
+    const payload = {
+      routeNo: form.routeNo,
+      startTime: to24Hour(form.departureTime),
+      endTime: to24Hour(form.arrivalTime),
+      date: form.date,
+    };
+
+    try {
+      await api.put(`/busshift/${form.shiftId}`, payload);
+      onUpdate({
+        ...form,
+        startTime: payload.startTime,
+        endTime: payload.endTime,
+        departureTime: payload.startTime,
+        arrivalTime: payload.endTime,
+      });
+      onClose();
+    } catch (error) {
+      console.error('Failed to update shift:', error);
+    }
   };
 
   return (
@@ -30,53 +90,79 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-4">
-            <input
-              type="text"
-              name="routeNo"
-              value={form.routeNo}
-              onChange={handleChange}
-              placeholder="Route No"
-              className="flex-1 p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-            />
+          {/* Route Inputs with Autocomplete */}
+          <div className="flex gap-4 relative">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                name="routeNo"
+                value={form.routeNo}
+                onChange={handleChange}
+                placeholder="Route No"
+                className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+                autoComplete="off"
+              />
+              {filteredRoutes.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white shadow rounded-md z-20 max-h-40 overflow-y-auto">
+                  {filteredRoutes.map((route, i) => (
+                    <div
+                      key={i}
+                      onClick={() => handleSuggestionClick(route)}
+                      className="px-4 py-2 cursor-pointer hover:bg-orange-100 text-sm"
+                    >
+                      {route.routeNumber} - {route.routeName}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <input
               type="text"
               name="routeName"
               value={form.routeName}
               onChange={handleChange}
               placeholder="Route Name"
+              readOnly
               className="flex-1 p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
             />
           </div>
 
+          {/* Time Fields */}
           <div className="flex gap-4">
             <div className="relative flex-1">
+              <label className="text-white">Departure Time</label>
               <input
                 type="time"
                 name="departureTime"
                 value={form.departureTime}
                 onChange={handleChange}
-                className="w-full p-3 pr-5 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+                step="60"
+                className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
               />
             </div>
             <div className="relative flex-1">
+              <label className="text-white">Arrival Time</label>
               <input
                 type="time"
                 name="arrivalTime"
                 value={form.arrivalTime}
                 onChange={handleChange}
-                className="w-full p-3 pr-5 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+                step="60"
+                className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="relative">
+          {/* Date Field */}
+          <div>
+            <label className="text-white">Date</label>
             <input
               type="date"
               name="date"
               value={form.date}
               onChange={handleChange}
-              className="w-full p-3 pr-5 rounded-md bg-orange-50 text-black focus:outline-none"
+              className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
             />
           </div>
 

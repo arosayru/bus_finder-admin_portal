@@ -22,7 +22,6 @@ const ShiftManagement = () => {
       const res = await api.get('/busshift');
       const fetched = res.data || [];
 
-      // Enrich shifts with routeName from route list
       const routeRes = await api.get('/busroute');
       const routes = routeRes.data || [];
 
@@ -50,7 +49,14 @@ const ShiftManagement = () => {
   const handleUpdate = (updatedShift) => {
     setShifts(prev =>
       prev.map(shift =>
-        shift.shiftId === updatedShift.shiftId ? updatedShift : shift
+        shift.shiftId === updatedShift.shiftId
+          ? {
+              ...shift,
+              ...updatedShift,
+              departureTime: updatedShift.startTime || updatedShift.departureTime,
+              arrivalTime: updatedShift.endTime || updatedShift.arrivalTime,
+            }
+          : shift
       )
     );
     setEditingShift(null);

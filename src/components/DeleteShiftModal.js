@@ -11,7 +11,11 @@ const DeleteShiftModal = ({ shift, onClose, onConfirm }) => {
       >
         <h2 className="text-white text-2xl font-bold mb-2">Delete?</h2>
         <p className="text-white text-lg font-semibold mb-6">
-          Are you sure delete <span className="font-bold text-[#FFFFFF]">“{shift.routeNo}”</span>?
+          Are you sure you want to delete&nbsp;
+          <span className="font-bold text-white">
+            “{shift.routeNo} - {shift.routeName || 'Unknown'}”
+          </span>
+          ?
         </p>
 
         <div className="flex justify-center gap-6">

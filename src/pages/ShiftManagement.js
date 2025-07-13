@@ -62,9 +62,14 @@ const ShiftManagement = () => {
     setEditingShift(null);
   };
 
-  const handleDelete = (toDelete) => {
-    setShifts(prev => prev.filter(s => s.shiftId !== toDelete.shiftId));
-    setDeletingShift(null);
+  const handleDelete = async (toDelete) => {
+    try {
+      await api.delete(`/busshift/${toDelete.shiftId}`);
+      setShifts(prev => prev.filter(s => s.shiftId !== toDelete.shiftId));
+      setDeletingShift(null);
+    } catch (error) {
+      console.error('Failed to delete shift:', error);
+    }
   };
 
   return (

@@ -65,7 +65,7 @@ const EditBusModal = ({ bus, onClose, onUpdate }) => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
+    
     const payload = {
       NumberPlate: form.vehicleNo,
       BusType: form.busType,
@@ -73,7 +73,7 @@ const EditBusModal = ({ bus, onClose, onUpdate }) => {
       ConductorId: form.conductorId,
       BusRouteNumber: form.routeNo,
     };
-
+  
     try {
       const res = await api.put(`/bus/${form.vehicleNo}`, payload);
       if (res.status === 200 || res.status === 204) {

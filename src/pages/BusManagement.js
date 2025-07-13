@@ -64,7 +64,7 @@ const BusManagement = () => {
 
     setBuses(prev =>
       prev.map(b =>
-        b.numberPlate === updatedBus.NumberPlate || b.NumberPlate === updatedBus.NumberPlate
+        b.numberPlate === updatedBus.numberPlate
           ? enriched
           : b
       )

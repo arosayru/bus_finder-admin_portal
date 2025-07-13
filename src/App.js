@@ -25,7 +25,7 @@ function App() {
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/passenger-details" element={<UserManagement />} />
         <Route path="/staff-management" element={<StaffManagement/>} />
         <Route path="/admin-management" element={<AdminManagement/>} />
         <Route path="/bus-management" element={<BusManagement/>} />

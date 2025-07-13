@@ -62,9 +62,9 @@ const Sidebar = () => {
 
   const navItems = [
     { icon: <FaThLarge />, label: 'Dashboard', path: '/dashboard' },
-    { icon: <FaUser />, label: 'User Management', path: '/user-management' },
-    { icon: <FaUsers />, label: 'Staff Management', path: '/staff-management' },
     { icon: <HiShieldCheck />, label: 'Admin Management', path: '/admin-management' },
+    { icon: <FaUsers />, label: 'Staff Management', path: '/staff-management' },
+    { icon: <FaUser />, label: 'Passengers', path: '/passenger-details' },
     { icon: <FaRoute />, label: 'Route Management', path: '/route-management' },
     { icon: <FaBus />, label: 'Bus Management', path: '/bus-management' },
     { icon: <FaClock />, label: 'Shift Management', path: '/shift-management' },

@@ -6,6 +6,7 @@ const AddShiftModal = ({ onClose, onAdd }) => {
   const [form, setForm] = useState({
     routeNo: '',
     routeName: '',
+    numberPlate: '',
     departureTime: '',
     arrivalTime: '',
     date: '',
@@ -13,17 +14,23 @@ const AddShiftModal = ({ onClose, onAdd }) => {
 
   const [routes, setRoutes] = useState([]);
   const [filteredRoutes, setFilteredRoutes] = useState([]);
+  const [buses, setBuses] = useState([]);
+  const [filteredBuses, setFilteredBuses] = useState([]);
 
   useEffect(() => {
-    const fetchRoutes = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get('/busroute');
-        setRoutes(res.data || []);
+        const [routeRes, busRes] = await Promise.all([
+          api.get('/busroute'),
+          api.get('/bus'),
+        ]);
+        setRoutes(routeRes.data || []);
+        setBuses(busRes.data || []);
       } catch (error) {
-        console.error('Failed to fetch routes:', error);
+        console.error('Failed to fetch routes or buses:', error);
       }
     };
-    fetchRoutes();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -31,28 +38,63 @@ const AddShiftModal = ({ onClose, onAdd }) => {
     const updatedForm = { ...form, [name]: value };
 
     if (name === 'routeNo') {
-      const match = routes.find(r => r.routeNumber === value);
+      const match = routes.find((r) => r.routeNumber === value);
       updatedForm.routeName = match ? match.routeName : '';
-      const filtered = routes.filter(r =>
+      const filtered = routes.filter((r) =>
         r.routeNumber.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredRoutes(filtered);
     }
 
+    if (name === 'numberPlate') {
+      const filtered = buses.filter((b) =>
+        b.numberPlate.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredBuses(filtered);
+
+      // If exact match, auto-fill routeNo and routeName
+      const match = buses.find((b) => b.numberPlate.toLowerCase() === value.toLowerCase());
+      if (match) {
+        updatedForm.routeNo = match.busRouteNumber;
+        const routeMatch = routes.find((r) => r.routeNumber === match.busRouteNumber);
+        updatedForm.routeName = routeMatch ? routeMatch.routeName : '';
+      }
+    }
+
     setForm(updatedForm);
+  };
+
+  const handleBusSuggestionClick = (bus) => {
+    const routeMatch = routes.find((r) => r.routeNumber === bus.busRouteNumber);
+    setForm({
+      ...form,
+      numberPlate: bus.numberPlate,
+      routeNo: bus.busRouteNumber,
+      routeName: routeMatch ? routeMatch.routeName : '',
+    });
+    setFilteredBuses([]);
+  };
+
+  const handleSuggestionClick = (route) => {
+    setForm({
+      ...form,
+      routeNo: route.routeNumber,
+      routeName: route.routeName,
+    });
+    setFilteredRoutes([]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const to24Hour = (time) => {
-      // Ensure it's always in HH:mm:ss format
       return time?.length === 5 ? `${time}:00` : time;
     };
 
     const payload = {
       shiftId: `shift_${Date.now()}`,
       routeNo: form.routeNo,
+      numberPlate: form.numberPlate,
       startTime: to24Hour(form.departureTime),
       endTime: to24Hour(form.arrivalTime),
       date: form.date,
@@ -67,15 +109,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
     }
   };
 
-  const handleSuggestionClick = (route) => {
-    setForm({
-      ...form,
-      routeNo: route.routeNumber,
-      routeName: route.routeName,
-    });
-    setFilteredRoutes([]);
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div
@@ -87,6 +120,32 @@ const AddShiftModal = ({ onClose, onAdd }) => {
         <h2 className="text-white text-xl font-bold mb-6 text-center">Add Shift</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Number Plate Field with Suggestions */}
+          <div className="relative">
+            <input
+              type="text"
+              name="numberPlate"
+              value={form.numberPlate}
+              onChange={handleChange}
+              placeholder="Vehicle No (Number Plate)"
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              autoComplete="off"
+            />
+            {filteredBuses.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white shadow rounded-md z-20 max-h-40 overflow-y-auto">
+                {filteredBuses.map((bus, i) => (
+                  <div
+                    key={i}
+                    onClick={() => handleBusSuggestionClick(bus)}
+                    className="px-4 py-2 cursor-pointer hover:bg-orange-100 text-sm"
+                  >
+                    {bus.numberPlate} (Route {bus.busRouteNumber})
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Route Fields */}
           <div className="flex gap-4 relative">
             <div className="flex-1 relative">

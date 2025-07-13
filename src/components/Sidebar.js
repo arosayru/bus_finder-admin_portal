@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FaUser,
   FaUsers,
@@ -10,13 +10,55 @@ import {
   FaCog,
   FaSignOutAlt,
   FaThLarge,
+  FaUserCircle,
 } from 'react-icons/fa';
 import { HiShieldCheck } from 'react-icons/hi';
 import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [adminName, setAdminName] = useState(localStorage.getItem('admin_name') || 'Admin');
+  const [profilePic, setProfilePic] = useState(null);
+
+  useEffect(() => {
+    const fetchAdminInfo = async () => {
+      const adminId = localStorage.getItem('admin_id');
+      if (!adminId) return;
+
+      // Only fetch name if not already stored
+      if (!localStorage.getItem('admin_name')) {
+        try {
+          const response = await api.get('/admin');
+          const admin = response.data.find((a) => a.adminId === adminId);
+          if (admin) {
+            const fullName = `${admin.firstName} ${admin.lastName}`;
+            setAdminName(fullName);
+            localStorage.setItem('admin_name', fullName);
+          }
+        } catch (err) {
+          console.error('Failed to fetch admin details:', err);
+        }
+      }
+
+      // Always re-fetch image blob on load
+      try {
+        const picRes = await api.get(`/admin/profile-picture/${adminId}`, {
+          responseType: 'blob',
+        });
+        if (picRes.status === 200) {
+          const imageUrl = URL.createObjectURL(picRes.data);
+          setProfilePic(imageUrl);
+        }
+      } catch (err) {
+        console.error('Failed to load profile picture:', err);
+      }
+    };
+
+    fetchAdminInfo();
+  }, []);
 
   const navItems = [
     { icon: <FaThLarge />, label: 'Dashboard', path: '/dashboard' },
@@ -34,10 +76,14 @@ const Sidebar = () => {
     <div className="bg-[#F67F00] text-white w-64 min-h-screen p-4 flex flex-col justify-between fixed left-0 top-0 z-10">
       <div>
         <div className="flex flex-col items-center mb-6">
-          <div className="bg-white text-[#F67F00] rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold">
-            👤
+          <div className="bg-white text-[#F67F00] rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold overflow-hidden">
+            {profilePic ? (
+              <img src={profilePic} alt="Admin" className="w-full h-full object-cover rounded-full" />
+            ) : (
+              <FaUserCircle className="text-5xl" />
+            )}
           </div>
-          <p className="mt-2 font-semibold text-lg text-center">Robert Signh</p>
+          <p className="mt-2 font-semibold text-lg text-center">{adminName}</p>
         </div>
 
         <div className="space-y-3">
@@ -60,7 +106,10 @@ const Sidebar = () => {
           background:
             'linear-gradient(to right, #BD2D01 0%, #CF4602 10%, #F67F00 50%, #CF4602 90%, #BD2D01 100%)',
         }}
-        onClick={() => navigate('/')}
+        onClick={() => {
+          localStorage.clear();
+          navigate('/');
+        }}
       >
         <FaSignOutAlt /> Log out
       </button>

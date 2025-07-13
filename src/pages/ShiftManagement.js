@@ -1,38 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import AddShiftModal from '../components/AddShiftModal';
 import EditShiftModal from '../components/EditShiftModal';
 import DeleteShiftModal from '../components/DeleteShiftModal';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import api from '../services/api';
 
 const ShiftManagement = () => {
+  const [shifts, setShifts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
   const [deletingShift, setDeletingShift] = useState(null);
 
-  const shifts = Array(12).fill({
-    routeNo: 'No 5',
-    routeName: 'Kurunagala - Colombo',
-    departureTime: '9.15a.m',
-    arrivalTime: '11.45p.m',
-    date: '04/06/2025',
-  });
+  useEffect(() => {
+    fetchShifts();
+  }, []);
+
+  const fetchShifts = async () => {
+    try {
+      const res = await api.get('/busshift');
+      const fetched = res.data || [];
+
+      // Enrich shifts with routeName from route list
+      const routeRes = await api.get('/busroute');
+      const routes = routeRes.data || [];
+
+      const enriched = fetched.map(shift => {
+        const match = routes.find(r => r.routeNumber === shift.routeNo);
+        return {
+          ...shift,
+          routeName: match ? match.routeName : 'Unknown',
+          departureTime: shift.startTime,
+          arrivalTime: shift.endTime,
+        };
+      });
+
+      setShifts(enriched);
+    } catch (err) {
+      console.error('Failed to fetch shifts:', err);
+    }
+  };
 
   const handleAdd = (newShift) => {
-    console.log('New Shift Added:', newShift);
+    setShifts(prev => [...prev, newShift]);
     setShowAddModal(false);
-    // In production: update your state to include the new shift
   };
 
   const handleUpdate = (updatedShift) => {
-    console.log('Shift Updated:', updatedShift);
+    setShifts(prev =>
+      prev.map(shift =>
+        shift.shiftId === updatedShift.shiftId ? updatedShift : shift
+      )
+    );
     setEditingShift(null);
-    // In production: update your shift list state
   };
 
-  const handleDelete = (shift) => {
-    console.log('Shift deleted:', shift);
+  const handleDelete = (toDelete) => {
+    setShifts(prev => prev.filter(s => s.shiftId !== toDelete.shiftId));
     setDeletingShift(null);
   };
 
@@ -131,10 +156,7 @@ const ShiftManagement = () => {
           <DeleteShiftModal
             shift={deletingShift}
             onClose={() => setDeletingShift(null)}
-            onConfirm={(toDelete) => {
-              console.log('Deleted shift:', toDelete);
-              setDeletingShift(null);
-            }}
+            onConfirm={handleDelete}
           />
         )}
       </div>

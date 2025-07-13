@@ -13,7 +13,7 @@ const DeleteShiftModal = ({ shift, onClose, onConfirm }) => {
         <p className="text-white text-lg font-semibold mb-6">
           Are you sure you want to delete&nbsp;
           <span className="font-bold text-white">
-            “{shift.routeNo} - {shift.routeName || 'Unknown'}”
+            “{shift.routeNo} - {shift.routeName || 'Unknown'} ({shift.numberPlate || 'No Vehicle'})”
           </span>
           ?
         </p>

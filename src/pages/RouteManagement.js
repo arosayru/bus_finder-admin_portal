@@ -27,7 +27,7 @@ const RouteManagement = () => {
     try {
       const res = await api.get('/busroute');
       const allRoutes = res.data || [];
-      const normalRoutes = allRoutes.filter(r => !r.routeNumber?.endsWith('R')); // Exclude reverse
+      const normalRoutes = allRoutes.filter(r => !r.routeNumber?.endsWith('R'));
       setRoutes(normalRoutes);
     } catch (error) {
       console.error('Failed to fetch routes:', error);
@@ -56,9 +56,19 @@ const RouteManagement = () => {
   };
 
   const confirmDelete = async (route) => {
+    const normalNumber = route.routeNumber;
+    const reverseNumber = `${normalNumber}R`;
+
     try {
-      await api.delete(`/busroute/${route.routeNumber}`);
-      setRoutes((prev) => prev.filter((r) => r.routeNumber !== route.routeNumber));
+      // Attempt to delete both the normal and reverse route
+      await api.delete(`/busroute/${normalNumber}`);
+      await api.delete(`/busroute/${reverseNumber}`);
+
+      // Remove both from state
+      setRoutes((prev) =>
+        prev.filter((r) => r.routeNumber !== normalNumber && r.routeNumber !== reverseNumber)
+      );
+
       setShowDeleteModal(false);
       setSelectedRoute(null);
     } catch (error) {
@@ -154,7 +164,7 @@ const RouteManagement = () => {
           <AddRouteModal
             onClose={() => setShowAddModal(false)}
             onRouteAdded={async () => {
-              await fetchRoutes(); // Ensures updated and filtered list after add
+              await fetchRoutes();
               setShowAddModal(false);
             }}
           />

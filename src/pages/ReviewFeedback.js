@@ -11,6 +11,7 @@ const ReviewFeedback = () => {
   const [feedbackList, setFeedbackList] = useState([]);
   const [passengerMap, setPassengerMap] = useState({});
   const [expandedIndex, setExpandedIndex] = useState(null);
+  const [expandedReplyIndex, setExpandedReplyIndex] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
   // Fetch feedback and passenger data
@@ -53,6 +54,10 @@ const ReviewFeedback = () => {
 
   const toggleExpand = (index) => {
     setExpandedIndex(index === expandedIndex ? null : index);
+  };
+
+  const toggleReplyExpand = (index) => {
+    setExpandedReplyIndex(index === expandedReplyIndex ? null : index);
   };
 
   const confirmDelete = async () => {
@@ -104,7 +109,19 @@ const ReviewFeedback = () => {
                   {fb.reply && (
                     <div className="mt-2">
                       <p className="text-[#BD2D01] font-bold">Reply:</p>
-                      <p className="text-black whitespace-pre-line">{fb.reply}</p>
+                      <p className="text-black whitespace-pre-line">
+                        {expandedReplyIndex === index
+                          ? fb.reply
+                          : `${fb.reply.substring(0, 130)}... `}
+                        {fb.reply.length > 130 && (
+                          <button
+                            onClick={() => toggleReplyExpand(index)}
+                            className="text-red-700 font-semibold ml-1"
+                          >
+                            {expandedReplyIndex === index ? 'see less' : 'see more...'}
+                          </button>
+                        )}
+                      </p>
                     </div>
                   )}
                 </div>

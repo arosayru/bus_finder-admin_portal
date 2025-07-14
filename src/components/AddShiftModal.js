@@ -10,12 +10,16 @@ const AddShiftModal = ({ onClose, onAdd }) => {
     departureTime: '',
     arrivalTime: '',
     date: '',
+    reverseDepartureTime: '',
+    reverseArrivalTime: '',
+    reverseDate: ''
   });
 
   const [routes, setRoutes] = useState([]);
   const [filteredRoutes, setFilteredRoutes] = useState([]);
   const [buses, setBuses] = useState([]);
   const [filteredBuses, setFilteredBuses] = useState([]);
+  const [showReverse, setShowReverse] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +56,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
       );
       setFilteredBuses(filtered);
 
-      // If exact match, auto-fill routeNo and routeName
       const match = buses.find((b) => b.numberPlate.toLowerCase() === value.toLowerCase());
       if (match) {
         updatedForm.routeNo = match.busRouteNumber;
@@ -86,18 +89,24 @@ const AddShiftModal = ({ onClose, onAdd }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const to24Hour = (time) => {
-      return time?.length === 5 ? `${time}:00` : time;
-    };
+    const to24Hour = (time) => (time?.length === 5 ? `${time}:00` : time);
 
     const payload = {
       shiftId: `shift_${Date.now()}`,
       routeNo: form.routeNo,
       numberPlate: form.numberPlate,
-      startTime: to24Hour(form.departureTime),
-      endTime: to24Hour(form.arrivalTime),
-      date: form.date,
+      normal: {
+        startTime: to24Hour(form.departureTime),
+        endTime: to24Hour(form.arrivalTime),
+        date: form.date
+      },
+      reverse: showReverse
+        ? {
+            startTime: to24Hour(form.reverseDepartureTime),
+            endTime: to24Hour(form.reverseArrivalTime),
+            date: form.reverseDate
+          }
+        : null
     };
 
     try {
@@ -120,7 +129,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
         <h2 className="text-white text-xl font-bold mb-6 text-center">Add Shift</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Number Plate Field with Suggestions */}
           <div className="relative">
             <input
               type="text"
@@ -146,7 +154,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
             )}
           </div>
 
-          {/* Route Fields */}
           <div className="flex gap-4 relative">
             <div className="flex-1 relative">
               <input
@@ -184,7 +191,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
             />
           </div>
 
-          {/* Time Fields */}
           <div className="flex gap-4">
             <div className="relative flex-1">
               <label className="text-white">Departure Time</label>
@@ -210,7 +216,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
             </div>
           </div>
 
-          {/* Date Field */}
           <div>
             <label className="text-white">Date</label>
             <input
@@ -222,7 +227,58 @@ const AddShiftModal = ({ onClose, onAdd }) => {
             />
           </div>
 
-          {/* Submit */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setShowReverse((prev) => !prev)}
+              className="mt-4 px-6 py-2 rounded-md text-white font-semibold bg-[#BD2D01]"
+            >
+              {showReverse ? 'Remove Return Trip' : 'Add Return Trip'}
+            </button>
+          </div>
+
+          {showReverse && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-white text-lg font-bold">Return Trip</h3>
+
+              <div className="flex gap-4">
+                <div className="relative flex-1">
+                  <label className="text-white">Departure Time</label>
+                  <input
+                    type="time"
+                    name="reverseDepartureTime"
+                    value={form.reverseDepartureTime}
+                    onChange={handleChange}
+                    step="60"
+                    className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+                  />
+                </div>
+                <div className="relative flex-1">
+                  <label className="text-white">Arrival Time</label>
+                  <input
+                    type="time"
+                    name="reverseArrivalTime"
+                    value={form.reverseArrivalTime}
+                    onChange={handleChange}
+                    step="60"
+                    className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white">Date</label>
+                <input
+                  type="date"
+                  name="reverseDate"
+                  value={form.reverseDate}
+                  onChange={handleChange}
+                  className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end mt-4">
             <button
               type="submit"
@@ -234,7 +290,6 @@ const AddShiftModal = ({ onClose, onAdd }) => {
           </div>
         </form>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

@@ -3,15 +3,21 @@ import api from '../services/api';
 import { FaClock, FaCalendarAlt } from 'react-icons/fa';
 
 const EditShiftModal = ({ shift, onClose, onUpdate }) => {
-  const [form, setForm] = useState({ ...shift });
+  const [form, setForm] = useState({
+    ...shift,
+    departureTime: shift.normalDepartureTime || shift.normal?.startTime || '',
+    arrivalTime: shift.normalArrivalTime || shift.normal?.endTime || '',
+    date: shift.normalDate || shift.normal?.date || '',
+    reverseDepartureTime: shift.reverseDepartureTime || shift.reverse?.startTime || '',
+    reverseArrivalTime: shift.reverseArrivalTime || shift.reverse?.endTime || '',
+    reverseDate: shift.reverseDate || shift.reverse?.date || '',
+  });
+
   const [routes, setRoutes] = useState([]);
   const [filteredRoutes, setFilteredRoutes] = useState([]);
   const [buses, setBuses] = useState([]);
   const [filteredBuses, setFilteredBuses] = useState([]);
-
-  useEffect(() => {
-    setForm({ ...shift });
-  }, [shift]);
+  const [showReverse, setShowReverse] = useState(!!(shift.reverse || shift.reverseDate));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,19 +95,23 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
     const payload = {
       routeNo: form.routeNo,
       numberPlate: form.numberPlate,
-      startTime: to24Hour(form.departureTime),
-      endTime: to24Hour(form.arrivalTime),
-      date: form.date,
+      normal: {
+        startTime: to24Hour(form.departureTime),
+        endTime: to24Hour(form.arrivalTime),
+        date: form.date,
+      },
+      reverse: showReverse
+        ? {
+            startTime: to24Hour(form.reverseDepartureTime),
+            endTime: to24Hour(form.reverseArrivalTime),
+            date: form.reverseDate,
+          }
+        : null,
     };
 
     try {
       await api.put(`/busshift/${form.shiftId}`, payload);
-      onUpdate({
-        ...form,
-        ...payload,
-        departureTime: payload.startTime,
-        arrivalTime: payload.endTime,
-      });
+      onUpdate({ ...form });
       onClose();
     } catch (error) {
       console.error('Failed to update shift:', error);
@@ -116,12 +126,9 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
       >
-        {/* Header */}
         <h2 className="text-white text-xl font-bold mb-6 text-center">Edit Shift</h2>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Number Plate Field with Suggestions */}
           <div className="relative">
             <input
               type="text"
@@ -147,7 +154,6 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
             )}
           </div>
 
-          {/* Route Inputs with Autocomplete */}
           <div className="flex gap-4 relative">
             <div className="flex-1 relative">
               <input
@@ -180,19 +186,18 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
               value={form.routeName}
               onChange={handleChange}
               placeholder="Route Name"
-              readOnly
               className="flex-1 p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              readOnly
             />
           </div>
 
-          {/* Time Fields */}
           <div className="flex gap-4">
             <div className="relative flex-1">
               <label className="text-white">Departure Time</label>
               <input
                 type="time"
                 name="departureTime"
-                value={form.departureTime}
+                value={form.departureTime || ''}
                 onChange={handleChange}
                 step="60"
                 className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
@@ -203,7 +208,7 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
               <input
                 type="time"
                 name="arrivalTime"
-                value={form.arrivalTime}
+                value={form.arrivalTime || ''}
                 onChange={handleChange}
                 step="60"
                 className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
@@ -211,19 +216,67 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
             </div>
           </div>
 
-          {/* Date Field */}
           <div>
             <label className="text-white">Date</label>
             <input
               type="date"
               name="date"
-              value={form.date}
+              value={form.date || ''}
               onChange={handleChange}
               className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
             />
           </div>
 
-          {/* Buttons */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setShowReverse((prev) => !prev)}
+              className="mt-4 px-6 py-2 rounded-md text-white font-semibold bg-[#BD2D01]"
+            >
+              {showReverse ? 'Remove Return Trip' : 'Add Return Trip'}
+            </button>
+          </div>
+
+          {showReverse && (
+            <div className="mt-6 space-y-4">
+              <h3 className="text-white text-lg font-bold">Return Trip</h3>
+              <div className="flex gap-4">
+                <div className="relative flex-1">
+                  <label className="text-white">Departure Time</label>
+                  <input
+                    type="time"
+                    name="reverseDepartureTime"
+                    value={form.reverseDepartureTime || ''}
+                    onChange={handleChange}
+                    step="60"
+                    className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+                  />
+                </div>
+                <div className="relative flex-1">
+                  <label className="text-white">Arrival Time</label>
+                  <input
+                    type="time"
+                    name="reverseArrivalTime"
+                    value={form.reverseArrivalTime || ''}
+                    onChange={handleChange}
+                    step="60"
+                    className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-white">Date</label>
+                <input
+                  type="date"
+                  name="reverseDate"
+                  value={form.reverseDate || ''}
+                  onChange={handleChange}
+                  className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end mt-4">
             <button
               type="submit"
@@ -235,7 +288,6 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
           </div>
         </form>
 
-        {/* Close */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

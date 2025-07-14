@@ -14,6 +14,21 @@ const ReplyFeedback = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Format ISO date string to readable format
+  const formatDateTime = (isoString) => {
+    if (!isoString) return 'N/A';
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+    const date = new Date(isoString);
+    return date.toLocaleString(undefined, options);
+  };
+
   // Fetch full feedback by ID
   useEffect(() => {
     const fetchFeedbackDetails = async () => {
@@ -53,10 +68,11 @@ const ReplyFeedback = () => {
         reply: replyMessage,
       });
 
-      // Update local state to show reply
+      // Update local state to show reply and repliedTime
       setFeedback(prev => ({
         ...prev,
         reply: replyMessage,
+        repliedTime: new Date().toISOString(),
       }));
     } catch (err) {
       setError('Failed to send reply');
@@ -96,11 +112,23 @@ const ReplyFeedback = () => {
           <p><span className="font-bold">Name:</span> {feedback.name || initialFeedback.name}</p>
           <p><span className="font-bold">Email:</span> {feedback.email || initialFeedback.email}</p>
           <p><span className="font-bold">Subject:</span> {feedback.subject}</p>
+
+          <p className="text-sm text-gray-600 mb-2">
+            <span className="font-semibold">Created Time:</span> {formatDateTime(feedback.createdTime)}
+          </p>
+
           <p className="text-justify"><span className="font-bold">Message:</span> {feedback.message}</p>
 
           {feedback.reply && (
             <div className="mt-6 border-t pt-4">
               <p className="text-[#BD2D01] font-bold">Your Reply:</p>
+
+                {feedback.repliedTime && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold">Replied Time:</span> {formatDateTime(feedback.repliedTime)}
+                  </p>
+                )}
+
               <p className="text-black whitespace-pre-line">{feedback.reply}</p>
             </div>
           )}

@@ -14,6 +14,21 @@ const ReviewFeedback = () => {
   const [expandedReplyIndex, setExpandedReplyIndex] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
+  // Format ISO date string to readable format, e.g. "Jul 14, 2025 06:21 AM"
+  const formatDateTime = (isoString) => {
+    if (!isoString) return 'N/A';
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+    const date = new Date(isoString);
+    return date.toLocaleString(undefined, options);
+  };
+
   // Fetch feedback and passenger data
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +79,7 @@ const ReviewFeedback = () => {
     try {
       if (deleteId) {
         await api.delete(`/Feedback/${deleteId}`);
-      
+
         // Refetch feedback list to get fresh data after deletion
         const feedbackRes = await api.get('/Feedback');
         setFeedbackList(
@@ -101,6 +116,11 @@ const ReviewFeedback = () => {
                   <p><span className="font-bold">Name:</span> {fb.name}</p>
                   <p><span className="font-bold">Email:</span> {fb.email}</p>
                   <p><span className="font-bold">Subject:</span> {fb.subject}</p>
+
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold">Created Time:</span> {formatDateTime(fb.createdTime)}
+                  </p>
+
                   <p className="text-[#BD2D01] font-medium">
                     <span className="text-black font-bold">Message:</span>{' '}
                     {expandedIndex === index
@@ -118,6 +138,13 @@ const ReviewFeedback = () => {
                   {fb.reply && (
                     <div className="mt-2">
                       <p className="text-[#BD2D01] font-bold">Reply:</p>
+
+                      {fb.repliedTime && (
+                        <p className="text-sm text-gray-600 mb-2">
+                          <span className="font-semibold">Replied Time:</span> {formatDateTime(fb.repliedTime)}
+                        </p>
+                      )}
+
                       <p className="text-black whitespace-pre-line">
                         {expandedReplyIndex === index
                           ? fb.reply

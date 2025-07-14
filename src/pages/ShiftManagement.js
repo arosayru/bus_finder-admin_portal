@@ -30,8 +30,12 @@ const ShiftManagement = () => {
         return {
           ...shift,
           routeName: match ? match.routeName : 'Unknown',
-          departureTime: shift.startTime,
-          arrivalTime: shift.endTime,
+          normalDepartureTime: shift.normal?.startTime || '',
+          normalArrivalTime: shift.normal?.endTime || '',
+          normalDate: shift.normal?.date || '',
+          reverseDepartureTime: shift.reverse?.startTime || '',
+          reverseArrivalTime: shift.reverse?.endTime || '',
+          reverseDate: shift.reverse?.date || ''
         };
       });
 
@@ -42,23 +46,12 @@ const ShiftManagement = () => {
   };
 
   const handleAdd = (newShift) => {
-    setShifts(prev => [...prev, newShift]);
+    fetchShifts();
     setShowAddModal(false);
   };
 
   const handleUpdate = (updatedShift) => {
-    setShifts(prev =>
-      prev.map(shift =>
-        shift.shiftId === updatedShift.shiftId
-          ? {
-              ...shift,
-              ...updatedShift,
-              departureTime: updatedShift.startTime || updatedShift.departureTime,
-              arrivalTime: updatedShift.endTime || updatedShift.arrivalTime,
-            }
-          : shift
-      )
-    );
+    fetchShifts();
     setEditingShift(null);
   };
 
@@ -109,13 +102,20 @@ const ShiftManagement = () => {
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-[#F67F00] text-white text-lg sticky top-0 z-10">
                 <tr>
-                  <th className="p-3 w-[120px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route No</th>
-                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Vehicle No</th>
-                  <th className="p-3 w-[220px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route Name</th>
-                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Departure Time</th>
-                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Arrival Time</th>
-                  <th className="p-3 w-[160px] border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Date</th>
-                  <th className="p-3 w-[100px]">Action</th>
+                  <th className="p-3 w-[120px] border-r" rowSpan="2" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route No</th>
+                  <th className="p-3 w-[160px] border-r" rowSpan="2" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Vehicle No</th>
+                  <th className="p-3 w-[220px] border-r" rowSpan="2" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Route Name</th>
+                  <th className="p-3 text-center border-r" colSpan="3" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Trip</th>
+                  <th className="p-3 text-center border-r" colSpan="3" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Return Trip</th>
+                  <th className="p-3 w-[100px]" rowSpan="2">Action</th>
+                </tr>
+                <tr>
+                  <th className="p-2 border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Departure</th>
+                  <th className="p-2 border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Arrival</th>
+                  <th className="p-2 border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Date</th>
+                  <th className="p-2 border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Departure</th>
+                  <th className="p-2 border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Arrival</th>
+                  <th className="p-2 border-r" style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}>Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,13 +124,16 @@ const ShiftManagement = () => {
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
-                    <td className="p-3 w-[120px] border-r">{shift.routeNo}</td>
-                    <td className="p-3 w-[160px] border-r">{shift.numberPlate || 'N/A'}</td>
-                    <td className="p-3 w-[220px] border-r">{shift.routeName}</td>
-                    <td className="p-3 w-[160px] border-r">{shift.departureTime}</td>
-                    <td className="p-3 w-[160px] border-r">{shift.arrivalTime}</td>
-                    <td className="p-3 w-[160px] border-r">{shift.date}</td>
-                    <td className="p-3 w-[100px]">
+                    <td className="p-3 border-r">{shift.routeNo}</td>
+                    <td className="p-3 border-r">{shift.numberPlate || 'N/A'}</td>
+                    <td className="p-3 border-r">{shift.routeName}</td>
+                    <td className="p-3 border-r">{shift.normalDepartureTime || '-'}</td>
+                    <td className="p-3 border-r">{shift.normalArrivalTime || '-'}</td>
+                    <td className="p-3 border-r">{shift.normalDate || '-'}</td>
+                    <td className="p-3 border-r">{shift.reverseDepartureTime || '-'}</td>
+                    <td className="p-3 border-r">{shift.reverseArrivalTime || '-'}</td>
+                    <td className="p-3 border-r">{shift.reverseDate || '-'}</td>
+                    <td className="p-3">
                       <div className="flex gap-3 justify-center text-[#BD2D01]">
                         <FaEdit
                           className="cursor-pointer text-[#2C44BB]"

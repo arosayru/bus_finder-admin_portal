@@ -1,24 +1,51 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { FaTrash, FaReply } from 'react-icons/fa';
-import DeleteFeedback from '../components/DeleteFeedback'; // ✅ Import modal
+import DeleteFeedback from '../components/DeleteFeedback';
+import api from '../services/api';
 
 const ReviewFeedback = () => {
   const navigate = useNavigate();
-
-  const [feedbackList, setFeedbackList] = useState(
-    Array(6).fill({
-      name: 'John Ruby',
-      email: 'john99@gmail.com',
-      subject: 'Urgent Concern: Unsafe Driving Practices by Sri Lankan Bus Drivers',
-      message: `Honestly, most Sri Lankan bus drivers are reckless and inconsiderate. They drive like they own the road—constantly speeding, overtaking dangerously, and ignoring traffic rules. It's terrifying as a passenger, and I fear for my safety every time I board a bus. Something needs to be done!`,
-    })
-  );
-
+  const [feedbackList, setFeedbackList] = useState([]);
+  const [passengerMap, setPassengerMap] = useState({});
   const [expandedIndex, setExpandedIndex] = useState(null);
-  const [deleteIndex, setDeleteIndex] = useState(null); // ✅ Track index for deletion
+  const [deleteId, setDeleteId] = useState(null);
+
+  // Fetch feedback and passenger data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [feedbackRes, passengerRes] = await Promise.all([
+          api.get('/Feedback'),
+          api.get('/passenger'),
+        ]);
+
+        // Map passengerId to passenger info
+        const passengerData = passengerRes.data.reduce((map, p) => {
+          map[p.passengerId] = {
+            name: `${p.firstName} ${p.lastName}`,
+            email: p.email,
+          };
+          return map;
+        }, {});
+
+        const fullFeedbackList = feedbackRes.data.map(fb => ({
+          ...fb,
+          name: passengerData[fb.passengerId]?.name || 'Unknown',
+          email: passengerData[fb.passengerId]?.email || 'Unknown',
+        }));
+
+        setPassengerMap(passengerData);
+        setFeedbackList(fullFeedbackList);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleReply = (feedback) => {
     navigate('/reply-feedback', { state: feedback });
@@ -28,12 +55,16 @@ const ReviewFeedback = () => {
     setExpandedIndex(index === expandedIndex ? null : index);
   };
 
-  const confirmDelete = () => {
-    if (deleteIndex !== null) {
-      const updated = [...feedbackList];
-      updated.splice(deleteIndex, 1);
-      setFeedbackList(updated);
-      setDeleteIndex(null);
+  const confirmDelete = async () => {
+    try {
+      if (deleteId) {
+        await api.delete(`/Feedback/${deleteId}`);
+        setFeedbackList(prev => prev.filter(fb => fb.feedbackId !== deleteId));
+      }
+    } catch (err) {
+      console.error('Error deleting feedback:', err);
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -42,21 +73,16 @@ const ReviewFeedback = () => {
       <Sidebar />
       <div className="flex-1 ml-64 pt-20 px-6">
         <Topbar />
-
-        {/* Feedback List */}
         <div className="mt-8 rounded-xl border border-orange-300 overflow-hidden">
           <div className="bg-[#F67F00] text-white text-lg font-semibold px-6 py-3">
-            {/* Optional title row */}
+            {/* Optional Title */}
           </div>
-
-          {/* Scrollable Feedback */}
           <div style={{ maxHeight: '580px', overflowY: 'auto' }}>
             {feedbackList.map((fb, index) => (
               <div
-                key={index}
-                className={`flex justify-between items-start px-6 py-4 border-t border-orange-300 bg-orange-100 hover:bg-orange-200 transition`}
+                key={fb.feedbackId}
+                className="flex justify-between items-start px-6 py-4 border-t border-orange-300 bg-orange-100 hover:bg-orange-200 transition"
               >
-                {/* Left Content */}
                 <div>
                   <p><span className="font-bold">Name:</span> {fb.name}</p>
                   <p><span className="font-bold">Email:</span> {fb.email}</p>
@@ -76,12 +102,10 @@ const ReviewFeedback = () => {
                     )}
                   </p>
                 </div>
-
-                {/* Right Icons */}
                 <div className="flex flex-col items-center gap-3 mt-2 text-[#BD2D01]">
                   <FaTrash
                     className="cursor-pointer text-2xl hover:text-red-700"
-                    onClick={() => setDeleteIndex(index)}
+                    onClick={() => setDeleteId(fb.feedbackId)}
                     title="Delete"
                   />
                   <FaReply
@@ -95,10 +119,9 @@ const ReviewFeedback = () => {
           </div>
         </div>
 
-        {/* Delete Modal */}
-        {deleteIndex !== null && (
+        {deleteId && (
           <DeleteFeedback
-            onCancel={() => setDeleteIndex(null)}
+            onCancel={() => setDeleteId(null)}
             onConfirm={confirmDelete}
           />
         )}

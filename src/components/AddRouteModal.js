@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import { FaPlus, FaMinus, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import AddStopModal from './AddStopModal';
 import api from '../services/api';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -17,7 +17,6 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
   const [showAddStopModal, setShowAddStopModal] = useState(false);
   const timeoutRef = useRef(null);
 
-  // Fetch all available stops from backend on load
   useEffect(() => {
     fetchBusStops();
   }, []);
@@ -25,11 +24,9 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
   const fetchBusStops = async () => {
     try {
       const res = await api.get('/busstop');
-      console.log("Bus stops loaded:", res.data);
       setAllStops(res.data || []);
     } catch (error) {
       console.error('Failed to load stops:', error);
-      setAllStops([]);
     }
   };
 
@@ -82,6 +79,18 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
     setStops(updated);
   };
 
+  const moveStop = (index, direction) => {
+    const newStops = [...stops];
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= newStops.length) return;
+
+    const temp = newStops[index];
+    newStops[index] = newStops[targetIndex];
+    newStops[targetIndex] = temp;
+    setStops(newStops);
+  };
+
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     const reordered = Array.from(stops);
@@ -90,39 +99,34 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
     setStops(reordered);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (stops.length < 2) {
-    alert('Please add at least two stops.');
-    return;
-  }
-
-  const payload = {
-    RouteId: `${form.routeNo}-${Date.now()}`,
-    RouteNumber: form.routeNo,
-    RouteName: form.routeName,
-    StartingPoint: stops[0],
-    EndingPoint: stops[stops.length - 1],
-    RouteStops: stops,
-  };
-
-  try {
-    await api.post('/busroute', payload);
-    //alert('Route added successfully');
-
-    // Notify parent component of the new route
-    if (onRouteAdded) {
-      onRouteAdded(payload);
+    if (stops.length < 2) {
+      alert('Please add at least two stops.');
+      return;
     }
 
-    onClose();
-  } catch (error) {
-    console.error('Add route failed:', error);
-    alert('Failed to add route.');
-  }
-};
+    const payload = {
+      RouteId: `${form.routeNo}-${Date.now()}`,
+      RouteNumber: form.routeNo,
+      RouteName: form.routeName,
+      StartingPoint: stops[0],
+      EndingPoint: stops[stops.length - 1],
+      RouteStops: stops,
+    };
 
+    try {
+      await api.post('/busroute', payload);
+      if (onRouteAdded) {
+        onRouteAdded(payload);
+      }
+      onClose();
+    } catch (error) {
+      console.error('Add route failed:', error);
+      alert('Failed to add route.');
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -196,7 +200,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          {/* Draggable Stop List */}
+          {/* Reorderable Stops */}
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="stops">
               {(provided) => (
@@ -220,6 +224,22 @@ const handleSubmit = async (e) => {
                             readOnly
                             className="w-full p-3 rounded-md bg-orange-50 text-black"
                           />
+                          <div className="flex flex-col gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveStop(index, -1)}
+                              className="bg-white text-[#BD2D01] p-1 rounded-full"
+                            >
+                              <FaArrowUp />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveStop(index, 1)}
+                              className="bg-white text-[#BD2D01] p-1 rounded-full"
+                            >
+                              <FaArrowDown />
+                            </button>
+                          </div>
                           <button
                             type="button"
                             onClick={() => removeStop(index)}
@@ -248,7 +268,6 @@ const handleSubmit = async (e) => {
           </div>
         </form>
 
-        {/* Close */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"
@@ -256,7 +275,6 @@ const handleSubmit = async (e) => {
           ✕
         </button>
 
-        {/* AddStopModal Popup */}
         {showAddStopModal && (
           <AddStopModal onClose={() => setShowAddStopModal(false)} />
         )}

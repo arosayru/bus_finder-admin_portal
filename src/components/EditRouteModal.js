@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import { FaPlus, FaMinus, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import AddStopModal from './AddStopModal';
 import api from '../services/api';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const EditRouteModal = ({ route, onClose, onUpdate }) => {
   const [form, setForm] = useState({
@@ -30,7 +31,6 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
       setAllStops(res.data || []);
     } catch (error) {
       console.error('Failed to load stops:', error);
-      setAllStops([]);
     }
   };
 
@@ -82,6 +82,26 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
     setStops(updated);
   };
 
+  const moveStop = (index, direction) => {
+    const newStops = [...stops];
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= newStops.length) return;
+
+    const temp = newStops[index];
+    newStops[index] = newStops[targetIndex];
+    newStops[targetIndex] = temp;
+    setStops(newStops);
+  };
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = Array.from(stops);
+    const [removed] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, removed);
+    setStops(reordered);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -92,10 +112,6 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
       StartingPoint: stops[0],
       EndingPoint: stops[stops.length - 1],
       RouteStops: stops,
-      vehicleNo: form.vehicleNo,
-      driverName: form.driverName,
-      conductorName: form.conductorName,
-      phone: form.phone,
     };
 
     try {
@@ -179,26 +195,62 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
               )}
             </div>
 
-            {/* Stop List */}
-            <div className="mt-3 space-y-2">
-              {stops.map((stop, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={stop}
-                    readOnly
-                    className="w-full p-3 rounded-md bg-orange-50 text-black"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeStop(index)}
-                    className="bg-white text-[#BD2D01] w-10 h-10 flex items-center justify-center rounded-full"
+            {/* Reorderable Stop List */}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="stops">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="mt-3 space-y-2"
                   >
-                    <FaMinus />
-                  </button>
-                </div>
-              ))}
-            </div>
+                    {stops.map((stop, index) => (
+                      <Draggable key={stop} draggableId={stop} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="flex items-center gap-2"
+                          >
+                            <input
+                              type="text"
+                              value={stop}
+                              readOnly
+                              className="w-full p-3 rounded-md bg-orange-50 text-black"
+                            />
+                            <div className="flex flex-col gap-1">
+                              <button
+                                type="button"
+                                onClick={() => moveStop(index, -1)}
+                                className="bg-white text-[#BD2D01] p-1 rounded-full"
+                              >
+                                <FaArrowUp />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveStop(index, 1)}
+                                className="bg-white text-[#BD2D01] p-1 rounded-full"
+                              >
+                                <FaArrowDown />
+                              </button>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeStop(index)}
+                              className="bg-white text-[#BD2D01] w-10 h-10 flex items-center justify-center rounded-full"
+                            >
+                              <FaMinus />
+                            </button>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
 
           {/* Update Button */}
@@ -213,7 +265,6 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
           </div>
         </form>
 
-        {/* Close */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"
@@ -221,7 +272,6 @@ const EditRouteModal = ({ route, onClose, onUpdate }) => {
           ✕
         </button>
 
-        {/* AddStopModal */}
         {showAddStopModal && (
           <AddStopModal onClose={() => setShowAddStopModal(false)} />
         )}

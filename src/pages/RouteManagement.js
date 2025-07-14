@@ -26,7 +26,9 @@ const RouteManagement = () => {
   const fetchRoutes = async () => {
     try {
       const res = await api.get('/busroute');
-      setRoutes(res.data || []);
+      const allRoutes = res.data || [];
+      const normalRoutes = allRoutes.filter(r => !r.routeNumber?.endsWith('R')); // Exclude reverse
+      setRoutes(normalRoutes);
     } catch (error) {
       console.error('Failed to fetch routes:', error);
     }
@@ -38,16 +40,15 @@ const RouteManagement = () => {
   };
 
   const handleUpdate = async (updatedRoute) => {
-  try {
-    await api.put(`/busroute/${updatedRoute.RouteNumber}`, updatedRoute);
-    await fetchRoutes(); // fetch fresh list after update
-    setShowEditModal(false);
-    setSelectedRoute(null);
-  } catch (error) {
-    console.error('Update failed:', error);
-  }
-};
-
+    try {
+      await api.put(`/busroute/${updatedRoute.RouteNumber}`, updatedRoute);
+      await fetchRoutes();
+      setShowEditModal(false);
+      setSelectedRoute(null);
+    } catch (error) {
+      console.error('Update failed:', error);
+    }
+  };
 
   const handleDelete = (route) => {
     setRouteToDelete(route);
@@ -152,13 +153,13 @@ const RouteManagement = () => {
         {showAddModal && (
           <AddRouteModal
             onClose={() => setShowAddModal(false)}
-            onRouteAdded={(newRoute) => {
-              setRoutes((prev) => [...prev, newRoute]);
+            onRouteAdded={async () => {
+              await fetchRoutes(); // Ensures updated and filtered list after add
               setShowAddModal(false);
             }}
           />
         )}
-        
+
         {showAddStopModal && <AddStopModal onClose={() => setShowAddStopModal(false)} />}
         {selectedRoute && !showEditModal && (
           <RouteDetailsModal

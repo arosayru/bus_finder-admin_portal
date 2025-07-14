@@ -64,7 +64,16 @@ const ReviewFeedback = () => {
     try {
       if (deleteId) {
         await api.delete(`/Feedback/${deleteId}`);
-        setFeedbackList(prev => prev.filter(fb => fb.feedbackId !== deleteId));
+      
+        // Refetch feedback list to get fresh data after deletion
+        const feedbackRes = await api.get('/Feedback');
+        setFeedbackList(
+          feedbackRes.data.map(fb => ({
+            ...fb,
+            name: passengerMap[fb.passengerId]?.name || 'Unknown',
+            email: passengerMap[fb.passengerId]?.email || 'Unknown',
+          }))
+        );
       }
     } catch (err) {
       console.error('Error deleting feedback:', err);
@@ -96,7 +105,7 @@ const ReviewFeedback = () => {
                     <span className="text-black font-bold">Message:</span>{' '}
                     {expandedIndex === index
                       ? fb.message
-                      : `${fb.message.substring(0, 130)}... `}
+                      : `${fb.message.substring(0, 130)}...`}
                     {fb.message.length > 130 && (
                       <button
                         onClick={() => toggleExpand(index)}
@@ -112,7 +121,7 @@ const ReviewFeedback = () => {
                       <p className="text-black whitespace-pre-line">
                         {expandedReplyIndex === index
                           ? fb.reply
-                          : `${fb.reply.substring(0, 130)}... `}
+                          : `${fb.reply.substring(0, 130)}...`}
                         {fb.reply.length > 130 && (
                           <button
                             onClick={() => toggleReplyExpand(index)}

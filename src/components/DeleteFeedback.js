@@ -11,7 +11,7 @@ const DeleteFeedback = ({ onCancel, onConfirm }) => {
       >
         <h2 className="text-2xl font-bold mb-2">Delete?</h2>
         <p className="text-lg font-semibold text-white mb-6">
-          Are you sure delete <span className="text-orange-100">Feedback</span>?
+          Are you sure you want to delete <span className="text-orange-100">this Feedback</span>?
         </p>
 
         <div className="flex justify-center gap-6">

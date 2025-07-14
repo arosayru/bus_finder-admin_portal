@@ -101,6 +101,12 @@ const ReviewFeedback = () => {
                       </button>
                     )}
                   </p>
+                  {fb.reply && (
+                    <div className="mt-2">
+                      <p className="text-[#BD2D01] font-bold">Reply:</p>
+                      <p className="text-black whitespace-pre-line">{fb.reply}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col items-center gap-3 mt-2 text-[#BD2D01]">
                   <FaTrash
@@ -108,11 +114,13 @@ const ReviewFeedback = () => {
                     onClick={() => setDeleteId(fb.feedbackId)}
                     title="Delete"
                   />
-                  <FaReply
-                    className="cursor-pointer text-2xl hover:text-blue-600"
-                    onClick={() => handleReply(fb)}
-                    title="Reply"
-                  />
+                  {!fb.reply && (
+                    <FaReply
+                      className="cursor-pointer text-2xl hover:text-blue-600"
+                      onClick={() => handleReply(fb)}
+                      title="Reply"
+                    />
+                  )}
                 </div>
               </div>
             ))}

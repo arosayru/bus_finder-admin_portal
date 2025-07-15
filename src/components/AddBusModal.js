@@ -19,8 +19,9 @@ const AddBusModal = ({ onClose, onBusAdded }) => {
     api.get('/busroute')
       .then(res => {
         const routes = Array.isArray(res.data) ? res.data : res.data.data || [];
-        console.log('Loaded Routes:', routes);
-        setRouteSuggestions(routes);
+        const normalRoutes = routes.filter(route => !route.routeNumber?.endsWith('R')); // filter out reverse routes
+        console.log('Loaded Normal Routes:', normalRoutes);
+        setRouteSuggestions(normalRoutes);
       })
       .catch(err => console.error('Failed to load routes:', err));
 

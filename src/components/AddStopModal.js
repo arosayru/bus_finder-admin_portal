@@ -11,7 +11,6 @@ const AddStopModal = ({ onClose }) => {
   const [stopToDeleteIndex, setStopToDeleteIndex] = useState(null);
   const timeoutRef = useRef(null);
 
-  // Fetch all saved stops on modal open
   useEffect(() => {
     fetchAllStops();
   }, []);
@@ -26,9 +25,8 @@ const AddStopModal = ({ onClose }) => {
     }
   };
 
-  // Debounced suggestions fetch
   useEffect(() => {
-    if (stopInput.trim() === '') {
+    if (stopInput.trim().length < 4) {
       setSuggestions([]);
       return;
     }
@@ -40,24 +38,43 @@ const AddStopModal = ({ onClose }) => {
   }, [stopInput]);
 
   const fetchSuggestions = async (query) => {
-    try {
-      const res = await api.get(`/busstop/search/google/${query}`);
-      const data = res.data;
+  try {
+    let data = [];
 
-      if (Array.isArray(data)) {
-        setSuggestions(data);
-      } else if (data && data.description) {
-        setSuggestions([data]);
-      } else if (data && typeof data === 'string') {
-        setSuggestions([{ description: data }]);
+    // Try Firebase first
+    try {
+      const res = await api.get(`/busstop/search/firebase/${query}`);
+      data = Array.isArray(res.data) ? res.data : [res.data];
+    } catch (firebaseErr) {
+      if (firebaseErr.response?.status === 404) {
+        console.log('Firebase returned 404, falling back to Google');
+        // Try Google fallback
+        try {
+          const googleRes = await api.get(`/busstop/search/google/${query}`);
+          data = Array.isArray(googleRes.data)
+            ? googleRes.data
+            : [googleRes.data];
+        } catch (googleErr) {
+          console.error('Google fetch error:', googleErr);
+        }
       } else {
-        setSuggestions([]);
+        console.error('Firebase fetch error (not 404):', firebaseErr);
       }
-    } catch (error) {
-      console.error('Suggestion fetch error:', error);
-      setSuggestions([]);
     }
-  };
+
+    // Remove already added stops
+    const filtered = data.filter((item) => {
+      const name = item.stopName || item.description || '';
+      return !stops.some((s) => s.stopName === name);
+    });
+
+    setSuggestions(filtered);
+  } catch (error) {
+    console.error('Suggestion fetch error:', error);
+    setSuggestions([]);
+  }
+};
+
 
   const handleAdd = async () => {
     if (stopInput.trim() === '') return;
@@ -65,11 +82,7 @@ const AddStopModal = ({ onClose }) => {
     try {
       const response = await api.get(`/busstop/search/google/${stopInput.trim()}`);
       let data = response.data;
-
-      // Handle both object and array formats
-      if (Array.isArray(data)) {
-        data = data[0];
-      }
+      if (Array.isArray(data)) data = data[0];
 
       const latitude =
         data?.stopLatitude ?? data?.latitude ?? data?.location?.lat ?? 0;
@@ -142,7 +155,6 @@ const AddStopModal = ({ onClose }) => {
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-4 text-white text-xl font-bold"
@@ -150,10 +162,8 @@ const AddStopModal = ({ onClose }) => {
           ✕
         </button>
 
-        {/* Title */}
         <h2 className="text-white text-xl font-bold mb-6 text-left">Add Bus Stops</h2>
 
-        {/* Input with Add Button */}
         <div className="flex gap-4 mb-4 relative">
           <input
             type="text"
@@ -184,7 +194,6 @@ const AddStopModal = ({ onClose }) => {
           )}
         </div>
 
-        {/* Stop List */}
         <div className="bg-[#F67F00] rounded-t-md text-white font-bold px-4 py-2">
           Bus Stop List
         </div>
@@ -204,7 +213,6 @@ const AddStopModal = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <DeleteStopModal
           stopName={stops[stopToDeleteIndex]?.stopName || ''}

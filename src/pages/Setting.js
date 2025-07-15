@@ -9,6 +9,7 @@ const Settings = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '', // ✅ Added phone
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -33,6 +34,7 @@ const Settings = () => {
           firstName: data.firstName || '',
           lastName: data.lastName || '',
           email: data.email || '',
+          phone: data.telNo || '', // ✅ Set phone from API
         }));
 
         try {
@@ -77,6 +79,7 @@ const Settings = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        telNo: formData.phone, // ✅ Added phone to update
       };
 
       await api.put(`/admin/${adminId}`, updateFields);
@@ -155,6 +158,14 @@ const Settings = () => {
               onChange={handleChange}
               className="w-full bg-orange-100 p-3 rounded"
               placeholder="Email"
+            />
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full bg-orange-100 p-3 rounded"
+              placeholder="Phone Number"
             />
 
             {/* Password Fields */}

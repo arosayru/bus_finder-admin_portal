@@ -30,6 +30,11 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
     }
   };
 
+  const handleStopAdded = (newStop) => {
+    fetchBusStops(); // Refresh list
+    setAllStops((prev) => [...prev, newStop]); // Update locally too
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -139,7 +144,6 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
         <h2 className="text-white text-xl font-bold mb-4">Add Route Details</h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Route Info */}
           <div className="flex gap-4">
             <input
               type="text"
@@ -159,7 +163,6 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
             />
           </div>
 
-          {/* Add Stops */}
           <div className="mt-2 relative z-20">
             <label
               className="text-white font-semibold flex items-center gap-2 mb-2 cursor-pointer"
@@ -200,7 +203,6 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
             </div>
           </div>
 
-          {/* Reorderable Stops */}
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="stops">
               {(provided) => (
@@ -276,7 +278,10 @@ const AddRouteModal = ({ onClose, onRouteAdded }) => {
         </button>
 
         {showAddStopModal && (
-          <AddStopModal onClose={() => setShowAddStopModal(false)} />
+          <AddStopModal
+            onClose={() => setShowAddStopModal(false)}
+            onStopAdded={handleStopAdded}
+          />
         )}
       </div>
     </div>

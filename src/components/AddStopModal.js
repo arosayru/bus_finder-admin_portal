@@ -3,7 +3,7 @@ import { FaTrash } from 'react-icons/fa';
 import DeleteStopModal from './DeleteStopModal';
 import api from '../services/api';
 
-const AddStopModal = ({ onClose }) => {
+const AddStopModal = ({ onClose, onStopAdded }) => {
   const [stopInput, setStopInput] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [stops, setStops] = useState([]);
@@ -38,43 +38,38 @@ const AddStopModal = ({ onClose }) => {
   }, [stopInput]);
 
   const fetchSuggestions = async (query) => {
-  try {
-    let data = [];
-
-    // Try Firebase first
     try {
-      const res = await api.get(`/busstop/search/firebase/${query}`);
-      data = Array.isArray(res.data) ? res.data : [res.data];
-    } catch (firebaseErr) {
-      if (firebaseErr.response?.status === 404) {
-        console.log('Firebase returned 404, falling back to Google');
-        // Try Google fallback
-        try {
-          const googleRes = await api.get(`/busstop/search/google/${query}`);
-          data = Array.isArray(googleRes.data)
-            ? googleRes.data
-            : [googleRes.data];
-        } catch (googleErr) {
-          console.error('Google fetch error:', googleErr);
+      let data = [];
+
+      try {
+        const res = await api.get(`/busstop/search/firebase/${query}`);
+        data = Array.isArray(res.data) ? res.data : [res.data];
+      } catch (firebaseErr) {
+        if (firebaseErr.response?.status === 404) {
+          try {
+            const googleRes = await api.get(`/busstop/search/google/${query}`);
+            data = Array.isArray(googleRes.data)
+              ? googleRes.data
+              : [googleRes.data];
+          } catch (googleErr) {
+            console.error('Google fetch error:', googleErr);
+          }
+        } else {
+          console.error('Firebase fetch error (not 404):', firebaseErr);
         }
-      } else {
-        console.error('Firebase fetch error (not 404):', firebaseErr);
       }
+
+      const filtered = data.filter((item) => {
+        const name = item.stopName || item.description || '';
+        return !stops.some((s) => s.stopName === name);
+      });
+
+      setSuggestions(filtered);
+    } catch (error) {
+      console.error('Suggestion fetch error:', error);
+      setSuggestions([]);
     }
-
-    // Remove already added stops
-    const filtered = data.filter((item) => {
-      const name = item.stopName || item.description || '';
-      return !stops.some((s) => s.stopName === name);
-    });
-
-    setSuggestions(filtered);
-  } catch (error) {
-    console.error('Suggestion fetch error:', error);
-    setSuggestions([]);
-  }
-};
-
+  };
 
   const handleAdd = async () => {
     if (stopInput.trim() === '') return;
@@ -111,6 +106,12 @@ const AddStopModal = ({ onClose }) => {
       setStops([...stops, newStop]);
       setStopInput('');
       setSuggestions([]);
+
+      if (onStopAdded) {
+        onStopAdded(newStop); // Inform parent (like AddRouteModal)
+      }
+
+      onClose(); // Close modal after adding
     } catch (error) {
       console.error('Add stop failed:', error);
       alert('Failed to add stop');
@@ -134,7 +135,6 @@ const AddStopModal = ({ onClose }) => {
 
     try {
       await api.delete(`/busstop/${encodeURIComponent(stopName)}`);
-
       const updated = [...stops];
       updated.splice(stopToDeleteIndex, 1);
       setStops(updated);

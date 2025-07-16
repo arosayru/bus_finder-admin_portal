@@ -70,16 +70,25 @@ const Dashboard = () => {
     };
 
     const initializeSignalR = (liveLayer) => {
-      const hubUrl = `${process.env.REACT_APP_API_BASE_URL.replace('/api', '')}${liveLayer.signalRHubUrl}`;
+      const hubUrl = `https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/bushub`;  // Ensure this is correct
+      console.log(`Connecting to SignalR Hub at: ${hubUrl}`);
+        
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl)
+        .withUrl(hubUrl, {
+          transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,  // Allow WebSocket and fallback to Long Polling
+        })
         .configureLogging(signalR.LogLevel.Information)
         .build();
-
+      
       connection.on('BusLocationUpdated', (busId, lat, lng) => {
         const map = mapInstance.current;
         const position = { lat, lng };
-
+      
+        if (isNaN(lat) || isNaN(lng)) {
+          console.error('Invalid coordinates received:', lat, lng);
+          return;
+        }
+      
         if (busMarkers.current[busId]) {
           busMarkers.current[busId].setPosition(position);
         } else {
@@ -92,22 +101,24 @@ const Dashboard = () => {
               scaledSize: new window.google.maps.Size(32, 32),
             },
           });
-
+        
           const infoWindow = new window.google.maps.InfoWindow({
-            content: `<div><strong>Bus ${busId}</strong><br/>Lat: ${lat.toFixed(4)}<br/>Lng: ${lng.toFixed(4)}</div>`,
+            content: `<div><strong>🚌 Bus ${busId}</strong><br/>Lat: ${lat.toFixed(4)}<br/>Lng: ${lng.toFixed(4)}</div>`,
           });
-
+        
           marker.addListener('click', () => infoWindow.open(map, marker));
           busMarkers.current[busId] = marker;
         }
       });
-
+    
       connection
         .start()
-        .then(() => console.log('SignalR connected'))
-        .catch(err => console.error('SignalR connection error:', err));
+        .then(() => console.log('✅ SignalR connected'))
+        .catch((err) => {
+          console.error('❌ SignalR connection error:', err);
+          alert('SignalR connection failed. Please check the backend or network settings.');
+        });
     };
-
     loadGoogleMaps();
   }, []);
 

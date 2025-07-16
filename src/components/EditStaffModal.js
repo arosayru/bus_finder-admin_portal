@@ -7,6 +7,7 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [profilePic, setProfilePic] = useState(staff.profilePicture || null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,20 +21,24 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const updatedStaff = { ...form, profilePicture: profilePic };
-
+    
     try {
       // Update the staff data via PUT request
       const response = await api.put(`/staff/${staff.staffId}`, updatedStaff);
-
-      if (response.status === 200) {
-        onUpdate(response.data); // Update the list after successful update
+    
+      if (response.status === 200 || response.status === 204) {
+        // If response status is 200 or 204 (no content), the update is successful
+        onUpdate(updatedStaff); // Update the list with the updated staff data
         onClose(); // Close the modal after update
       } else {
-        console.error('Failed to update staff');
+        // Log the full response for debugging
+        setErrorMessage(`Failed to update staff. Status: ${response.status}`);
+        console.error('Failed to update staff', response);
       }
     } catch (err) {
+      // Log the detailed error message for debugging
+      setErrorMessage(`Error updating staff: ${err.message}`);
       console.error('Error updating staff:', err);
     }
   };
@@ -47,6 +52,11 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
         }}
       >
         <h2 className="text-white text-xl font-bold mb-4">Edit Staff</h2>
+
+        {/* Error message */}
+        {errorMessage && (
+          <div className="text-red-500 text-center mb-3 text-sm">{errorMessage}</div>
+        )}
 
         {/* Profile Picture Preview */}
         <div className="flex justify-center mb-4 relative">

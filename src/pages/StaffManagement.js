@@ -67,6 +67,7 @@ const StaffManagement = () => {
         staff.staffId === updatedStaff.staffId ? { ...staff, ...updatedStaff } : staff
       )
     );
+    setEditingStaff(null); // Close the modal after the update
   };
 
   const handleDeleteStaff = async (staffId) => {

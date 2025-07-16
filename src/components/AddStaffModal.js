@@ -71,7 +71,12 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
 
       const createRes = await api.post('/staff', newStaff);
       if (createRes.status === 201 || createRes.status === 200) {
-        onAddStaff(createRes.data);
+        // Ensure onAddStaff is passed as a function
+        if (typeof onAddStaff === 'function') {
+          onAddStaff(createRes.data);
+        } else {
+          console.error("onAddStaff is not a function");
+        }
         onClose();
       } else {
         setErrorMessage('Failed to create staff member');

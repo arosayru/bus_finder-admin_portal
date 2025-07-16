@@ -48,7 +48,6 @@ const StaffManagement = () => {
     }
   };
 
-
   const filteredStaff = staffList.filter((staff) => {
     const fullName = `${staff.firstName} ${staff.lastName}`.toLowerCase();
     return (
@@ -56,6 +55,10 @@ const StaffManagement = () => {
       staff.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
+
+  const handleAddStaff = (newStaff) => {
+    setStaffList((prevList) => [...prevList, newStaff]);
+  };
 
   return (
     <div className="flex">
@@ -153,7 +156,7 @@ const StaffManagement = () => {
         </div>
 
         {/* Modals */}
-        {showModal && <AddStaffModal onClose={() => setShowModal(false)} />}
+        {showModal && <AddStaffModal onClose={() => setShowModal(false)} onAddStaff={handleAddStaff} />}
         {editingStaff && (
           <EditStaffModal
             staff={editingStaff}

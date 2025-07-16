@@ -22,15 +22,14 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const updatedStaff = { ...form, profilePicture: profilePic };
-    
+
     try {
       // Update the staff data via PUT request
       const response = await api.put(`/staff/${staff.staffId}`, updatedStaff);
-    
+
       if (response.status === 200 || response.status === 204) {
-        // If response status is 200 or 204 (no content), the update is successful
-        onUpdate(updatedStaff); // Update the list with the updated staff data
-        onClose(); // Close the modal after update
+        onUpdate(updatedStaff); 
+        onClose();
       } else {
         // Log the full response for debugging
         setErrorMessage(`Failed to update staff. Status: ${response.status}`);

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
+import api from '../services/api'; // Make sure api.js is properly set up
 
 const EditStaffModal = ({ staff, onClose, onUpdate }) => {
   const [form, setForm] = useState({ ...staff });
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [profilePic, setProfilePic] = useState(staff.profilePic || null);
+  const [profilePic, setProfilePic] = useState(staff.profilePicture || null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,9 +18,24 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onUpdate({ ...form, profilePic });
+
+    const updatedStaff = { ...form, profilePicture: profilePic };
+
+    try {
+      // Update the staff data via PUT request
+      const response = await api.put(`/staff/${staff.staffId}`, updatedStaff);
+
+      if (response.status === 200) {
+        onUpdate(response.data); // Update the list after successful update
+        onClose(); // Close the modal after update
+      } else {
+        console.error('Failed to update staff');
+      }
+    } catch (err) {
+      console.error('Error updating staff:', err);
+    }
   };
 
   return (
@@ -76,14 +92,6 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
             className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
           />
           <input
-            name="username"
-            type="text"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
-          <input
             name="email"
             type="email"
             placeholder="Email"
@@ -91,47 +99,33 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
             onChange={handleChange}
             className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
           />
+          <input
+            name="nic"
+            type="text"
+            placeholder="NIC"
+            value={form.nic}
+            onChange={handleChange}
+            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
+          />
+          <input
+            name="telNo"
+            type="text"
+            placeholder="Phone Number"
+            value={form.telNo}
+            onChange={handleChange}
+            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
+          />
 
-          {/* Password */}
-          <div className="relative">
-            <input
-              name="password"
-              type={showPass ? 'text' : 'password'}
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-            />
-            <div
-              onClick={() => setShowPass(!showPass)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            >
-              {showPass ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
-            </div>
-          </div>
-
-          {/* Confirm Password (optional for UI) */}
-          <div className="relative">
-            <input
-              type={showConfirm ? 'text' : 'password'}
-              placeholder="Confirm Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-            />
-            <div
-              onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            >
-              {showConfirm ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
-            </div>
-          </div>
+          {/* Staff Role Dropdown */}
+          <select
+            name="staffRole"
+            value={form.staffRole}
+            onChange={handleChange}
+            className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+          >
+            <option value="Driver">Driver</option>
+            <option value="Conductor">Conductor</option>
+          </select>
 
           {/* Update Button */}
           <div className="flex justify-end">
@@ -145,7 +139,7 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
           </div>
         </form>
 
-        {/* Close */}
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

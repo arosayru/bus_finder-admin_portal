@@ -22,13 +22,13 @@ const StaffManagement = () => {
     try {
       const response = await api.get('/staff');
       const staffData = response.data;
-    
+
       const staffWithPics = await Promise.all(
         staffData.map(async (staff) => {
           if (staff.profilePicture) {
             return staff; // Use provided URL
           }
-        
+
           try {
             const res = await api.get(`/staff/profile-picture/${staff.staffId}`, {
               responseType: 'blob',
@@ -41,7 +41,7 @@ const StaffManagement = () => {
           }
         })
       );
-    
+
       setStaffList(staffWithPics);
     } catch (err) {
       console.error('Error fetching staff:', err);
@@ -58,6 +58,27 @@ const StaffManagement = () => {
 
   const handleAddStaff = (newStaff) => {
     setStaffList((prevList) => [...prevList, newStaff]);
+  };
+
+  const handleUpdateStaff = (updatedStaff) => {
+    // Update the staff list with the updated staff data
+    setStaffList((prevList) =>
+      prevList.map((staff) =>
+        staff.staffId === updatedStaff.staffId ? { ...staff, ...updatedStaff } : staff
+      )
+    );
+  };
+
+  const handleDeleteStaff = async (staffId) => {
+    try {
+      const response = await api.delete(`/staff/${staffId}`);
+      if (response.status === 200) {
+        // Remove the deleted staff from the list
+        setStaffList((prevList) => prevList.filter((staff) => staff.staffId !== staffId));
+      }
+    } catch (err) {
+      console.error('Error deleting staff:', err);
+    }
   };
 
   return (
@@ -161,10 +182,7 @@ const StaffManagement = () => {
           <EditStaffModal
             staff={editingStaff}
             onClose={() => setEditingStaff(null)}
-            onUpdate={(updatedStaff) => {
-              fetchStaff();
-              setEditingStaff(null);
-            }}
+            onUpdate={handleUpdateStaff}  // Pass the update handler
           />
         )}
         {deletingStaff && (

@@ -132,67 +132,137 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
 
         {/* Form */}
         <form className="space-y-3" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="text"
-            name="telNo"
-            placeholder="Phone Number"
-            value={formData.telNo}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="text"
-            name="nic"
-            placeholder="NIC"
-            value={formData.nic}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
+          {/* First Name */}
+          <div className="relative">
+            <label
+              htmlFor="firstName"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.firstName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              First Name
+            </label>
+            <input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
 
-          {/* Staff Role Dropdown */}
-          <select
-            name="staffRole"
-            value={formData.staffRole}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
-          >
-            <option value="Driver">Driver</option>
-            <option value="Conductor">Conductor</option>
-          </select>
+          {/* Last Name */}
+          <div className="relative">
+            <label
+              htmlFor="lastName"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.lastName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Last Name
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.email ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="relative">
+            <label
+              htmlFor="telNo"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.telNo ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Phone Number
+            </label>
+            <input
+              type="text"
+              name="telNo"
+              placeholder="Phone Number"
+              value={formData.telNo}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* NIC */}
+          <div className="relative">
+            <label
+              htmlFor="nic"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.nic ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              NIC
+            </label>
+            <input
+              type="text"
+              name="nic"
+              placeholder="NIC"
+              value={formData.nic}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* Staff Role */}
+          <div className="relative">
+            <select
+              name="staffRole"
+              value={formData.staffRole}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+            >
+              <option></option>
+              <option value="Driver">Driver</option>
+              <option value="Conductor">Conductor</option>
+            </select>
+          </div>
 
           {/* Password */}
           <div className="relative">
+            <label
+              htmlFor="password"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.password ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Password
+            </label>
             <input
               type={showPass ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
             />
             <div
               onClick={() => setShowPass(!showPass)}
@@ -204,12 +274,20 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
 
           {/* Confirm Password */}
           <div className="relative">
+            <label
+              htmlFor="confirmPassword"
+              className={`absolute left-3 transition-all duration-300 ${
+                confirmPassword ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Confirm Password
+            </label>
             <input
               type={showConfirm ? 'text' : 'password'}
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
             />
             <div
               onClick={() => setShowConfirm(!showConfirm)}

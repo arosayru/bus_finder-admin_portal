@@ -16,6 +16,12 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [focusFirstName, setFocusFirstName] = useState(false);
+  const [focusLastName, setFocusLastName] = useState(false);
+  const [focusEmail, setFocusEmail] = useState(false);
+  const [focusTelNo, setFocusTelNo] = useState(false);
+  const [focusPass, setFocusPass] = useState(false);
+  const [focusConfirm, setFocusConfirm] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -111,48 +117,113 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
 
         {/* Form */}
         <form className="space-y-3" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
-          <input
-            type="text"
-            name="telNo"
-            placeholder="Phone Number"
-            value={formData.telNo}
-            onChange={handleInputChange}
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
+          {/* First Name */}
+          <div className="relative">
+            <label
+              htmlFor="firstName"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.firstName || focusFirstName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              First Name
+            </label>
+            <input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleInputChange}
+              onFocus={() => setFocusFirstName(true)}
+              onBlur={() => setFocusFirstName(formData.firstName ? true : false)}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* Last Name */}
+          <div className="relative">
+            <label
+              htmlFor="lastName"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.lastName || focusLastName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Last Name
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              onFocus={() => setFocusLastName(true)}
+              onBlur={() => setFocusLastName(formData.lastName ? true : false)}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.email || focusEmail ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleInputChange}
+              onFocus={() => setFocusEmail(true)}
+              onBlur={() => setFocusEmail(formData.email ? true : false)}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="relative">
+            <label
+              htmlFor="telNo"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.telNo || focusTelNo ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Phone Number
+            </label>
+            <input
+              type="text"
+              name="telNo"
+              placeholder="Phone Number"
+              value={formData.telNo}
+              onChange={handleInputChange}
+              onFocus={() => setFocusTelNo(true)}
+              onBlur={() => setFocusTelNo(formData.telNo ? true : false)}
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
 
           {/* Password */}
           <div className="relative">
+            <label
+              htmlFor="password"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.password || focusPass ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Password
+            </label>
             <input
               type={showPass ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleInputChange}
+              onFocus={() => setFocusPass(true)}
+              onBlur={() => setFocusPass(formData.password ? true : false)}
               placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
             />
             <div
               onClick={() => setShowPass(!showPass)}
@@ -168,10 +239,20 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
 
           {/* Confirm Password */}
           <div className="relative">
+            <label
+              htmlFor="confirmPassword"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.confirmPassword || focusConfirm ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Confirm Password
+            </label>
             <input
               type={showConfirm ? 'text' : 'password'}
+              onFocus={() => setFocusConfirm(true)}
+              onBlur={() => setFocusConfirm(formData.confirmPassword ? true : false)}
               placeholder="Confirm Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
             />
             <div
               onClick={() => setShowConfirm(!showConfirm)}

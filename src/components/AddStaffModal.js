@@ -234,13 +234,20 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
 
           {/* Staff Role */}
           <div className="relative">
+            <label
+              htmlFor="staffRole"
+              className={`absolute left-3 transition-all duration-300 ${
+                formData.staffRole ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Staff Role
+            </label>
             <select
               name="staffRole"
               value={formData.staffRole}
               onChange={handleChange}
               className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
             >
-              <option></option>
               <option value="Driver">Driver</option>
               <option value="Conductor">Conductor</option>
             </select>

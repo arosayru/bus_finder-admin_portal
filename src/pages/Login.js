@@ -8,6 +8,8 @@ const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [focusEmail, setFocusEmail] = useState(false);
+  const [focusPassword, setFocusPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,25 +79,45 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
+            <label
+              htmlFor="email"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.email || focusEmail ? 'top-[-15px] text-xs text-[#BD2D01]' : 'top-1/2 transform -translate-y-1/2 text-[#F67F00]'
+              }`}
+            >
+              Email
+            </label>
             <input
               name="email"
               type="text"
               value={form.email}
               onChange={handleChange}
+              onFocus={() => setFocusEmail(true)}
+              onBlur={() => setFocusEmail(form.email ? true : false)}
               placeholder="Email"
-              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <FaUser className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01]" />
           </div>
 
           <div className="relative">
+            <label
+              htmlFor="password"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.password || focusPassword ? 'top-[-15px] text-xs text-[#BD2D01]' : 'top-1/2 transform -translate-y-1/2 text-[#F67F00]'
+              }`}
+            >
+              Password
+            </label>
             <input
               name="password"
               type={showPassword ? 'text' : 'password'}
               value={form.password}
               onChange={handleChange}
+              onFocus={() => setFocusPassword(true)}
+              onBlur={() => setFocusPassword(form.password ? true : false)}
               placeholder="Password"
-              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"

@@ -8,6 +8,8 @@ const ResetPassword = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState({ pass: false, confirm: false });
+  const [focusPass, setFocusPass] = useState(false);
+  const [focusConfirmPass, setFocusConfirmPass] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -83,13 +85,21 @@ const ResetPassword = () => {
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
           {/* Password */}
           <div className="relative">
+            <label
+              htmlFor="password"
+              className={`absolute left-3 transition-all duration-300 ${form.password || focusPass ? 'top-[-15px] text-xs text-[#BD2D01]' : 'top-1/2 transform -translate-y-1/2 text-[#F67F00]'}`}
+            >
+              Password
+            </label>
             <input
               name="password"
               type={showPass.pass ? 'text' : 'password'}
               value={form.password}
               onChange={handleChange}
+              onFocus={() => setFocusPass(true)}
+              onBlur={() => setFocusPass(form.password ? true : false)}
               placeholder="Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#BD2D01] placeholder-transparent border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
@@ -105,13 +115,21 @@ const ResetPassword = () => {
 
           {/* Confirm Password */}
           <div className="relative">
+            <label
+              htmlFor="confirmPassword"
+              className={`absolute left-3 transition-all duration-300 ${form.confirmPassword || focusConfirmPass ? 'top-[-15px] text-xs text-[#BD2D01]' : 'top-1/2 transform -translate-y-1/2 text-[#F67F00]'}`}
+            >
+              Confirm Password
+            </label>
             <input
               name="confirmPassword"
               type={showPass.confirm ? 'text' : 'password'}
               value={form.confirmPassword}
               onChange={handleChange}
+              onFocus={() => setFocusConfirmPass(true)}
+              onBlur={() => setFocusConfirmPass(form.confirmPassword ? true : false)}
               placeholder="Confirm Password"
-              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-3 pr-10 rounded-md bg-orange-50 text-[#BD2D01] placeholder-transparent border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"

@@ -110,7 +110,15 @@ const Dashboard = () => {
           busMarkers.current[busId] = marker;
         }
       });
-    
+
+      connection.on('RemoveBusLocation', (busId) => {
+        const marker = busMarkers.current[busId];
+        if (marker) {
+          marker.setMap(null); // Remove marker from the map
+          delete busMarkers.current[busId]; // Remove it from the busMarkers reference
+        }
+      });
+
       connection
         .start()
         .then(() => console.log('✅ SignalR connected'))

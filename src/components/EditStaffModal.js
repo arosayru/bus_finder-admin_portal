@@ -9,16 +9,19 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
   const [profilePic, setProfilePic] = useState(staff.profilePicture || null);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     const updatedStaff = { ...form, profilePicture: profilePic };
@@ -84,57 +87,126 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            name="firstName"
-            type="text"
-            placeholder="First Name"
-            value={form.firstName}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
-          <input
-            name="lastName"
-            type="text"
-            placeholder="Last Name"
-            value={form.lastName}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            disabled
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] cursor-not-allowed focus:outline-none"
-          />
-          <input
-            name="nic"
-            type="text"
-            placeholder="NIC"
-            value={form.nic}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
-          <input
-            name="telNo"
-            type="text"
-            placeholder="Phone Number"
-            value={form.telNo}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
+          {/* First Name */}
+          <div className="relative">
+            <label
+              htmlFor="firstName"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.firstName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              First Name
+            </label>
+            <input
+              name="firstName"
+              type="text"
+              placeholder="First Name"
+              value={form.firstName}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-transparent focus:outline-none"
+            />
+          </div>
+
+          {/* Last Name */}
+          <div className="relative">
+            <label
+              htmlFor="lastName"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.lastName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Last Name
+            </label>
+            <input
+              name="lastName"
+              type="text"
+              placeholder="Last Name"
+              value={form.lastName}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-transparent focus:outline-none"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.email ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Email
+            </label>
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              disabled
+              className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-transparent cursor-not-allowed focus:outline-none"
+            />
+          </div>
+
+          {/* NIC */}
+          <div className="relative">
+            <label
+              htmlFor="nic"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.nic ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              NIC
+            </label>
+            <input
+              name="nic"
+              type="text"
+              placeholder="NIC"
+              value={form.nic}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-transparent focus:outline-none"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="relative">
+            <label
+              htmlFor="telNo"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.telNo ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Phone Number
+            </label>
+            <input
+              name="telNo"
+              type="text"
+              placeholder="Phone Number"
+              value={form.telNo}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-transparent focus:outline-none"
+            />
+          </div>
 
           {/* Staff Role Dropdown */}
-          <select
-            name="staffRole"
-            value={form.staffRole}
-            onChange={handleChange}
-            className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
-          >
-            <option value="Driver">Driver</option>
-            <option value="Conductor">Conductor</option>
-          </select>
+          <div className="relative">
+            <label
+              htmlFor="staffRole"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.staffRole ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Staff Role
+            </label>
+            <select
+              name="staffRole"
+              value={form.staffRole}
+              onChange={handleChange}
+              className="w-full p-3 rounded-md bg-orange-50 text-black focus:outline-none"
+            >
+              <option value="Driver">Driver</option>
+              <option value="Conductor">Conductor</option>
+            </select>
+          </div>
 
           {/* Update Button */}
           <div className="flex justify-end">

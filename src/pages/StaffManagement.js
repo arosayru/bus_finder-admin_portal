@@ -61,7 +61,6 @@ const StaffManagement = () => {
   };
 
   const handleUpdateStaff = (updatedStaff) => {
-    // Update the staff list with the updated staff data
     setStaffList((prevList) =>
       prevList.map((staff) =>
         staff.staffId === updatedStaff.staffId ? { ...staff, ...updatedStaff } : staff
@@ -74,7 +73,6 @@ const StaffManagement = () => {
     try {
       const response = await api.delete(`/staff/${staffId}`);
       if (response.status === 200) {
-        // Remove the deleted staff from the list
         setStaffList((prevList) => prevList.filter((staff) => staff.staffId !== staffId));
       }
     } catch (err) {
@@ -154,7 +152,7 @@ const StaffManagement = () => {
                     </td>
                     <td className="p-3 w-[160px] border-r">{staff.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{staff.lastName}</td>
-                    <td className="p-3 w-[220px] border-r">{staff.email}</td>
+                    <td className="p-3 w-[220px] border-r break-words">{staff.email}</td> {/* Added break-words */}
                     <td className="p-3 w-[180px] border-r">{staff.nic}</td>
                     <td className="p-3 w-[130px] border-r">{staff.telNo}</td>
                     <td className="p-3 w-[150px] border-r">{staff.staffRole}</td>

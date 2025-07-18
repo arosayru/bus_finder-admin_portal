@@ -82,7 +82,7 @@ const Login = () => {
               type="text"
               value={form.email}
               onChange={handleChange}
-              placeholder="Email or username"
+              placeholder="Email"
               className="w-full p-3 pr-10 border border-orange-300 rounded-md bg-orange-50 text-[#BD2D01] placeholder-[#F67F00] focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <FaUser className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#BD2D01]" />

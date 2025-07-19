@@ -13,26 +13,41 @@ import * as signalR from '@microsoft/signalr';
 
 const Notifications = () => {
   const navigate = useNavigate();
-
   const [notifications, setNotifications] = useState([]);
 
-  // Connect to SignalR
+  // Load from localStorage on initial render
+  useEffect(() => {
+    const saved = localStorage.getItem('notifications');
+    if (saved) {
+      setNotifications(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save to localStorage whenever notifications change
+  useEffect(() => {
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
+  // Connect to SignalR and listen to BusSOS
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub')
+      .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub', {
+        transport: signalR.HttpTransportType.LongPolling // more reliable on Heroku
+      })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    connection.start()
+    connection
+      .start()
       .then(() => {
-        console.log('SignalR connected to notificationhub');
-        connection.on('ReceiveNotification', (message) => {
-          console.log('Received SignalR notification:', message);
+        console.log('✅ SignalR connected to notificationhub');
+        connection.on('BusSOS', (message) => {
+          console.log('📩 Received SOS:', message);
 
-          // Add new SOS notification to the top of the list
           const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
-          const formattedTime = now.toLocaleTimeString('en-US'); // hh:mm AM/PM
+          const formattedDate = now.toLocaleDateString('en-GB');
+          const formattedTime = now.toLocaleTimeString('en-US');
 
           const newNotification = {
             id: Date.now(),
@@ -46,7 +61,26 @@ const Notifications = () => {
           setNotifications((prev) => [newNotification, ...prev]);
         });
       })
-      .catch((err) => console.error('SignalR connection error:', err));
+      .catch((err) => {
+  if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
+    console.warn('⚠️ SignalR aborted during negotiation (likely a reconnect or Heroku delay). Safe to ignore.');
+  } else {
+    console.error('❌ SignalR connection error:', err);
+  }
+});
+
+
+    connection.onclose(error => {
+      console.warn('🔌 SignalR connection closed:', error?.message || 'closed');
+    });
+
+    connection.onreconnecting(error => {
+      console.log('🔄 SignalR reconnecting...', error?.message);
+    });
+
+    connection.onreconnected(connectionId => {
+      console.log('🔁 SignalR reconnected! New connection ID:', connectionId);
+    });
 
     return () => {
       connection.stop();
@@ -54,7 +88,8 @@ const Notifications = () => {
   }, []);
 
   const handleRemove = (id) => {
-    setNotifications(notifications.filter(n => n.id !== id));
+    const updated = notifications.filter(n => n.id !== id);
+    setNotifications(updated);
   };
 
   const getIcon = (type) => {

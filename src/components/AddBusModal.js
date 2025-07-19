@@ -101,14 +101,24 @@ const AddBusModal = ({ onClose, onBusAdded }) => {
           </select>
 
           {/* Vehicle Number */}
-          <input
-            type="text"
-            name="vehicleNo"
-            value={form.vehicleNo}
-            onChange={handleChange}
-            placeholder="Vehicle No"
-            className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-          />
+          <div className="relative">
+            <label
+              htmlFor="vehicleNo"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.vehicleNo ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Vehicle No
+            </label>
+            <input
+              type="text"
+              name="vehicleNo"
+              value={form.vehicleNo}
+              onChange={handleChange}
+              placeholder="Vehicle No"
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
 
           {/* Bus Type */}
           <select
@@ -136,13 +146,23 @@ const AddBusModal = ({ onClose, onBusAdded }) => {
               </option>
             ))}
           </select>
-          <input
-            type="text"
-            value={driverPhone}
-            disabled
-            placeholder="Driver's Phone"
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
+          <div className="relative">
+            <label
+              htmlFor="driverPhone"
+              className={`absolute left-3 transition-all duration-300 ${
+                driverPhone ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Driver's Phone
+            </label>
+            <input
+              type="text"
+              value={driverPhone}
+              disabled
+              placeholder="Driver's Phone"
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
 
           {/* Conductor */}
           <select
@@ -158,13 +178,23 @@ const AddBusModal = ({ onClose, onBusAdded }) => {
               </option>
             ))}
           </select>
-          <input
-            type="text"
-            value={conductorPhone}
-            disabled
-            placeholder="Conductor's Phone"
-            className="w-full p-3 rounded-md bg-orange-50 text-black placeholder-[#7E7573] focus:outline-none"
-          />
+          <div className="relative">
+            <label
+              htmlFor="conductorPhone"
+              className={`absolute left-3 transition-all duration-300 ${
+                conductorPhone ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Conductor's Phone
+            </label>
+            <input
+              type="text"
+              value={conductorPhone}
+              disabled
+              placeholder="Conductor's Phone"
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+            />
+          </div>
 
           <div className="flex justify-end">
             <button

@@ -14,7 +14,6 @@ const ReviewFeedback = () => {
   const [expandedReplyIndex, setExpandedReplyIndex] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
-  // Format ISO date string to readable format, e.g. "Jul 14, 2025 06:21 AM"
   const formatDateTime = (isoString) => {
     if (!isoString) return 'N/A';
     const options = {
@@ -29,7 +28,6 @@ const ReviewFeedback = () => {
     return date.toLocaleString(undefined, options);
   };
 
-  // Fetch feedback and passenger data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,7 +36,6 @@ const ReviewFeedback = () => {
           api.get('/passenger'),
         ]);
 
-        // Map passengerId to passenger info
         const passengerData = passengerRes.data.reduce((map, p) => {
           map[p.passengerId] = {
             name: `${p.firstName} ${p.lastName}`,
@@ -47,11 +44,13 @@ const ReviewFeedback = () => {
           return map;
         }, {});
 
-        const fullFeedbackList = feedbackRes.data.map(fb => ({
-          ...fb,
-          name: passengerData[fb.passengerId]?.name || 'Unknown',
-          email: passengerData[fb.passengerId]?.email || 'Unknown',
-        }));
+        const fullFeedbackList = feedbackRes.data
+          .map(fb => ({
+            ...fb,
+            name: passengerData[fb.passengerId]?.name || 'Unknown',
+            email: passengerData[fb.passengerId]?.email || 'Unknown',
+          }))
+          .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime)); // Sort new feedbacks to top
 
         setPassengerMap(passengerData);
         setFeedbackList(fullFeedbackList);
@@ -80,15 +79,16 @@ const ReviewFeedback = () => {
       if (deleteId) {
         await api.delete(`/Feedback/${deleteId}`);
 
-        // Refetch feedback list to get fresh data after deletion
         const feedbackRes = await api.get('/Feedback');
-        setFeedbackList(
-          feedbackRes.data.map(fb => ({
+        const updatedList = feedbackRes.data
+          .map(fb => ({
             ...fb,
             name: passengerMap[fb.passengerId]?.name || 'Unknown',
             email: passengerMap[fb.passengerId]?.email || 'Unknown',
           }))
-        );
+          .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime)); // Sort again after delete
+
+        setFeedbackList(updatedList);
       }
     } catch (err) {
       console.error('Error deleting feedback:', err);
@@ -135,6 +135,7 @@ const ReviewFeedback = () => {
                       </button>
                     )}
                   </p>
+
                   {fb.reply && (
                     <div className="mt-2">
                       <p className="text-[#BD2D01] font-bold">Reply:</p>

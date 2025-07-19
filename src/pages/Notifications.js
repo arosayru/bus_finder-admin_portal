@@ -115,6 +115,29 @@ const Notifications = () => {
           });
         });
 
+        // 🆕 Shift Interval notification
+        connection.on('ShiftInterval', (message) => {
+          console.log('⏸️ Shift Interval:', message);
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('en-GB');
+          const formattedTime = now.toLocaleTimeString('en-US');
+
+          const newNotification = {
+            id: Date.now(),
+            type: 'starts', // reuse 'starts' icon and layout
+            route: 'Shift Interval',
+            message: message,
+            date: formattedDate,
+            time: formattedTime
+          };
+
+          setNotifications(prev => {
+            const updated = [newNotification, ...prev];
+            localStorage.setItem('notifications', JSON.stringify(updated));
+            return updated;
+          });
+        });
+
       })
       .catch((err) => {
         if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {

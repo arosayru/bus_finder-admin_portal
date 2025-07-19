@@ -28,14 +28,11 @@ const ReviewFeedback = () => {
     return date.toLocaleString(undefined, options);
   };
 
+  // Initial fetch and setup passenger map
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPassengerData = async () => {
       try {
-        const [feedbackRes, passengerRes] = await Promise.all([
-          api.get('/Feedback'),
-          api.get('/passenger'),
-        ]);
-
+        const passengerRes = await api.get('/passenger');
         const passengerData = passengerRes.data.reduce((map, p) => {
           map[p.passengerId] = {
             name: `${p.firstName} ${p.lastName}`,
@@ -43,24 +40,38 @@ const ReviewFeedback = () => {
           };
           return map;
         }, {});
-
-        const fullFeedbackList = feedbackRes.data
-          .map(fb => ({
-            ...fb,
-            name: passengerData[fb.passengerId]?.name || 'Unknown',
-            email: passengerData[fb.passengerId]?.email || 'Unknown',
-          }))
-          .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime)); // Sort new feedbacks to top
-
         setPassengerMap(passengerData);
-        setFeedbackList(fullFeedbackList);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        console.error('Failed to fetch passengers:', error);
       }
     };
 
-    fetchData();
+    fetchPassengerData();
   }, []);
+
+  // Fetch feedback periodically
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const feedbackRes = await api.get('/Feedback');
+        const fullFeedbackList = feedbackRes.data
+          .map(fb => ({
+            ...fb,
+            name: passengerMap[fb.passengerId]?.name || 'Unknown',
+            email: passengerMap[fb.passengerId]?.email || 'Unknown',
+          }))
+          .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+        setFeedbackList(fullFeedbackList);
+      } catch (error) {
+        console.error('Failed to fetch feedback:', error);
+      }
+    };
+
+    // Fetch immediately, then every 10 seconds
+    fetchFeedback();
+    const interval = setInterval(fetchFeedback, 10000);
+    return () => clearInterval(interval);
+  }, [passengerMap]);
 
   const handleReply = (feedback) => {
     navigate('/reply-feedback', { state: feedback });
@@ -78,7 +89,6 @@ const ReviewFeedback = () => {
     try {
       if (deleteId) {
         await api.delete(`/Feedback/${deleteId}`);
-
         const feedbackRes = await api.get('/Feedback');
         const updatedList = feedbackRes.data
           .map(fb => ({
@@ -86,8 +96,7 @@ const ReviewFeedback = () => {
             name: passengerMap[fb.passengerId]?.name || 'Unknown',
             email: passengerMap[fb.passengerId]?.email || 'Unknown',
           }))
-          .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime)); // Sort again after delete
-
+          .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
         setFeedbackList(updatedList);
       }
     } catch (err) {

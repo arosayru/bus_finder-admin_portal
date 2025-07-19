@@ -189,7 +189,7 @@ const Notifications = () => {
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 ml-64 pt-4 px-6">
             {['All', 'Emergency Alerts', 'Shift Alerts', 'Feedbacks'].map((type) => (
               <button
                 key={type}

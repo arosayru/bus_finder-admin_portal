@@ -15,7 +15,7 @@ const Notifications = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
 
-  // 1️⃣ Load saved notifications only once
+  // Load saved notifications only once
   useEffect(() => {
     const saved = localStorage.getItem('notifications');
     if (saved) {
@@ -28,7 +28,7 @@ const Notifications = () => {
     }
   }, []);
 
-  // 2️⃣ Connect to SignalR and append new notifications
+  // Connect to SignalR and append new notifications
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
       .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub', {
@@ -41,9 +41,10 @@ const Notifications = () => {
     connection.start()
       .then(() => {
         console.log('✅ SignalR connected');
+
+        // SOS notification
         connection.on('BusSOS', (message) => {
           console.log('📩 Received SOS:', message);
-
           const now = new Date();
           const formattedDate = now.toLocaleDateString('en-GB');
           const formattedTime = now.toLocaleTimeString('en-US');
@@ -63,6 +64,35 @@ const Notifications = () => {
             return updated;
           });
         });
+
+        // Feedback notification
+        connection.on('FeedbackReceived', (message) => {
+          console.log('📝 Feedback notification received:', message);
+
+          const feedbackText = typeof message === 'string'
+            ? message.split(':')[1]?.trim() || message
+            : 'Feedback received';
+
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('en-GB');
+          const formattedTime = now.toLocaleTimeString('en-US');
+
+          const newNotification = {
+            id: Date.now(),
+            type: 'feedback',
+            name: 'Anonymous',
+            subject: feedbackText,
+            date: formattedDate,
+            time: formattedTime
+          };
+
+          setNotifications(prev => {
+            const updated = [newNotification, ...prev];
+            localStorage.setItem('notifications', JSON.stringify(updated));
+            return updated;
+          });
+        });
+
       })
       .catch((err) => {
         if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
@@ -77,7 +107,7 @@ const Notifications = () => {
     };
   }, []);
 
-  // 3️⃣ Remove and persist to localStorage
+  // Remove and persist to localStorage
   const handleRemove = (id) => {
     setNotifications(prev => {
       const updated = prev.filter(n => n.id !== id);

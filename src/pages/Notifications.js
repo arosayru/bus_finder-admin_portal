@@ -92,6 +92,29 @@ const Notifications = () => {
           });
         });
 
+        // Shift Started notification
+        connection.on('ShiftStarted', (message) => {
+          console.log('🚍 Shift Started:', message);
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('en-GB');
+          const formattedTime = now.toLocaleTimeString('en-US');
+
+          const newNotification = {
+            id: Date.now(),
+            type: 'starts',
+            route: 'Shift Started',
+            message: message,
+            date: formattedDate,
+            time: formattedTime
+          };
+
+          setNotifications(prev => {
+            const updated = [newNotification, ...prev];
+            localStorage.setItem('notifications', JSON.stringify(updated));
+            return updated;
+          });
+        });
+
       })
       .catch((err) => {
         if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
@@ -161,7 +184,7 @@ const Notifications = () => {
                 <div>
                   {note.type === 'feedback' ? (
                     <>
-                      <p className="font-bold">User Feedback</p>
+                      <p className="font-bold">Passenger Feedback</p>
                       <p><span className="font-bold">Subject:</span> {note.subject}</p>
                     </>
                   ) : (

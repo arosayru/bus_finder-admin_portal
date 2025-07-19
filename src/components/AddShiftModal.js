@@ -137,14 +137,14 @@ const AddShiftModal = ({ onClose, onAdd }) => {
                 form.numberPlate ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
               }`}
             >
-              Vehicle No (Number Plate)
+              Vehicle No
             </label>
             <input
               type="text"
               name="numberPlate"
               value={form.numberPlate}
               onChange={handleChange}
-              placeholder="Vehicle No (Number Plate)"
+              placeholder="Vehicle No"
               className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
               autoComplete="off"
             />

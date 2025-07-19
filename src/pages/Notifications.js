@@ -14,8 +14,9 @@ import * as signalR from '@microsoft/signalr';
 const Notifications = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
+  const [filter, setFilter] = useState('All');
 
-  // Load saved notifications only once
+  // Load saved notifications from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('notifications');
     if (saved) {
@@ -28,7 +29,7 @@ const Notifications = () => {
     }
   }, []);
 
-  // Connect to SignalR and append new notifications
+  // Connect to SignalR and listen for notifications
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
       .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub', {
@@ -42,140 +43,97 @@ const Notifications = () => {
       .then(() => {
         console.log('✅ SignalR connected');
 
-        // SOS notification
-        connection.on('BusSOS', (message) => {
-          console.log('📩 Received SOS:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
+        const addNotification = (newNotification) => {
+          setNotifications(prev => {
+            const updated = [newNotification, ...prev];
+            localStorage.setItem('notifications', JSON.stringify(updated));
+            return updated;
+          });
+        };
 
-          const newNotification = {
+        const getNow = () => {
+          const now = new Date();
+          return {
+            date: now.toLocaleDateString('en-GB'),
+            time: now.toLocaleTimeString('en-US'),
+          };
+        };
+
+        // SOS
+        connection.on('BusSOS', (message) => {
+          const { date, time } = getNow();
+          addNotification({
             id: Date.now(),
             type: 'emergency',
             route: 'SOS Alert',
             message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
+            date,
+            time
           });
         });
 
-        // Feedback notification
+        // Feedback
         connection.on('FeedbackReceived', (message) => {
-          console.log('📝 Feedback notification received:', message);
-
           const feedbackText = typeof message === 'string'
             ? message.split(':')[1]?.trim() || message
             : 'Feedback received';
-
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
+          const { date, time } = getNow();
+          addNotification({
             id: Date.now(),
             type: 'feedback',
             subject: feedbackText,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
+            date,
+            time
           });
         });
 
-        // Shift Started notification
+        // Shift Started
         connection.on('ShiftStarted', (message) => {
-          console.log('🚍 Shift Started:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
+          const { date, time } = getNow();
+          addNotification({
             id: Date.now(),
             type: 'starts',
             route: 'Shift Started',
-            message: message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
+            message,
+            date,
+            time
           });
         });
 
-        // Shift Interval notification
+        // Shift Interval
         connection.on('ShiftInterval', (message) => {
-          console.log('⏸️ Shift Interval:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
+          const { date, time } = getNow();
+          addNotification({
             id: Date.now(),
             type: 'starts',
             route: 'Shift Interval',
-            message: message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
+            message,
+            date,
+            time
           });
         });
 
-        // ✅ Shift Ended notification
+        // Shift Ended
         connection.on('ShiftEnded', (message) => {
-          console.log('⛔ Shift Ended:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
+          const { date, time } = getNow();
+          addNotification({
             id: Date.now(),
             type: 'ends',
             route: 'Shift Ended',
-            message: message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
+            message,
+            date,
+            time
           });
         });
-
       })
-      .catch((err) => {
-        if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
-          console.warn('⚠️ SignalR negotiation aborted.');
-        } else {
-          console.error('❌ SignalR error:', err);
-        }
+      .catch(err => {
+        console.error('❌ SignalR connection error:', err);
       });
 
-    return () => {
-      connection.stop();
-    };
+    return () => connection.stop();
   }, []);
 
-  // Remove and persist to localStorage
+  // Remove and persist
   const handleRemove = (id) => {
     setNotifications(prev => {
       const updated = prev.filter(n => n.id !== id);
@@ -198,11 +156,26 @@ const Notifications = () => {
     }
   };
 
+  const filteredNotifications = notifications.filter((note) => {
+    if (filter === 'All') return true;
+    if (filter === 'Emergency Alerts') return note.type === 'emergency';
+    if (filter === 'Shift Alerts') return note.type === 'starts' || note.type === 'ends';
+    if (filter === 'Feedbacks') return note.type === 'feedback';
+    return true;
+  });
+
+  const buttonClass = (type) =>
+    `px-4 py-2 rounded-full border-2 font-bold text-[#BD2D01] ${
+      filter === type
+        ? 'bg-gradient-to-b from-[#F67F00] to-[#D44B00] text-white border-transparent'
+        : 'border-[#D44B00] hover:bg-orange-100'
+    }`;
+
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 pt-4 px-6">
-        {/* Fixed Header */}
+        {/* Header */}
         <div className="sticky top-0 z-10 bg-white border-b pb-2 pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-[#BD2D01] font-bold text-xl">
@@ -212,45 +185,60 @@ const Notifications = () => {
               />
               <span>Notifications</span>
             </div>
-            <div>
-              <FaBell className="text-[#D44B00] text-2xl mr-4" />
-            </div>
+            <FaBell className="text-[#D44B00] text-2xl mr-4" />
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-4 mt-4">
+            {['All', 'Emergency Alerts', 'Shift Alerts', 'Feedbacks'].map((type) => (
+              <button
+                key={type}
+                className={buttonClass(type)}
+                onClick={() => setFilter(type)}
+              >
+                {type}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Notification List */}
         <div className="mt-6 space-y-4">
-          {notifications.map((note) => (
-            <div
-              key={note.id}
-              className="bg-orange-300 p-4 rounded-md shadow flex justify-between items-start relative"
-            >
-              <div className="flex">
-                {getIcon(note.type)}
-                <div>
-                  {note.type === 'feedback' ? (
-                    <>
-                      <p className="font-bold">Passenger Feedback</p>
-                      <p><span className="font-bold">Subject:</span> {note.subject}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-bold">{note.route}</p>
-                      <p>{note.message}</p>
-                    </>
-                  )}
+          {filteredNotifications.length === 0 ? (
+            <p className="text-center text-gray-500">No notifications available.</p>
+          ) : (
+            filteredNotifications.map((note) => (
+              <div
+                key={note.id}
+                className="bg-orange-300 p-4 rounded-md shadow flex justify-between items-start relative"
+              >
+                <div className="flex">
+                  {getIcon(note.type)}
+                  <div>
+                    {note.type === 'feedback' ? (
+                      <>
+                        <p className="font-bold">Passenger Feedback</p>
+                        <p><span className="font-bold">Subject:</span> {note.subject}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-bold">{note.route}</p>
+                        <p>{note.message}</p>
+                      </>
+                    )}
+                  </div>
                 </div>
+                <div className="text-sm text-right min-w-[130px] pl-4 pt-8">
+                  <p><span className="font-bold">Date:</span> {note.date}</p>
+                  <p><span className="font-bold">Time:</span> {note.time}</p>
+                </div>
+                <FaTimes
+                  onClick={() => handleRemove(note.id)}
+                  className="absolute top-2 right-3 text-white text-lg cursor-pointer hover:text-red-500"
+                />
               </div>
-              <div className="text-sm text-right min-w-[130px] pl-4 pt-8">
-                <p><span className="font-bold">Date:</span> {note.date}</p>
-                <p><span className="font-bold">Time:</span> {note.time}</p>
-              </div>
-              <FaTimes
-                onClick={() => handleRemove(note.id)}
-                className="absolute top-2 right-3 text-white text-lg cursor-pointer hover:text-red-500"
-              />
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

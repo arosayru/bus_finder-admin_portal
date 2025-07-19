@@ -62,13 +62,12 @@ const Notifications = () => {
         });
       })
       .catch((err) => {
-  if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
-    console.warn('⚠️ SignalR aborted during negotiation (likely a reconnect or Heroku delay). Safe to ignore.');
-  } else {
-    console.error('❌ SignalR connection error:', err);
-  }
-});
-
+        if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
+          console.warn('⚠️ SignalR aborted during negotiation (likely a reconnect or Heroku delay). Safe to ignore.');
+        } else {
+          console.error('❌ SignalR connection error:', err);
+        }
+      });
 
     connection.onclose(error => {
       console.warn('🔌 SignalR connection closed:', error?.message || 'closed');

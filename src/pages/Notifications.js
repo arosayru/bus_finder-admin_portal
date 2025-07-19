@@ -6,7 +6,8 @@ import {
   FaExclamationTriangle,
   FaCommentDots,
   FaArrowLeft,
-  FaTimes
+  FaTimes,
+  FaTrashAlt
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import * as signalR from '@microsoft/signalr';
@@ -16,7 +17,6 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('All');
 
-  // Load saved notifications from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('notifications');
     if (saved) {
@@ -29,7 +29,6 @@ const Notifications = () => {
     }
   }, []);
 
-  // Connect to SignalR and listen for notifications
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
       .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub', {
@@ -59,7 +58,6 @@ const Notifications = () => {
           };
         };
 
-        // SOS
         connection.on('BusSOS', (message) => {
           const { date, time } = getNow();
           addNotification({
@@ -72,7 +70,6 @@ const Notifications = () => {
           });
         });
 
-        // Feedback
         connection.on('FeedbackReceived', (message) => {
           const feedbackText = typeof message === 'string'
             ? message.split(':')[1]?.trim() || message
@@ -87,7 +84,6 @@ const Notifications = () => {
           });
         });
 
-        // Shift Started
         connection.on('ShiftStarted', (message) => {
           const { date, time } = getNow();
           addNotification({
@@ -100,7 +96,6 @@ const Notifications = () => {
           });
         });
 
-        // Shift Interval
         connection.on('ShiftInterval', (message) => {
           const { date, time } = getNow();
           addNotification({
@@ -113,7 +108,6 @@ const Notifications = () => {
           });
         });
 
-        // Shift Ended
         connection.on('ShiftEnded', (message) => {
           const { date, time } = getNow();
           addNotification({
@@ -133,13 +127,17 @@ const Notifications = () => {
     return () => connection.stop();
   }, []);
 
-  // Remove and persist
   const handleRemove = (id) => {
     setNotifications(prev => {
       const updated = prev.filter(n => n.id !== id);
       localStorage.setItem('notifications', JSON.stringify(updated));
       return updated;
     });
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+    localStorage.removeItem('notifications');
   };
 
   const getIcon = (type) => {
@@ -175,9 +173,10 @@ const Notifications = () => {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 pt-4 px-6">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-white border-b pb-2 pt-4">
-          <div className="flex items-center justify-between">
+        {/* Sticky Combined Header + Filter + Clear */}
+        <div className="sticky top-0 z-30 bg-white border-b pt-4 pb-4 px-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3 text-[#BD2D01] font-bold text-xl">
               <FaArrowLeft
                 className="cursor-pointer hover:text-orange-800"
@@ -188,17 +187,29 @@ const Notifications = () => {
             <FaBell className="text-[#D44B00] text-2xl mr-4" />
           </div>
 
-          {/* Filter Buttons */}
-          <div className="flex gap-4 ml-64 pt-4 px-6">
-            {['All', 'Emergency Alerts', 'Shift Alerts', 'Feedbacks'].map((type) => (
+          {/* Filter + Clear All */}
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4 ml-64">
+              {['All', 'Emergency Alerts', 'Shift Alerts', 'Feedbacks'].map((type) => (
+                <button
+                  key={type}
+                  className={buttonClass(type)}
+                  onClick={() => setFilter(type)}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+
+            {notifications.length > 0 && (
               <button
-                key={type}
-                className={buttonClass(type)}
-                onClick={() => setFilter(type)}
+                onClick={handleClearAll}
+                className="flex items-center gap-2 text-sm text-red-600 hover:text-red-800 border border-red-500 px-3 py-1 rounded"
               >
-                {type}
+                <FaTrashAlt />
+                Clear All
               </button>
-            ))}
+            )}
           </div>
         </div>
 

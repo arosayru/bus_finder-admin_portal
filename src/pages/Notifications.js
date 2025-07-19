@@ -46,6 +46,13 @@ const Notifications = () => {
           setNotifications(prev => {
             const updated = [newNotification, ...prev];
             localStorage.setItem('notifications', JSON.stringify(updated));
+          
+            // Trigger storage event manually for same-tab Topbar update
+            window.dispatchEvent(new StorageEvent('storage', {
+              key: 'notifications',
+              newValue: JSON.stringify(updated),
+            }));
+          
             return updated;
           });
         };

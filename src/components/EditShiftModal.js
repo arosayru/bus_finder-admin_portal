@@ -129,14 +129,23 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
         <h2 className="text-white text-xl font-bold mb-6 text-center">Edit Shift</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Vehicle Number */}
           <div className="relative">
+            <label
+              htmlFor="numberPlate"
+              className={`absolute left-3 transition-all duration-300 ${
+                form.numberPlate ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+              }`}
+            >
+              Vehicle No (Number Plate)
+            </label>
             <input
               type="text"
               name="numberPlate"
               value={form.numberPlate || ''}
               onChange={handleChange}
               placeholder="Vehicle No (Number Plate)"
-              className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+              className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
               autoComplete="off"
             />
             {filteredBuses.length > 0 && (
@@ -154,15 +163,24 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
             )}
           </div>
 
+          {/* Route No and Route Name */}
           <div className="flex gap-4 relative">
             <div className="flex-1 relative">
+              <label
+                htmlFor="routeNo"
+                className={`absolute left-3 transition-all duration-300 ${
+                  form.routeNo ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+                }`}
+              >
+                Route No
+              </label>
               <input
                 type="text"
                 name="routeNo"
                 value={form.routeNo}
                 onChange={handleChange}
                 placeholder="Route No"
-                className="w-full p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
+                className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
                 autoComplete="off"
               />
               {filteredRoutes.length > 0 && (
@@ -180,17 +198,28 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
               )}
             </div>
 
-            <input
-              type="text"
-              name="routeName"
-              value={form.routeName}
-              onChange={handleChange}
-              placeholder="Route Name"
-              className="flex-1 p-3 rounded-md bg-orange-50 placeholder-[#7E7573] text-black focus:outline-none"
-              readOnly
-            />
+            <div className="flex-1 relative">
+              <label
+                htmlFor="routeName"
+                className={`absolute left-3 transition-all duration-300 ${
+                  form.routeName ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+                }`}
+              >
+                Route Name
+              </label>
+              <input
+                type="text"
+                name="routeName"
+                value={form.routeName}
+                onChange={handleChange}
+                placeholder="Route Name"
+                className="w-full p-3 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
+                readOnly
+              />
+            </div>
           </div>
 
+          {/* Departure and Arrival Times */}
           <div className="flex gap-4">
             <div className="relative flex-1">
               <label className="text-white">Departure Time</label>
@@ -227,6 +256,7 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
             />
           </div>
 
+          {/* Reverse Trip Section */}
           <div className="text-center">
             <button
               type="button"
@@ -240,6 +270,7 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
           {showReverse && (
             <div className="mt-6 space-y-4">
               <h3 className="text-white text-lg font-bold">Return Trip</h3>
+
               <div className="flex gap-4">
                 <div className="relative flex-1">
                   <label className="text-white">Departure Time</label>
@@ -277,6 +308,7 @@ const EditShiftModal = ({ shift, onClose, onUpdate }) => {
             </div>
           )}
 
+          {/* Submit Button */}
           <div className="flex justify-end mt-4">
             <button
               type="submit"

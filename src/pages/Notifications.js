@@ -80,7 +80,6 @@ const Notifications = () => {
           const newNotification = {
             id: Date.now(),
             type: 'feedback',
-            name: 'Anonymous',
             subject: feedbackText,
             date: formattedDate,
             time: formattedTime
@@ -163,7 +162,6 @@ const Notifications = () => {
                   {note.type === 'feedback' ? (
                     <>
                       <p className="font-bold">User Feedback</p>
-                      <p><span className="font-bold">Name:</span> {note.name}</p>
                       <p><span className="font-bold">Subject:</span> {note.subject}</p>
                     </>
                   ) : (

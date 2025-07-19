@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import {
   FaBell,
@@ -9,44 +9,49 @@ import {
   FaTimes
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import * as signalR from '@microsoft/signalr';
 
 const Notifications = () => {
   const navigate = useNavigate();
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'departure',
-      route: 'No. 05',
-      message: 'Departure at 9.16 a.m',
-      date: '01/06/2026',
-      time: '9.16 a.m'
-    },
-    {
-      id: 2,
-      type: 'arrival',
-      route: 'No. 05',
-      message: 'Arrival at 11.46 a.m',
-      date: '01/06/2026',
-      time: '11.46 a.m'
-    },
-    {
-      id: 3,
-      type: 'emergency',
-      route: 'No. 05 Kurunagala - Colombo',
-      message: 'The bus has broken down near Polgahawela',
-      date: '01/06/2026',
-      time: '9.16 a.m'
-    },
-    {
-      id: 4,
-      type: 'feedback',
-      name: 'John Rubic',
-      subject: 'Urgent Concern: Unsafe Driving...',
-      date: '01/06/2026',
-      time: '9.16 a.m'
-    }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+
+  // Connect to SignalR
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub')
+      .withAutomaticReconnect()
+      .build();
+
+    connection.start()
+      .then(() => {
+        console.log('SignalR connected to notificationhub');
+        connection.on('ReceiveNotification', (message) => {
+          console.log('Received SignalR notification:', message);
+
+          // Add new SOS notification to the top of the list
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+          const formattedTime = now.toLocaleTimeString('en-US'); // hh:mm AM/PM
+
+          const newNotification = {
+            id: Date.now(),
+            type: 'emergency',
+            route: 'SOS Alert',
+            message: message,
+            date: formattedDate,
+            time: formattedTime
+          };
+
+          setNotifications((prev) => [newNotification, ...prev]);
+        });
+      })
+      .catch((err) => console.error('SignalR connection error:', err));
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
 
   const handleRemove = (id) => {
     setNotifications(notifications.filter(n => n.id !== id));
@@ -54,8 +59,8 @@ const Notifications = () => {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'departure':
-      case 'arrival':
+      case 'starts':
+      case 'ends':
         return <FaBus className="text-2xl mr-2" />;
       case 'emergency':
         return <FaExclamationTriangle className="text-2xl mr-2" />;

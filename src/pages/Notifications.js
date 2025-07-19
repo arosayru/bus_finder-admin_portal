@@ -203,7 +203,7 @@ const Notifications = () => {
         </div>
 
         {/* Notification List */}
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 mb-4 space-y-4">
           {filteredNotifications.length === 0 ? (
             <p className="text-center text-gray-500">No notifications available.</p>
           ) : (

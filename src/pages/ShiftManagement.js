@@ -9,6 +9,8 @@ import api from '../services/api';
 
 const ShiftManagement = () => {
   const [shifts, setShifts] = useState([]);
+  const [filteredShifts, setFilteredShifts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
   const [deletingShift, setDeletingShift] = useState(null);
@@ -40,10 +42,22 @@ const ShiftManagement = () => {
       });
 
       setShifts(enriched);
+      setFilteredShifts(enriched);
     } catch (err) {
       console.error('Failed to fetch shifts:', err);
     }
   };
+
+  // Live filter on search query
+  useEffect(() => {
+    const query = searchQuery.toLowerCase();
+    const filtered = shifts.filter(shift =>
+      shift.routeNo.toLowerCase().includes(query) ||
+      (shift.numberPlate || '').toLowerCase().includes(query) ||
+      shift.routeName.toLowerCase().includes(query)
+    );
+    setFilteredShifts(filtered);
+  }, [searchQuery, shifts]);
 
   const handleAdd = (newShift) => {
     fetchShifts();
@@ -59,6 +73,7 @@ const ShiftManagement = () => {
     try {
       await api.delete(`/busshift/${toDelete.shiftId}`);
       setShifts(prev => prev.filter(s => s.shiftId !== toDelete.shiftId));
+      setFilteredShifts(prev => prev.filter(s => s.shiftId !== toDelete.shiftId));
       setDeletingShift(null);
     } catch (error) {
       console.error('Failed to delete shift:', error);
@@ -77,11 +92,14 @@ const ShiftManagement = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
             />
             <button
               className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
               style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+              disabled
             >
               Search
             </button>
@@ -119,7 +137,7 @@ const ShiftManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {shifts.map((shift, index) => (
+                {filteredShifts.map((shift, index) => (
                   <tr
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"

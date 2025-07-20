@@ -268,37 +268,43 @@ const Notifications = () => {
         </div>
 
         <div className="mt-6 mb-4 space-y-4">
-          {filteredNotifications.map((note) => (
-            <div
-              key={note.id}
-              className="bg-orange-300 p-4 rounded-md shadow flex justify-between items-start relative"
-            >
-              <div className="flex">
-                {getIcon(note.type)}
-                <div>
-                  {note.type === 'feedback' ? (
-                    <>
-                      <p className="font-bold">Passenger Feedback</p>
-                      <p><span className="font-bold">Subject:</span> {note.subject}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-bold">{note.route}</p>
-                      <p>{note.message}</p>
-                    </>
-                  )}
-                </div>
-              </div>
-              <div className="text-sm text-right min-w-[130px] pl-4 pt-8">
-                <p><span className="font-bold">Date:</span> {note.date}</p>
-                <p><span className="font-bold">Time:</span> {note.time}</p>
-              </div>
-              <FaTimes
-                onClick={() => handleRemove(note.id)}
-                className="absolute top-2 right-3 text-white text-lg cursor-pointer hover:text-red-500"
-              />
+          {filteredNotifications.length === 0 ? (
+            <div className="text-center text-gray-500 py-12 text-sm italic">
+              No notifications available
             </div>
-          ))}
+          ) : (
+            filteredNotifications.map((note) => (
+              <div
+                key={note.id}
+                className="bg-orange-300 p-4 rounded-md shadow flex justify-between items-start relative"
+              >
+                <div className="flex">
+                  {getIcon(note.type)}
+                  <div>
+                    {note.type === 'feedback' ? (
+                      <>
+                        <p className="font-bold">Passenger Feedback</p>
+                        <p><span className="font-bold">Subject:</span> {note.subject}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-bold">{note.route}</p>
+                        <p>{note.message}</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="text-sm text-right min-w-[130px] pl-4 pt-8">
+                  <p><span className="font-bold">Date:</span> {note.date}</p>
+                  <p><span className="font-bold">Time:</span> {note.time}</p>
+                </div>
+                <FaTimes
+                  onClick={() => handleRemove(note.id)}
+                  className="absolute top-2 right-3 text-white text-lg cursor-pointer hover:text-red-500"
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

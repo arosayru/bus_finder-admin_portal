@@ -35,6 +35,24 @@ const Topbar = () => {
     return () => unsubscribeFromNotifications(handleNew);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
+
   const handleNotificationClick = () => {
     const newStatus = !showDropdown;
     setShowDropdown(newStatus);

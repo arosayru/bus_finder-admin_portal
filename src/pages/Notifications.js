@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
 import {
   FaBell,
@@ -14,168 +14,169 @@ import * as signalR from '@microsoft/signalr';
 const Notifications = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
+  const connectionRef = useRef(null);
+  const isMounted = useRef(true);
+  const isStarting = useRef(false);
 
-  // Load saved notifications only once
   useEffect(() => {
     const saved = localStorage.getItem('notifications');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        setNotifications(parsed);
+        setNotifications(JSON.parse(saved));
       } catch (err) {
         console.error('Failed to parse notifications from localStorage:', err);
       }
     }
   }, []);
 
-  // Connect to SignalR and append new notifications
   useEffect(() => {
+    isMounted.current = true;
     const connection = new signalR.HubConnectionBuilder()
       .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub', {
-        transport: signalR.HttpTransportType.LongPolling
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets,
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    connection.start()
-      .then(() => {
-        console.log('✅ SignalR connected');
+    connectionRef.current = connection;
 
-        // SOS notification
-        connection.on('BusSOS', (message) => {
-          console.log('📩 Received SOS:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
+    const now = () => {
+      const n = new Date();
+      return {
+        date: n.toLocaleDateString('en-GB'),
+        time: n.toLocaleTimeString('en-US'),
+      };
+    };
 
-          const newNotification = {
-            id: Date.now(),
-            type: 'emergency',
-            route: 'SOS Alert',
-            message,
-            date: formattedDate,
-            time: formattedTime
-          };
+    const addNotification = (n) => {
+      setNotifications(prev => {
+        const updated = [n, ...prev];
+        localStorage.setItem('notifications', JSON.stringify(updated));
+        return updated;
+      });
+    };
 
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
-          });
+    const setupHandlers = () => {
+      connection.on('BusSOS', (message) => {
+        const { date, time } = now();
+        addNotification({
+          id: Date.now(),
+          type: 'emergency',
+          route: 'SOS Alert',
+          message,
+          date,
+          time
         });
-
-        // Feedback notification
-        connection.on('FeedbackReceived', (message) => {
-          console.log('📝 Feedback notification received:', message);
-
-          const feedbackText = typeof message === 'string'
-            ? message.split(':')[1]?.trim() || message
-            : 'Feedback received';
-
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
-            id: Date.now(),
-            type: 'feedback',
-            subject: feedbackText,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
-          });
-        });
-
-        // Shift Started notification
-        connection.on('ShiftStarted', (message) => {
-          console.log('🚍 Shift Started:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
-            id: Date.now(),
-            type: 'starts',
-            route: 'Shift Started',
-            message: message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
-          });
-        });
-
-        // Shift Interval notification
-        connection.on('ShiftInterval', (message) => {
-          console.log('⏸️ Shift Interval:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
-            id: Date.now(),
-            type: 'starts',
-            route: 'Shift Interval',
-            message: message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
-          });
-        });
-
-        // ✅ Shift Ended notification
-        connection.on('ShiftEnded', (message) => {
-          console.log('⛔ Shift Ended:', message);
-          const now = new Date();
-          const formattedDate = now.toLocaleDateString('en-GB');
-          const formattedTime = now.toLocaleTimeString('en-US');
-
-          const newNotification = {
-            id: Date.now(),
-            type: 'ends',
-            route: 'Shift Ended',
-            message: message,
-            date: formattedDate,
-            time: formattedTime
-          };
-
-          setNotifications(prev => {
-            const updated = [newNotification, ...prev];
-            localStorage.setItem('notifications', JSON.stringify(updated));
-            return updated;
-          });
-        });
-
-      })
-      .catch((err) => {
-        if (err?.name === 'AbortError' || err?.message?.includes('connection was stopped during negotiation')) {
-          console.warn('⚠️ SignalR negotiation aborted.');
-        } else {
-          console.error('❌ SignalR error:', err);
-        }
       });
 
+      connection.on('FeedbackReceived', (message) => {
+        const feedbackText = typeof message === 'string'
+          ? message.split(':')[1]?.trim() || message
+          : 'Feedback received';
+        const { date, time } = now();
+        addNotification({
+          id: Date.now(),
+          type: 'feedback',
+          subject: feedbackText,
+          date,
+          time
+        });
+      });
+
+      connection.on('ShiftStarted', (message) => {
+        const { date, time } = now();
+        addNotification({
+          id: Date.now(),
+          type: 'starts',
+          route: 'Shift Started',
+          message,
+          date,
+          time
+        });
+      });
+
+      connection.on('ShiftInterval', (message) => {
+        const { date, time } = now();
+        addNotification({
+          id: Date.now(),
+          type: 'starts',
+          route: 'Shift Interval',
+          message,
+          date,
+          time
+        });
+      });
+
+      connection.on('ShiftEnded', (message) => {
+        const { date, time } = now();
+        addNotification({
+          id: Date.now(),
+          type: 'ends',
+          route: 'Shift Ended',
+          message,
+          date,
+          time
+        });
+      });
+    };
+
+    const startSignalR = async () => {
+      isStarting.current = true;
+      try {
+        await connection.start();
+        console.log('✅ SignalR connected');
+        if (!isMounted.current) return;
+        setupHandlers();
+      } catch (err) {
+        if (err?.name === 'AbortError' || err?.message?.includes('negotiation')) {
+          console.warn('⚠️ SignalR negotiation aborted. Retrying in 5s...');
+        } else {
+          console.error('❌ SignalR connection error:', err);
+        }
+        if (isMounted.current) {
+          setTimeout(() => startSignalR(), 5000);
+        }
+      } finally {
+        isStarting.current = false;
+      }
+    };
+
+    startSignalR();
+
     return () => {
-      connection.stop();
+      isMounted.current = false;
+
+      const safeStop = async () => {
+        if (isStarting.current) {
+          console.log('⏳ Waiting for SignalR start to finish before stopping...');
+          const wait = () =>
+            new Promise(resolve => {
+              const interval = setInterval(() => {
+                if (!isStarting.current) {
+                  clearInterval(interval);
+                  resolve();
+                }
+              }, 100);
+            });
+          await wait();
+        }
+
+        if (connection && connection.state !== 'Disconnected') {
+          try {
+            await connection.stop();
+            console.log('🛑 SignalR connection stopped cleanly.');
+          } catch (e) {
+            console.warn('⚠️ SignalR stop error:', e);
+          }
+        }
+      };
+
+      safeStop();
     };
   }, []);
 
-  // Remove and persist to localStorage
   const handleRemove = (id) => {
     setNotifications(prev => {
       const updated = prev.filter(n => n.id !== id);
@@ -202,7 +203,6 @@ const Notifications = () => {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 pt-4 px-6">
-        {/* Fixed Header */}
         <div className="sticky top-0 z-10 bg-white border-b pb-2 pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-[#BD2D01] font-bold text-xl">
@@ -212,13 +212,10 @@ const Notifications = () => {
               />
               <span>Notifications</span>
             </div>
-            <div>
-              <FaBell className="text-[#D44B00] text-2xl mr-4" />
-            </div>
+            <FaBell className="text-[#D44B00] text-2xl mr-4" />
           </div>
         </div>
 
-        {/* Notification List */}
         <div className="mt-6 space-y-4">
           {notifications.map((note) => (
             <div

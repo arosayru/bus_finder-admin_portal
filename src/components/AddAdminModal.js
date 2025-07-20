@@ -11,6 +11,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
     lastName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     telNo: ''
   });
   const [loading, setLoading] = useState(false);
@@ -36,8 +37,15 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
     setLoading(true);
 
     try {
-      // Create the admin without uploading profile picture
-      const createAdminResponse = await api.post('/admin', formData);
+      const { confirmPassword, ...adminPayload } = formData;
+
+      if (formData.password !== confirmPassword) {
+        setErrorMessage('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
+      const createAdminResponse = await api.post('/admin', adminPayload);
 
       if (createAdminResponse.status === 201) {
         onAddAdmin(createAdminResponse.data);
@@ -63,7 +71,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
       >
         <h2 className="text-white text-xl font-bold mb-4">Add Admin</h2>
 
-        {/* Profile Picture Upload UI (just for display) */}
+        {/* Profile Picture Upload UI */}
         <div className="flex justify-center mb-4 relative">
           <label htmlFor="admin-profile-upload" className="cursor-pointer relative group">
             {profilePic ? (
@@ -89,7 +97,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
         </div>
 
         {errorMessage && (
-          <div className="text-red-500 text-center mb-4">{errorMessage}</div>
+          <div className="text-white text-center mb-4">{errorMessage}</div>
         )}
 
         <form className="space-y-3" onSubmit={handleSubmit}>
@@ -205,11 +213,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
               onClick={() => setShowPass(!showPass)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
             >
-              {showPass ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
+              {showPass ? <FaEye className="text-[#BD2D01]" /> : <FaEyeSlash className="text-[#BD2D01]" />}
             </div>
           </div>
 
@@ -218,27 +222,26 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
             <label
               htmlFor="confirmPassword"
               className={`absolute left-3 transition-all duration-300 ${
-                focusConfirm ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+                formData.confirmPassword || focusConfirm ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
               }`}
             >
               Confirm Password
             </label>
             <input
               type={showConfirm ? 'text' : 'password'}
-              placeholder="Confirm Password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
               onFocus={() => setFocusConfirm(true)}
-              onBlur={() => setFocusConfirm(false)}
+              onBlur={() => setFocusConfirm(formData.confirmPassword ? true : false)}
+              placeholder="Confirm Password"
               className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
             />
             <div
               onClick={() => setShowConfirm(!showConfirm)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
             >
-              {showConfirm ? (
-                <FaEye className="text-[#BD2D01]" />
-              ) : (
-                <FaEyeSlash className="text-[#BD2D01]" />
-              )}
+              {showConfirm ? <FaEye className="text-[#BD2D01]" /> : <FaEyeSlash className="text-[#BD2D01]" />}
             </div>
           </div>
 
@@ -255,7 +258,6 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
           </div>
         </form>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

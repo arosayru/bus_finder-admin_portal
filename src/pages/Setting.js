@@ -9,7 +9,7 @@ const Settings = () => {
     firstName: '',
     lastName: '',
     email: '',
-    phone: '', // ✅ Added phone
+    phone: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -18,7 +18,6 @@ const Settings = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [profilePicture, setProfilePicture] = useState(null);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [message, setMessage] = useState('');
 
@@ -34,15 +33,8 @@ const Settings = () => {
           firstName: data.firstName || '',
           lastName: data.lastName || '',
           email: data.email || '',
-          phone: data.telNo || '', // ✅ Set phone from API
+          phone: data.telNo || '',
         }));
-
-        try {
-          const picRes = await api.get(`/admin/profile-picture/${adminId}`, { responseType: 'blob' });
-          setProfilePicture(URL.createObjectURL(picRes.data));
-        } catch (err) {
-          console.warn('No profile picture found');
-        }
       } catch (error) {
         console.error('Failed to fetch admin data:', error);
       }
@@ -59,13 +51,11 @@ const Settings = () => {
     const file = e.target.files[0];
     if (file) {
       setProfilePictureFile(file);
-      setProfilePicture(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async () => {
     try {
-      // Step 1: Upload profile picture if changed
       if (profilePictureFile) {
         const formDataPic = new FormData();
         formDataPic.append('file', profilePictureFile);
@@ -74,17 +64,15 @@ const Settings = () => {
         });
       }
 
-      // Step 2: Update admin profile fields
       const updateFields = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        telNo: formData.phone, // ✅ Added phone to update
+        telNo: formData.phone,
       };
 
       await api.put(`/admin/${adminId}`, updateFields);
 
-      // Step 3: If password fields filled, update password
       if (
         formData.currentPassword &&
         formData.newPassword &&
@@ -112,14 +100,10 @@ const Settings = () => {
       <div className="flex-1 ml-64 pt-4 px-6">
         <Topbar />
         <div className="max-w-xl mx-auto mt-20 bg-[#FB9933] shadow-xl p-8 rounded-xl relative">
-          {/* Profile Picture */}
+          {/* Profile Picture Upload Only (No Preview) */}
           <div className="flex justify-center relative mb-4">
-            <div className="w-24 h-24 rounded-full bg-white overflow-hidden flex items-center justify-center">
-              {profilePicture ? (
-                <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-4xl text-[#FB9933]">👤</span>
-              )}
+            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center">
+              <span className="text-4xl text-[#FB9933]">👤</span>
             </div>
             <label htmlFor="profileUpload">
               <FaEdit className="absolute bottom-3 right-[42%] text-gray-600 cursor-pointer" />
@@ -170,9 +154,24 @@ const Settings = () => {
 
             {/* Password Fields */}
             {[
-              { name: 'currentPassword', label: 'Current Password', show: showCurrentPassword, toggle: () => setShowCurrentPassword(!showCurrentPassword) },
-              { name: 'newPassword', label: 'New Password', show: showNewPassword, toggle: () => setShowNewPassword(!showNewPassword) },
-              { name: 'confirmPassword', label: 'Confirm Password', show: showConfirmPassword, toggle: () => setShowConfirmPassword(!showConfirmPassword) },
+              {
+                name: 'currentPassword',
+                label: 'Current Password',
+                show: showCurrentPassword,
+                toggle: () => setShowCurrentPassword(!showCurrentPassword),
+              },
+              {
+                name: 'newPassword',
+                label: 'New Password',
+                show: showNewPassword,
+                toggle: () => setShowNewPassword(!showNewPassword),
+              },
+              {
+                name: 'confirmPassword',
+                label: 'Confirm Password',
+                show: showConfirmPassword,
+                toggle: () => setShowConfirmPassword(!showConfirmPassword),
+              },
             ].map(({ name, label, show, toggle }) => (
               <div className="relative" key={name}>
                 <input

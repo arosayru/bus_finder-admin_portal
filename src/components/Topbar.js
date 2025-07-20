@@ -6,7 +6,6 @@ import {
 } from '../services/notificationService';
 
 const Topbar = () => {
-  const [hasNewNotification, setHasNewNotification] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -18,22 +17,18 @@ const Topbar = () => {
       try {
         const parsed = JSON.parse(saved);
         setNotifications(parsed);
-        const lastViewed = sessionStorage.getItem('lastViewedNotificationTime');
-        if (parsed[0] && (!lastViewed || new Date(parsed[0].id) > new Date(lastViewed))) {
-          setHasNewNotification(true);
-        }
       } catch (err) {
         console.error('Failed to parse localStorage notifications:', err);
       }
     }
 
     const handleNew = (notification) => {
+      const newNotification = { ...notification, read: false };
       setNotifications((prev) => {
-        const updated = [notification, ...prev];
+        const updated = [newNotification, ...prev];
         localStorage.setItem('notifications', JSON.stringify(updated));
         return updated;
       });
-      setHasNewNotification(true);
     };
 
     subscribeToNotifications(handleNew);
@@ -44,8 +39,9 @@ const Topbar = () => {
     const newStatus = !showDropdown;
     setShowDropdown(newStatus);
     if (newStatus) {
-      sessionStorage.setItem('lastViewedNotificationTime', new Date().toISOString());
-      setHasNewNotification(false);
+      const updated = notifications.map((n) => ({ ...n, read: true }));
+      setNotifications(updated);
+      localStorage.setItem('notifications', JSON.stringify(updated));
     }
   };
 
@@ -89,6 +85,8 @@ const Topbar = () => {
     { label: 'Feedbacks', value: 'feedback' }
   ];
 
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
     <div className="fixed left-64 right-0 top-0 px-6 py-4 flex justify-end items-center border-b border-gray-300 bg-white z-20">
       <div className="relative">
@@ -101,8 +99,10 @@ const Topbar = () => {
           }}
         >
           <FaBell className="text-white text-lg" />
-          {hasNewNotification && (
-            <span className="absolute top-0 right-0 block w-2.5 h-2.5 bg-red-600 rounded-full ring-2 ring-white" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ring-2 ring-white">
+              {unreadCount}
+            </span>
           )}
         </div>
 

@@ -1,4 +1,3 @@
-// ✅ FINAL VERSION: Native-style tooltip error feedback with browser-style styling
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
 import api from '../services/api';

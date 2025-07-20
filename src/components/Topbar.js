@@ -10,6 +10,7 @@ const Topbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
   const dropdownRef = useRef(null);
+  const bellRef = useRef(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('notifications');
@@ -37,7 +38,12 @@ const Topbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        bellRef.current &&
+        !bellRef.current.contains(event.target)
+      ) {
         setShowDropdown(false);
       }
     };
@@ -110,6 +116,7 @@ const Topbar = () => {
       <div className="relative">
         <div
           onClick={handleNotificationClick}
+          ref={bellRef}
           className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer relative"
           style={{
             background:

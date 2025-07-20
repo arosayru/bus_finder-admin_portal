@@ -21,28 +21,7 @@ const StaffManagement = () => {
   const fetchStaff = async () => {
     try {
       const response = await api.get('/staff');
-      const staffData = response.data;
-
-      const staffWithPics = await Promise.all(
-        staffData.map(async (staff) => {
-          if (staff.profilePicture) {
-            return staff; // Use provided URL
-          }
-
-          try {
-            const res = await api.get(`/staff/profile-picture/${staff.staffId}`, {
-              responseType: 'blob',
-            });
-            const imageUrl = URL.createObjectURL(res.data);
-            return { ...staff, profilePicture: imageUrl };
-          } catch (err) {
-            console.warn(`No profile picture found for ${staff.email}:`, err.message);
-            return { ...staff, profilePicture: '' };
-          }
-        })
-      );
-
-      setStaffList(staffWithPics);
+      setStaffList(response.data);
     } catch (err) {
       console.error('Error fetching staff:', err);
     }
@@ -66,7 +45,7 @@ const StaffManagement = () => {
         staff.staffId === updatedStaff.staffId ? { ...staff, ...updatedStaff } : staff
       )
     );
-    setEditingStaff(null); // Close the modal after the update
+    setEditingStaff(null);
   };
 
   const handleDeleteStaff = async (staffId) => {
@@ -140,19 +119,11 @@ const StaffManagement = () => {
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
                   >
                     <td className="p-3 w-[120px] text-center border-r">
-                      {staff.profilePicture && typeof staff.profilePicture === 'string' && staff.profilePicture.startsWith('http') ? (
-                        <img
-                          src={staff.profilePicture}
-                          alt="Staff"
-                          className="w-10 h-10 rounded-full object-cover mx-auto"
-                        />
-                      ) : (                     
-                        <FaUserCircle className="text-2xl text-[#BD2D01]" />
-                      )}
+                      <FaUserCircle className="text-2xl text-[#BD2D01] mx-auto" />
                     </td>
                     <td className="p-3 w-[160px] border-r">{staff.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{staff.lastName}</td>
-                    <td className="p-3 w-[220px] border-r break-words">{staff.email}</td> {/* Added break-words */}
+                    <td className="p-3 w-[220px] border-r break-words">{staff.email}</td>
                     <td className="p-3 w-[180px] border-r">{staff.nic}</td>
                     <td className="p-3 w-[130px] border-r">{staff.telNo}</td>
                     <td className="p-3 w-[150px] border-r">{staff.staffRole}</td>
@@ -181,7 +152,7 @@ const StaffManagement = () => {
           <EditStaffModal
             staff={editingStaff}
             onClose={() => setEditingStaff(null)}
-            onUpdate={handleUpdateStaff}  // Pass the update handler
+            onUpdate={handleUpdateStaff}
           />
         )}
         {deletingStaff && (

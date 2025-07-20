@@ -11,8 +11,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
     lastName: '',
     email: '',
     password: '',
-    telNo: '',
-    profilePicture: null
+    telNo: ''
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,7 +25,6 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
-    setFormData({ ...formData, profilePicture: file });
   };
 
   const handleInputChange = (e) => {
@@ -38,32 +36,14 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
     setLoading(true);
 
     try {
-      // Step 1: Upload the profile picture using the API
-      const formDataForImage = new FormData();
-      formDataForImage.append('file', formData.profilePicture);
+      // Create the admin without uploading profile picture
+      const createAdminResponse = await api.post('/admin', formData);
 
-      const uploadResponse = await api.post('/admin/upload-profile-picture', formDataForImage, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (uploadResponse.data.link) {
-        // Step 2: Create the admin with the uploaded image URL
-        const adminData = {
-          ...formData,
-          profilePicture: uploadResponse.data.link,
-        };
-
-        const createAdminResponse = await api.post('/admin', adminData);
-
-        if (createAdminResponse.status === 201) {
-          // Success: Admin added
-          onAddAdmin(createAdminResponse.data); // Pass the new admin data to update the list
-          onClose();
-        } else {
-          setErrorMessage('Failed to create admin. Please try again later.');
-        }
+      if (createAdminResponse.status === 201) {
+        onAddAdmin(createAdminResponse.data);
+        onClose();
+      } else {
+        setErrorMessage('Failed to create admin. Please try again later.');
       }
     } catch (error) {
       console.error(error);
@@ -81,10 +61,9 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
       >
-        {/* Title */}
         <h2 className="text-white text-xl font-bold mb-4">Add Admin</h2>
 
-        {/* Profile Picture */}
+        {/* Profile Picture Upload UI (just for display) */}
         <div className="flex justify-center mb-4 relative">
           <label htmlFor="admin-profile-upload" className="cursor-pointer relative group">
             {profilePic ? (
@@ -96,7 +75,6 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
             ) : (
               <FaUserCircle className="text-white text-6xl" />
             )}
-            {/* Upload Icon Overlay */}
             <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow-sm group-hover:scale-110 transition">
               <FaUpload className="text-[#F67F00] text-sm" />
             </div>
@@ -110,12 +88,10 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
           </label>
         </div>
 
-        {/* Error message */}
         {errorMessage && (
           <div className="text-red-500 text-center mb-4">{errorMessage}</div>
         )}
 
-        {/* Form */}
         <form className="space-y-3" onSubmit={handleSubmit}>
           {/* First Name */}
           <div className="relative">
@@ -242,16 +218,16 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
             <label
               htmlFor="confirmPassword"
               className={`absolute left-3 transition-all duration-300 ${
-                formData.confirmPassword || focusConfirm ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
+                focusConfirm ? 'top-[-15px] text-xs text-white' : 'top-1/2 transform -translate-y-1/2 text-[#7E7573]'
               }`}
             >
               Confirm Password
             </label>
             <input
               type={showConfirm ? 'text' : 'password'}
-              onFocus={() => setFocusConfirm(true)}
-              onBlur={() => setFocusConfirm(formData.confirmPassword ? true : false)}
               placeholder="Confirm Password"
+              onFocus={() => setFocusConfirm(true)}
+              onBlur={() => setFocusConfirm(false)}
               className="w-full p-3 pr-10 rounded-md bg-orange-50 placeholder-transparent text-black focus:outline-none"
             />
             <div
@@ -266,7 +242,7 @@ const AddAdminModal = ({ onClose, onAddAdmin }) => {
             </div>
           </div>
 
-          {/* Add Button Right Aligned */}
+          {/* Add Button */}
           <div className="flex justify-end">
             <button
               type="submit"

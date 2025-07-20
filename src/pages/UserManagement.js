@@ -12,23 +12,7 @@ const UserManagement = () => {
     const fetchPassengers = async () => {
       try {
         const res = await api.get('/passenger');
-        const dataWithPics = await Promise.all(
-          res.data.map(async (passenger) => {
-            try {
-              const picRes = await api.get(`/passenger/profile-picture/${passenger.id}`);
-              return {
-                ...passenger,
-                profilePic: picRes.data.profilePictureURL || '',
-              };
-            } catch {
-              return {
-                ...passenger,
-                profilePic: '',
-              };
-            }
-          })
-        );
-        setPassengers(dataWithPics);
+        setPassengers(res.data);
       } catch (err) {
         console.error('Failed to fetch passengers:', err);
       }
@@ -89,15 +73,7 @@ const UserManagement = () => {
                     style={{ borderColor: 'rgba(189, 45, 1, 0.6)' }}
                   >
                     <td className="p-3 w-[120px] text-center border-r">
-                      {user.profilePic ? (
-                        <img
-                          src={user.profilePic}
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full mx-auto object-cover"
-                        />
-                      ) : (
-                        <FaUserCircle className="text-2xl text-[#BD2D01] mx-auto" />
-                      )}
+                      <FaUserCircle className="text-2xl text-[#BD2D01] mx-auto" />
                     </td>
                     <td className="p-3 w-[160px] border-r">{user.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{user.lastName}</td>

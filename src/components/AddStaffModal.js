@@ -45,19 +45,6 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
     setErrorMessage('');
 
     try {
-      // Upload image
-      let uploadedImageUrl = '';
-      if (formData.profilePicture) {
-        const imageData = new FormData();
-        imageData.append('file', formData.profilePicture);
-
-        const uploadRes = await api.post('/staff/upload-profile-picture', imageData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        uploadedImageUrl = uploadRes.data.link || '';
-      }
-
       const newStaff = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -66,12 +53,11 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
         nic: formData.nic,
         password: formData.password,
         staffRole: formData.staffRole,
-        profilePicture: uploadedImageUrl,
+        // profilePicture is intentionally removed from API payload
       };
 
       const createRes = await api.post('/staff', newStaff);
       if (createRes.status === 201 || createRes.status === 200) {
-        // Ensure onAddStaff is passed as a function
         if (typeof onAddStaff === 'function') {
           onAddStaff(createRes.data);
         } else {
@@ -97,10 +83,8 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
           background: 'linear-gradient(to bottom, #FB9933 0%, #CF4602 50%, #FB9933 100%)',
         }}
       >
-        {/* Title */}
         <h2 className="text-white text-xl font-bold mb-4">Add Staff</h2>
 
-        {/* Profile Picture */}
         <div className="flex justify-center mb-4 relative">
           <label htmlFor="staff-profile-upload" className="cursor-pointer relative group">
             {profilePicPreview ? (
@@ -125,12 +109,10 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
           </label>
         </div>
 
-        {/* Error message */}
         {errorMessage && (
           <div className="text-red-500 text-center mb-3 text-sm">{errorMessage}</div>
         )}
 
-        {/* Form */}
         <form className="space-y-3" onSubmit={handleSubmit}>
           {/* First Name */}
           <div className="relative">
@@ -310,7 +292,6 @@ const AddStaffModal = ({ onClose, onAddStaff }) => {
           </div>
         </form>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

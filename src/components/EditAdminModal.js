@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { FaEye, FaEyeSlash, FaUserCircle, FaUpload } from 'react-icons/fa';
+import { FaUserCircle, FaUpload } from 'react-icons/fa';
 import api from '../services/api';
 
 const EditAdminModal = ({ admin, onClose, onUpdate }) => {
   const [form, setForm] = useState({ ...admin });
-  const [profilePicFile, setProfilePicFile] = useState(null);
   const [preview, setPreview] = useState(admin.profilePicture || '');
-  
-  // Focus state for form fields
+
   const [focusFirstName, setFocusFirstName] = useState(false);
   const [focusLastName, setFocusLastName] = useState(false);
   const [focusEmail, setFocusEmail] = useState(false);
@@ -21,7 +19,6 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfilePicFile(file);
       setPreview(URL.createObjectURL(file));
     }
   };
@@ -30,36 +27,16 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
     e.preventDefault();
 
     try {
-      let imageUrl = form.profilePicture;
-
-      // Step 1: Upload profile picture if selected
-      if (profilePicFile) {
-        const formData = new FormData();
-        formData.append('file', profilePicFile);
-
-        const uploadRes = await api.put(`/admin/update-profile-picture/${form.adminId}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        // If backend returns the link (e.g. Google Drive), assign it here
-        if (uploadRes.data?.link) {
-          imageUrl = uploadRes.data.link;
-        }
-      }
-
-      // Step 2: Update other details including profilePicture (preserve it)
       const updatePayload = {
         email: form.email,
         firstName: form.firstName,
         lastName: form.lastName,
         telNo: form.telNo,
-        profilePicture: imageUrl || '',
+        profilePicture: form.profilePicture || '',
       };
 
       await api.put(`/admin/${form.adminId}`, updatePayload);
-
-      // Step 3: Notify parent with updated picture
-      onUpdate({ ...form, profilePicture: imageUrl });
+      onUpdate({ ...form });
       onClose();
     } catch (err) {
       console.error('Error updating admin:', err);
@@ -77,7 +54,7 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
       >
         <h2 className="text-white text-xl font-bold mb-4">Edit Admin</h2>
 
-        {/* Profile Picture Preview */}
+        {/* Profile Picture Preview (UI only) */}
         <div className="flex justify-center mb-4 relative">
           <label htmlFor="edit-profile-upload" className="cursor-pointer relative group">
             {preview ? (
@@ -202,7 +179,7 @@ const EditAdminModal = ({ admin, onClose, onUpdate }) => {
           </div>
         </form>
 
-        {/* Close */}
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-3 text-white text-lg font-bold"

@@ -15,7 +15,7 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle image change
+  // Handle image change (for preview only)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
@@ -24,22 +24,21 @@ const EditStaffModal = ({ staff, onClose, onUpdate }) => {
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedStaff = { ...form, profilePicture: profilePic };
+
+    // Exclude profilePicture from API request
+    const { profilePicture, ...updatedStaff } = form;
 
     try {
-      // Update the staff data via PUT request
       const response = await api.put(`/staff/${staff.staffId}`, updatedStaff);
 
       if (response.status === 200 || response.status === 204) {
         onUpdate(updatedStaff); 
         onClose();
       } else {
-        // Log the full response for debugging
         setErrorMessage(`Failed to update staff. Status: ${response.status}`);
         console.error('Failed to update staff', response);
       }
     } catch (err) {
-      // Log the detailed error message for debugging
       setErrorMessage(`Error updating staff: ${err.message}`);
       console.error('Error updating staff:', err);
     }

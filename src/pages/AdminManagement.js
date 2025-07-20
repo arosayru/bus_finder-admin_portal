@@ -17,24 +17,7 @@ const AdminManagement = () => {
   const fetchAdmins = async () => {
     try {
       const response = await api.get('/admin');
-      const admins = response.data;
-
-      const adminsWithPics = await Promise.all(
-        admins.map(async (admin) => {
-          try {
-            const picRes = await api.get(`/admin/profile-picture/${admin.adminId}`, {
-              responseType: 'blob'
-            });
-            const imageUrl = URL.createObjectURL(picRes.data);
-            return { ...admin, profilePicture: imageUrl };
-          } catch (err) {
-            console.error(`Error fetching profile picture for ${admin.email}:`, err);
-            return { ...admin, profilePicture: '' };
-          }
-        })
-      );
-
-      setAdminList(adminsWithPics);
+      setAdminList(response.data);
     } catch (error) {
       console.error('Error fetching admin data:', error);
     }
@@ -115,15 +98,7 @@ const AdminManagement = () => {
                 {filteredAdmins.map((admin, index) => (
                   <tr key={index} className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition">
                     <td className="p-3 w-[120px] text-center border-r">
-                      {admin.profilePicture ? (
-                        <img
-                          src={admin.profilePicture}
-                          alt="Admin"
-                          className="w-10 h-10 rounded-full object-cover mx-auto"
-                        />
-                      ) : (
-                        <FaUserCircle className="text-2xl text-[#BD2D01]" />
-                      )}
+                      <FaUserCircle className="text-2xl text-[#BD2D01] mx-auto" />
                     </td>
                     <td className="p-3 w-[160px] border-r">{admin.firstName}</td>
                     <td className="p-3 w-[160px] border-r">{admin.lastName}</td>

@@ -21,14 +21,12 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const [adminName, setAdminName] = useState(localStorage.getItem('admin_name') || 'Admin');
-  const [profilePic, setProfilePic] = useState(null);
 
   useEffect(() => {
     const fetchAdminInfo = async () => {
       const adminId = localStorage.getItem('admin_id');
       if (!adminId) return;
 
-      // Only fetch name if not already stored
       if (!localStorage.getItem('admin_name')) {
         try {
           const response = await api.get('/admin');
@@ -41,19 +39,6 @@ const Sidebar = () => {
         } catch (err) {
           console.error('Failed to fetch admin details:', err);
         }
-      }
-
-      // Always re-fetch image blob on load
-      try {
-        const picRes = await api.get(`/admin/profile-picture/${adminId}`, {
-          responseType: 'blob',
-        });
-        if (picRes.status === 200) {
-          const imageUrl = URL.createObjectURL(picRes.data);
-          setProfilePic(imageUrl);
-        }
-      } catch (err) {
-        console.error('Failed to load profile picture:', err);
       }
     };
 
@@ -77,11 +62,7 @@ const Sidebar = () => {
       <div>
         <div className="flex flex-col items-center mb-6">
           <div className="bg-white text-[#F67F00] rounded-full w-20 h-20 flex items-center justify-center text-3xl font-bold overflow-hidden">
-            {profilePic ? (
-              <img src={profilePic} alt="Admin" className="w-full h-full object-cover rounded-full" />
-            ) : (
-              <FaUserCircle className="text-5xl" />
-            )}
+            <FaUserCircle className="text-5xl" />
           </div>
           <p className="mt-2 font-semibold text-lg text-center">{adminName}</p>
         </div>

@@ -13,6 +13,8 @@ const BusManagement = () => {
   const [deletingBus, setDeletingBus] = useState(null);
   const [buses, setBuses] = useState([]);
   const [staffList, setStaffList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredBuses, setFilteredBuses] = useState([]);
 
   // Fetch buses and staff on load
   useEffect(() => {
@@ -28,6 +30,7 @@ const BusManagement = () => {
 
         const enriched = enrichBusData(busesData, staffData);
         setBuses(enriched);
+        setFilteredBuses(enriched);
         setStaffList(staffData);
       } catch (err) {
         console.error('Error loading buses or staff:', err);
@@ -37,7 +40,17 @@ const BusManagement = () => {
     fetchData();
   }, []);
 
-  // Helper to map staff details to bus
+  // Filter buses based on search
+  useEffect(() => {
+    const query = searchQuery.toLowerCase();
+    const filtered = buses.filter(bus =>
+      bus.busRouteNumber.toLowerCase().includes(query) ||
+      bus.numberPlate.toLowerCase().includes(query) ||
+      bus.busType.toLowerCase().includes(query)
+    );
+    setFilteredBuses(filtered);
+  }, [searchQuery, buses]);
+
   const enrichBusData = (busesData, staffData) => {
     return busesData.map(bus => {
       const driver = staffData.find(s => String(s.staffId) === String(bus.driverId));
@@ -53,23 +66,24 @@ const BusManagement = () => {
     });
   };
 
-  // After adding new bus
   const handleBusAdded = (newBus) => {
     const enriched = enrichBusData([newBus], staffList)[0];
-    setBuses(prev => [...prev, enriched]);
+    const updated = [...buses, enriched];
+    setBuses(updated);
+    setFilteredBuses(updated);
   };
 
   const handleBusUpdated = (updatedBus) => {
     const enriched = enrichBusData([updatedBus], staffList)[0];
 
-    setBuses(prev =>
-      prev.map(b =>
-        b.numberPlate === updatedBus.numberPlate
-          ? enriched
-          : b
-      )
+    const updated = buses.map(b =>
+      b.numberPlate === updatedBus.numberPlate
+        ? enriched
+        : b
     );
 
+    setBuses(updated);
+    setFilteredBuses(updated);
     setEditingBus(null);
   };
 
@@ -85,11 +99,14 @@ const BusManagement = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="px-4 py-2 w-80 rounded-l-md border border-[#BD2D01] bg-orange-50 placeholder-[#F67F00] text-[#F67F00] focus:outline-none"
             />
             <button
               className="px-4 py-2 rounded-r-md border border-[#BD2D01] text-white font-semibold"
               style={{ background: 'linear-gradient(to bottom, #F67F00, #CF4602)' }}
+              disabled
             >
               Search
             </button>
@@ -124,7 +141,7 @@ const BusManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {buses.map((bus, index) => (
+                {filteredBuses.map((bus, index) => (
                   <tr
                     key={index}
                     className="bg-orange-100 border-t border-[#BD2D01] hover:bg-orange-200 transition"
@@ -170,20 +187,20 @@ const BusManagement = () => {
           />
         )}
         {deletingBus && (
-        <DeleteBusModal
-          bus={deletingBus}
-          onClose={() => setDeletingBus(null)}
-          onConfirm={(deletedBus) => {
-            setBuses(prev =>
-              prev.filter(b =>
+          <DeleteBusModal
+            bus={deletingBus}
+            onClose={() => setDeletingBus(null)}
+            onConfirm={(deletedBus) => {
+              const updated = buses.filter(b =>
                 b.numberPlate !== deletedBus.numberPlate &&
                 b.vehicleNo !== deletedBus.numberPlate
-              )
-            );
-            setDeletingBus(null);
-          }}
-        />
-      )}
+              );
+              setBuses(updated);
+              setFilteredBuses(updated);
+              setDeletingBus(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );

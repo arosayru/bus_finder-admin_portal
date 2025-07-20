@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import {
-  FaBell,
-  FaBus,
-  FaExclamationTriangle,
-  FaCommentDots,
-  FaArrowLeft,
-  FaTimes,
-  FaTrash
+  FaBell, FaBus, FaExclamationTriangle, FaCommentDots, FaArrowLeft, FaTimes, FaTrash
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,21 +14,51 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
 
-  // Load from localStorage on mount
-  useEffect(() => {
+  // ✅ Load notifications from localStorage
+  const loadNotifications = () => {
     const saved = localStorage.getItem('notifications');
     if (saved) {
       try {
-        setNotifications(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setNotifications(parsed);
       } catch (err) {
-        console.error('Failed to parse notifications from localStorage:', err);
+        console.error('Failed to parse localStorage notifications:', err);
       }
     }
+  };
+
+  // ✅ On mount & when page becomes active
+  useEffect(() => {
+    loadNotifications();
+    sessionStorage.setItem('lastViewedNotificationTime', new Date().toISOString());
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadNotifications();
+        sessionStorage.setItem('lastViewedNotificationTime', new Date().toISOString());
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
-  // Subscribe to global notifications
+  // ✅ Listen to storage changes
   useEffect(() => {
-    const handleNewNotification = (notification) => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'notifications') {
+        loadNotifications();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // ✅ Handle new notifications from SignalR
+  useEffect(() => {
+    const handleNew = (notification) => {
       setNotifications((prev) => {
         const updated = [notification, ...prev];
         localStorage.setItem('notifications', JSON.stringify(updated));
@@ -42,16 +66,14 @@ const Notifications = () => {
       });
     };
 
-    subscribeToNotifications(handleNewNotification);
-    return () => unsubscribeFromNotifications(handleNewNotification);
+    subscribeToNotifications(handleNew);
+    return () => unsubscribeFromNotifications(handleNew);
   }, []);
 
   const handleRemove = (id) => {
-    setNotifications(prev => {
-      const updated = prev.filter(n => n.id !== id);
-      localStorage.setItem('notifications', JSON.stringify(updated));
-      return updated;
-    });
+    const updated = notifications.filter((n) => n.id !== id);
+    setNotifications(updated);
+    localStorage.setItem('notifications', JSON.stringify(updated));
   };
 
   const handleClearAll = () => {
@@ -62,14 +84,10 @@ const Notifications = () => {
   const getIcon = (type) => {
     switch (type) {
       case 'starts':
-      case 'ends':
-        return <FaBus className="text-2xl mr-2" />;
-      case 'emergency':
-        return <FaExclamationTriangle className="text-2xl mr-2" />;
-      case 'feedback':
-        return <FaCommentDots className="text-2xl mr-2" />;
-      default:
-        return null;
+      case 'ends': return <FaBus className="text-2xl mr-2" />;
+      case 'emergency': return <FaExclamationTriangle className="text-2xl mr-2" />;
+      case 'feedback': return <FaCommentDots className="text-2xl mr-2" />;
+      default: return null;
     }
   };
 
@@ -104,7 +122,6 @@ const Notifications = () => {
             <FaBell className="text-[#D44B00] text-2xl mr-4" />
           </div>
 
-          {/* Filter Section */}
           <div className="flex justify-center mt-4 flex-wrap gap-3">
             {filterButtons.map((btn) => (
               <button
@@ -121,7 +138,6 @@ const Notifications = () => {
             ))}
           </div>
 
-          {/* Clear All Button */}
           {notifications.length > 0 && (
             <div className="flex justify-center mt-2">
               <button

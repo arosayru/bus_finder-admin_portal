@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import EmailVerification from './pages/EmailVerification';
@@ -16,7 +17,13 @@ import ReplyFeedback from './pages/ReplyFeedback';
 import Settings from './pages/Setting';
 import Notifications from './pages/Notifications';
 
+import { initNotificationHub } from './services/notificationService';
+
 function App() {
+  useEffect(() => {
+    initNotificationHub();
+  }, []);
+
   return (
     <Router>
       <Routes>
@@ -26,12 +33,12 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/passenger-details" element={<UserManagement />} />
-        <Route path="/staff-management" element={<StaffManagement/>} />
-        <Route path="/admin-management" element={<AdminManagement/>} />
-        <Route path="/bus-management" element={<BusManagement/>} />
-        <Route path="/route-management" element={<RouteManagement/>} />
-        <Route path="/shift-management" element={<ShiftManagement/>} />
-        <Route path="/review-feedback" element={<ReviewFeedback/>} />
+        <Route path="/staff-management" element={<StaffManagement />} />
+        <Route path="/admin-management" element={<AdminManagement />} />
+        <Route path="/bus-management" element={<BusManagement />} />
+        <Route path="/route-management" element={<RouteManagement />} />
+        <Route path="/shift-management" element={<ShiftManagement />} />
+        <Route path="/review-feedback" element={<ReviewFeedback />} />
         <Route path="/reply-feedback" element={<ReplyFeedback />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/settings" element={<Settings />} />

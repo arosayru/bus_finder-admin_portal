@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import {
   FaBell,
@@ -10,16 +10,17 @@ import {
   FaTrash
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import * as signalR from '@microsoft/signalr';
+import {
+  subscribeToNotifications,
+  unsubscribeFromNotifications
+} from '../services/notificationService';
 
 const Notifications = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
-  const connectionRef = useRef(null);
-  const isMounted = useRef(true);
-  const isStarting = useRef(false);
 
+  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('notifications');
     if (saved) {
@@ -31,151 +32,18 @@ const Notifications = () => {
     }
   }, []);
 
+  // Subscribe to global notifications
   useEffect(() => {
-    isMounted.current = true;
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://bus-finder-sl-a7c6a549fbb1.herokuapp.com/notificationhub', {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
-      })
-      .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
-
-    connectionRef.current = connection;
-
-    const now = () => {
-      const n = new Date();
-      return {
-        date: n.toLocaleDateString('en-GB'),
-        time: n.toLocaleTimeString('en-US'),
-      };
-    };
-
-    const addNotification = (n) => {
-      setNotifications(prev => {
-        const updated = [n, ...prev];
+    const handleNewNotification = (notification) => {
+      setNotifications((prev) => {
+        const updated = [notification, ...prev];
         localStorage.setItem('notifications', JSON.stringify(updated));
         return updated;
       });
     };
 
-    const setupHandlers = () => {
-      connection.on('BusSOS', (message) => {
-        const { date, time } = now();
-        addNotification({
-          id: Date.now(),
-          type: 'emergency',
-          route: 'SOS Alert',
-          message,
-          date,
-          time
-        });
-      });
-
-      connection.on('FeedbackReceived', (message) => {
-        const feedbackText = typeof message === 'string'
-          ? message.split(':')[1]?.trim() || message
-          : 'Feedback received';
-        const { date, time } = now();
-        addNotification({
-          id: Date.now(),
-          type: 'feedback',
-          subject: feedbackText,
-          date,
-          time
-        });
-      });
-
-      connection.on('ShiftStarted', (message) => {
-        const { date, time } = now();
-        addNotification({
-          id: Date.now(),
-          type: 'starts',
-          route: 'Shift Started',
-          message,
-          date,
-          time
-        });
-      });
-
-      connection.on('ShiftInterval', (message) => {
-        const { date, time } = now();
-        addNotification({
-          id: Date.now(),
-          type: 'starts',
-          route: 'Shift Interval',
-          message,
-          date,
-          time
-        });
-      });
-
-      connection.on('ShiftEnded', (message) => {
-        const { date, time } = now();
-        addNotification({
-          id: Date.now(),
-          type: 'ends',
-          route: 'Shift Ended',
-          message,
-          date,
-          time
-        });
-      });
-    };
-
-    const startSignalR = async () => {
-      isStarting.current = true;
-      try {
-        await connection.start();
-        console.log('✅ SignalR connected');
-        if (!isMounted.current) return;
-        setupHandlers();
-      } catch (err) {
-        if (err?.name === 'AbortError' || err?.message?.includes('negotiation')) {
-          console.warn('⚠️ SignalR negotiation aborted. Retrying in 5s...');
-        } else {
-          console.error('❌ SignalR connection error:', err);
-        }
-        if (isMounted.current) {
-          setTimeout(() => startSignalR(), 5000);
-        }
-      } finally {
-        isStarting.current = false;
-      }
-    };
-
-    startSignalR();
-
-    return () => {
-      isMounted.current = false;
-
-      const safeStop = async () => {
-        if (isStarting.current) {
-          const wait = () =>
-            new Promise(resolve => {
-              const interval = setInterval(() => {
-                if (!isStarting.current) {
-                  clearInterval(interval);
-                  resolve();
-                }
-              }, 100);
-            });
-          await wait();
-        }
-
-        if (connection && connection.state !== 'Disconnected') {
-          try {
-            await connection.stop();
-            console.log('🛑 SignalR connection stopped cleanly.');
-          } catch (e) {
-            console.warn('⚠️ SignalR stop error:', e);
-          }
-        }
-      };
-
-      safeStop();
-    };
+    subscribeToNotifications(handleNewNotification);
+    return () => unsubscribeFromNotifications(handleNewNotification);
   }, []);
 
   const handleRemove = (id) => {
@@ -236,7 +104,7 @@ const Notifications = () => {
             <FaBell className="text-[#D44B00] text-2xl mr-4" />
           </div>
 
-          {/* Filter Section - centered */}
+          {/* Filter Section */}
           <div className="flex justify-center mt-4 flex-wrap gap-3">
             {filterButtons.map((btn) => (
               <button
@@ -253,7 +121,7 @@ const Notifications = () => {
             ))}
           </div>
 
-          {/* Clear All Button - centered below filters */}
+          {/* Clear All Button */}
           {notifications.length > 0 && (
             <div className="flex justify-center mt-2">
               <button

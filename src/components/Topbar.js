@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  subscribeToNotifications,
+  unsubscribeFromNotifications
+} from '../services/notificationService';
 
 const Topbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
-  // Detect changes in localStorage notifications
+  // Check localStorage notifications on mount
   useEffect(() => {
     const checkNotifications = () => {
       const saved = localStorage.getItem('notifications');
@@ -31,16 +35,27 @@ const Topbar = () => {
 
     checkNotifications();
 
-    const listener = () => {
-      checkNotifications();
+    // Subscribe to real-time SignalR notifications
+    const handleRealtime = (notification) => {
+      const lastViewed = sessionStorage.getItem('lastViewedNotificationTime');
+      if (
+        !lastViewed ||
+        new Date(notification.id) > new Date(lastViewed)
+      ) {
+        setHasNewNotification(true);
+      }
     };
 
-    window.addEventListener('storage', listener);
+    subscribeToNotifications(handleRealtime);
+    window.addEventListener('storage', checkNotifications);
 
-    return () => window.removeEventListener('storage', listener);
+    return () => {
+      window.removeEventListener('storage', checkNotifications);
+      unsubscribeFromNotifications(handleRealtime);
+    };
   }, []);
 
-  // Reset indicator when navigating to notifications
+  // On click, clear indicator and update sessionStorage
   const handleNotificationClick = () => {
     sessionStorage.setItem('lastViewedNotificationTime', new Date().toISOString());
     setHasNewNotification(false);

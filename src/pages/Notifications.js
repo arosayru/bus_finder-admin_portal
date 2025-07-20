@@ -6,7 +6,8 @@ import {
   FaExclamationTriangle,
   FaCommentDots,
   FaArrowLeft,
-  FaTimes
+  FaTimes,
+  FaTrash
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import * as signalR from '@microsoft/signalr';
@@ -14,6 +15,7 @@ import * as signalR from '@microsoft/signalr';
 const Notifications = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
+  const [filter, setFilter] = useState('all');
   const connectionRef = useRef(null);
   const isMounted = useRef(true);
   const isStarting = useRef(false);
@@ -150,7 +152,6 @@ const Notifications = () => {
 
       const safeStop = async () => {
         if (isStarting.current) {
-          console.log('⏳ Waiting for SignalR start to finish before stopping...');
           const wait = () =>
             new Promise(resolve => {
               const interval = setInterval(() => {
@@ -185,6 +186,11 @@ const Notifications = () => {
     });
   };
 
+  const handleClearAll = () => {
+    setNotifications([]);
+    localStorage.removeItem('notifications');
+  };
+
   const getIcon = (type) => {
     switch (type) {
       case 'starts':
@@ -198,6 +204,21 @@ const Notifications = () => {
         return null;
     }
   };
+
+  const filteredNotifications = notifications.filter((n) => {
+    if (filter === 'all') return true;
+    if (filter === 'emergency') return n.type === 'emergency';
+    if (filter === 'shift') return n.type === 'starts' || n.type === 'ends';
+    if (filter === 'feedback') return n.type === 'feedback';
+    return true;
+  });
+
+  const filterButtons = [
+    { label: 'All', value: 'all' },
+    { label: 'Emergency Alerts', value: 'emergency' },
+    { label: 'Shift Alerts', value: 'shift' },
+    { label: 'Feedbacks', value: 'feedback' },
+  ];
 
   return (
     <div className="flex">
@@ -214,10 +235,40 @@ const Notifications = () => {
             </div>
             <FaBell className="text-[#D44B00] text-2xl mr-4" />
           </div>
+
+          {/* Filter Section - centered */}
+          <div className="flex justify-center mt-4 flex-wrap gap-3">
+            {filterButtons.map((btn) => (
+              <button
+                key={btn.value}
+                onClick={() => setFilter(btn.value)}
+                className={`px-4 py-1.5 border-2 rounded-full font-semibold text-sm ${
+                  filter === btn.value
+                    ? 'bg-gradient-to-r from-[#D44B00] to-[#BD2D01] text-white'
+                    : 'border-[#D44B00] text-[#D44B00]'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Clear All Button - centered below filters */}
+          {notifications.length > 0 && (
+            <div className="flex justify-center mt-2">
+              <button
+                onClick={handleClearAll}
+                className="ml-auto flex items-center text-xs px-3 py-1 border border-[#D44B00] text-[#D44B00] rounded hover:text-white hover:bg-[#D44B00]"
+              >
+                <FaTrash className="mr-1" />
+                Clear all
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="mt-6 space-y-4">
-          {notifications.map((note) => (
+        <div className="mt-6 mb-4 space-y-4">
+          {filteredNotifications.map((note) => (
             <div
               key={note.id}
               className="bg-orange-300 p-4 rounded-md shadow flex justify-between items-start relative"

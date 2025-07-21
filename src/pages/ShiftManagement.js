@@ -41,14 +41,23 @@ const ShiftManagement = () => {
         };
       });
 
-      setShifts(enriched);
-      setFilteredShifts(enriched);
+      // Sort shifts based on upcoming normalDate + normalDepartureTime
+      const getSortKey = (shift) => {
+        const dateStr = shift.normalDate || '';
+        const timeStr = shift.normalDepartureTime || '';
+        const dateTime = new Date(`${dateStr}T${timeStr}`);
+        return isNaN(dateTime.getTime()) ? Infinity : dateTime.getTime();
+      };
+
+      const sorted = enriched.sort((a, b) => getSortKey(a) - getSortKey(b));
+
+      setShifts(sorted);
+      setFilteredShifts(sorted);
     } catch (err) {
       console.error('Failed to fetch shifts:', err);
     }
   };
 
-  // Live filter on search query
   useEffect(() => {
     const query = searchQuery.toLowerCase();
     const filtered = shifts.filter(shift =>

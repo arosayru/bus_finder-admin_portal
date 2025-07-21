@@ -89,7 +89,7 @@ const Sidebar = () => {
         }}
         onClick={() => {
           localStorage.clear();
-          navigate('/');
+          navigate('/', { replace: true }); // Prevent back button access
         }}
       >
         <FaSignOutAlt /> Log out
